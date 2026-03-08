@@ -7,13 +7,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Los Bananos">
-<meta name="theme-color" content="#2d5a1b">
-<title>Los Bananos — Gestión</title>
+<meta name="apple-mobile-web-app-title" content="Mi Cabaña · Gestión">
+<meta name="theme-color" content="#1a4a3a">
+<title>Mi Cabaña · Gestión — Gestión</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --green-dark:#2d5a1b;--green2:#3d7a25;--gold:#c9a84c;--gold-light:#e8c97a;
+  --green-dark:#1a4a3a;--green2:#2a6a50;--gold:#c9a84c;--gold-light:#e8c97a;
   --cream:#f5f2e8;--cream2:#ede8d9;--white:#ffffff;
   --text:#1a2e1a;--text-soft:#5a6a50;
   --red:#c0392b;--green:#1e7e5a;--green-bg:#e8f5ef;--red-bg:#fdf0ee;
@@ -204,8 +204,8 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
 
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">🌿 Los Bananos</div>
-    <div class="login-sub">Cabañas · Iguazú · Argentina</div>
+    <div class="login-logo">Mi Cabaña · Gestión</div>
+    <div class="login-sub">Sistema de Gestión · Demo</div>
     <div class="pin-label">Ingresá tu PIN</div>
     <div class="pin-dots">
       <div class="pin-dot" id="dot-0"></div><div class="pin-dot" id="dot-1"></div>
@@ -218,23 +218,23 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
       <button class="pin-btn clear" onclick="pinClear()">✕</button><button class="pin-btn" onclick="pinPress('0')">0</button><button class="pin-btn enter" onclick="pinEnter()">✓</button>
     </div>
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">PINs por defecto:<br>Admin: <b>1234</b> · Gabi: <b>2345</b></div>
+    <div class="login-hint">PINs por defecto:<br>Admin: <b>1234</b> · Usuario: <b>2345</b></div>
   </div>
 </div>
 
 <div id="app">
   <nav class="sidebar">
-    <div class="sidebar-logo"><h1>🌿 Los Bananos</h1><p>Cabañas · Iguazú</p></div>
+    <div class="sidebar-logo"><h1>Mi Cabaña · Gestión</h1><p>Sistema de Gestión</p></div>
     <div class="user-badge">
       <div><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
       <button class="logout-btn" onclick="logout()">⏻</button>
     </div>
     <div class="nav-section" id="nav-menu"></div>
-    <div class="sidebar-footer">v1.0 · Los Bananos Iguazú</div>
+    <div class="sidebar-footer">v1.0 · Mi Cabaña · Gestión Iguazú</div>
   </nav>
 
   <div class="mobile-header" id="mobile-header">
-    <div class="mobile-header-title">🌿 Los Bananos</div>
+    <div class="mobile-header-title">Mi Cabaña · Gestión</div>
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="mobile-user" id="mobile-user">—</div>
       <button class="logout-btn" onclick="logout()">⏻</button>
@@ -290,16 +290,14 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
                 <option value="Booking">Booking</option>
               </select>
             </div>
-            <div class="form-group"><label>Pasajeros</label><input type="number" id="r-pax" value="2" min="1" max="20" oninput="calcNights()"></div>
-            <div class="form-group"><label>Plus por pax adicional ($/noche)</label><input type="number" id="r-plus" value="0" min="0" oninput="calcNights()"></div>
             <div class="form-group full"><label>Notas</label><textarea id="r-notas" placeholder="Llegada tardía, mascotas, etc."></textarea></div>
           </div>
           <div class="calc-preview">
             <div class="calc-item"><div class="calc-label">Noches</div><div class="calc-value" id="cp-noches">—</div></div>
-            <div class="calc-item"><div class="calc-label">Base (2 pax)</div><div class="calc-value" id="cp-subtotal">—</div></div>
-            <div class="calc-item"><div class="calc-label">Plus pax extra</div><div class="calc-value" id="cp-plusval">—</div></div>
-            <div class="calc-item"><div class="calc-label">Subtotal</div><div class="calc-value" id="cp-neto">—</div></div>
+            <div class="calc-item"><div class="calc-label">Subtotal</div><div class="calc-value" id="cp-subtotal">—</div></div>
             <div class="calc-item"><div class="calc-label">Com. Plataforma</div><div class="calc-value" id="cp-airbnb">—</div></div>
+            <div class="calc-item"><div class="calc-label">Neto</div><div class="calc-value" id="cp-neto">—</div></div>
+            <div class="calc-item"><div class="calc-label">Noches</div><div class="calc-value" id="cp-noches2">—</div></div>
             <div class="calc-item"><div class="calc-label" style="color:#6ee7b7">Líquido</div><div class="calc-value" id="cp-liquido" style="color:#6ee7b7">—</div></div>
           </div>
           <div class="btn-row">
@@ -327,7 +325,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
         </div>
         <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap"><table>
-            <thead><tr><th>#</th><th>Cabaña</th><th>Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Pax</th><th>$/N</th><th>Subtotal</th><th>Plus</th><th>Com.</th><th>Líquido</th><th>Estado</th><th>Plat.</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>Cabaña</th><th>Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>$/N</th><th>Subtotal</th><th>Com.</th><th>Líquido</th><th>Estado</th><th>Plat.</th><th></th></tr></thead>
             <tbody id="tabla-reservas"></tbody>
           </table></div>
         </div>
@@ -460,8 +458,6 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
       <div class="form-group"><label>Check-in</label><input type="date" id="e-checkin"></div>
       <div class="form-group"><label>Check-out</label><input type="date" id="e-checkout"></div>
       <div class="form-group"><label>$ / Noche</label><input type="number" id="e-precio"></div>
-      <div class="form-group"><label>Pasajeros</label><input type="number" id="e-pax" value="2" min="1" max="20"></div>
-      <div class="form-group"><label>Plus pax adicional ($/noche)</label><input type="number" id="e-plus" value="0" min="0"></div>
       <div class="form-group"><label>Plataforma</label>
         <select id="e-plataforma"><option value="Directo">Directo</option><option value="Airbnb">Airbnb</option><option value="Booking">Booking</option></select>
       </div>
@@ -478,7 +474,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
 
 <script>
 const DEFAULT_PINS={admin:'1234',gabi:'2345'};
-const USER_META={admin:{name:'Administrador',role:'Admin · Acceso total'},gabi:{name:'Gabi',role:'Acceso total'}};
+const USER_META={admin:{name:'Administrador',role:'Admin · Acceso total'},gabi:{name:'Usuario',role:'Acceso total'}};
 const NAV_CONFIG={admin:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config'],gabi:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config']};
 const NAV_META={
   'dashboard':{icon:'◈',label:'Dashboard',sec:'Principal'},
@@ -495,7 +491,7 @@ const CABANAS=['C1','C2','C3','C4','C5','C6','C7','C8'];
 const DC={C1:'#2d5a1b',C2:'#3d7a25',C3:'#c55a11',C4:'#7030a0',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276'};
 const DN={C1:'Cabaña 1',C2:'Cabaña 2',C3:'Cabaña 3',C4:'Cabaña 4',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8'};
 
-// JSONBin — tu hermano necesita crear sus propios bins
+// JSONBin — el cliente debe configurar sus propios bins
 const BIN_R='69a99501ae596e708f62460c';
 const BIN_G='69a994eb43b1c97be9b67ac0';
 const JKEY='$2a$10$PDORfAHzOpsMgSJC0Ka9eO.lfBYtUfz8I91vNnUK7mQf9qxKKrC22';
@@ -504,23 +500,16 @@ const JURL='https://api.jsonbin.io/v3/b/';
 const lo=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d;}catch{return d;}};
 const sl=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const sd=(k,v)=>sl(k,v);
-let reservas=[],gastos=[],pins=lo('bn_p',{...DEFAULT_PINS}),cu=null,pb='';
+let reservas=[],gastos=[],pins=lo('mc_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 async function loadFromBins(){
-  if(BIN_R==='PENDIENTE_R'){reservas=lo('bn_r',[]);gastos=lo('bn_g',[]);return;}
-  try{
-    const [rRes,gRes]=await Promise.all([
-      fetch(JURL+BIN_R+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'}}),
-      fetch(JURL+BIN_G+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'}})
-    ]);
-    const rData=await rRes.json();const gData=await gRes.json();
-    reservas=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);
-    gastos=Array.isArray(gData.data)?gData.data:(Array.isArray(gData)?gData:[]);
-  }catch(err){reservas=lo('bn_r',[]);gastos=lo('bn_g',[]);}
+  // Demo: usa solo storage local, sin JSONBin
+  reservas=lo('mc_r',[]);
+  gastos=lo('mc_g',[]);
 }
 async function saveToBin(binId,data){
   const key=binId===BIN_R?'r':'g';
-  sl('bn_'+key,data);
+  sl('mc_'+key,data);
   if(BIN_R==='PENDIENTE_R')return;
   try{await fetch(JURL+binId,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JKEY},body:JSON.stringify({data:data})});}catch(e){}
 }
@@ -530,7 +519,7 @@ const ud=()=>{for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.to
 function pinPress(n){if(pb.length>=4)return;pb+=n;ud();if(pb.length===4)setTimeout(pinEnter,200);}
 function pinClear(){pb=pb.slice(0,-1);ud();}
 function pinEnter(){
-  pins=lo('bn_p',{...DEFAULT_PINS});
+  pins=lo('mc_p',{...DEFAULT_PINS});
   const m=Object.entries(pins).find(([,p])=>p===pb);
   if(m){cu=m[0];document.getElementById('login-error').textContent='';loginOk();}
   else{document.getElementById('login-error').textContent='PIN incorrecto';pb='';ud();setTimeout(()=>document.getElementById('login-error').textContent='',2000);}
@@ -549,6 +538,7 @@ async function loginOk(){
   ol.innerHTML='<div style="background:white;border-radius:12px;padding:32px 40px;text-align:center;"><div style="font-family:DM Serif Display,serif;font-size:1.1rem;color:#2d5a1b;margin-bottom:8px;">Cargando datos...</div><div style="font-size:0.8rem;color:#5a6a50">Sincronizando con la nube</div></div>';
   document.body.appendChild(ol);
   await loadFromBins();
+  await preloadDemoData();
   ol.remove();buildBottomNav();showScreen(NAV_CONFIG[cu][0]);
 }
 function logout(){cu=null;pb='';document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';ud();}
@@ -596,16 +586,13 @@ function csvDown(rows,fn){const a=document.createElement('a');a.href='data:text/
 function calcNights(){
   const ci=document.getElementById('r-checkin').value,co=document.getElementById('r-checkout').value;
   const p=parseFloat(document.getElementById('r-precio').value)||0,pl=document.getElementById('r-plataforma').value;
-  const pax=parseInt(document.getElementById('r-pax').value)||2;
-  const plus=parseFloat(document.getElementById('r-plus').value)||0;
   if(!ci||!co||!p)return;
-  const extraPax=Math.max(0,pax-2);
-  const c=calc({checkin:ci,checkout:co,precio:p,plataforma:pl,pax,plus});
+  const c=calc({checkin:ci,checkout:co,precio:p,plataforma:pl});
   document.getElementById('cp-noches').textContent=c.n;
   document.getElementById('cp-subtotal').textContent=fmtP(c.sub);
-  document.getElementById('cp-plusval').textContent=extraPax>0?fmtP(c.plusTotal):'—';
   document.getElementById('cp-airbnb').textContent=fmtP(c.com);
-  document.getElementById('cp-neto').textContent=fmtP(c.subTotal);
+  document.getElementById('cp-neto').textContent=fmtP(c.liq);
+  document.getElementById('cp-noches2').textContent=c.n+' noches';
   document.getElementById('cp-liquido').textContent=fmtP(c.liq);
 }
 function guardarReserva(){
@@ -616,10 +603,10 @@ function guardarReserva(){
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
   const conf=reservas.find(r=>r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
   if(conf){toast('Superposición con '+conf.huesped+' en '+DN[dep],false);return;}
-  const pax=parseInt(document.getElementById('r-pax').value)||2;const plus=parseFloat(document.getElementById('r-plus').value)||0;reservas.push({id:uid(),depto:dep,huesped:hue,nac:document.getElementById('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax,plus,plataforma:document.getElementById('r-plataforma').value,estado:document.getElementById('r-estado').value,notas:document.getElementById('r-notas').value.trim(),creado:new Date().toISOString()});
+  reservas.push({id:uid(),depto:dep,huesped:hue,nac:document.getElementById('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:document.getElementById('r-plataforma').value,estado:document.getElementById('r-estado').value,notas:document.getElementById('r-notas').value.trim(),creado:new Date().toISOString()});
   saveToSheets('reservas',reservas);clearReservaForm();toast('Reserva guardada ✓');
 }
-function clearReservaForm(){['r-depto','r-huesped','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const px=document.getElementById('r-pax');if(px)px.value=2;const pl=document.getElementById('r-plus');if(pl)pl.value=0;['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-plusval','cp-liquido'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});}
+function clearReservaForm(){['r-depto','r-huesped','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-noches2','cp-liquido'].forEach(id=>document.getElementById(id).textContent='—');}
 
 function renderReservas(){
   const fd=document.getElementById('fil-depto').value,fe=document.getElementById('fil-estado').value;
@@ -630,8 +617,7 @@ function renderReservas(){
     return`<tr><td style="font-weight:600;color:var(--text-soft)">${i+1}</td>
     <td><span style="background:${DC[r.depto]};color:white;padding:3px 8px;border-radius:5px;font-size:0.72rem;font-weight:700">${DN[r.depto]}</span></td>
     <td style="font-weight:500">${r.huesped}</td><td>${fmtD(r.checkin)}</td><td>${fmtD(r.checkout)}</td>
-    <td style="text-align:center;font-weight:600">${c.n}</td><td style="text-align:center">${r.pax||2}</td><td>${fmtP(r.precio)}</td><td>${fmtP(c.sub)}</td>
-    <td style="color:#8a6d00">${c.plusTotal>0?fmtP(c.plusTotal):'—'}</td>
+    <td style="text-align:center;font-weight:600">${c.n}</td><td>${fmtP(r.precio)}</td><td>${fmtP(c.sub)}</td>
     <td style="color:var(--red)">${fmtP(c.com)}</td><td style="font-weight:700;color:var(--green)">${fmtP(c.liq)}</td>
     <td><span class="badge ${b}">${r.estado}</span></td><td style="font-size:0.78rem">${r.plataforma}</td>
     <td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editRes('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delRes('${r.id}')">✕</button></div></td></tr>`;
@@ -641,7 +627,7 @@ function delRes(id){if(!confirm('¿Eliminar reserva?'))return;reservas=reservas.
 function exportReservas(){
   const h=['Cabaña','Huésped','Nac','Check-in','Check-out','Noches','$/Noche','Subtotal','Com.','Líquido','Estado','Plataforma'];
   const rows=reservas.map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,r.nac,r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma].join(',');});
-  csvDown([h.join(','),...rows],'reservas_bananos.csv');
+  csvDown([h.join(','),...rows],'reservas_demo.csv');
 }
 
 function renderCalendario(){
@@ -692,7 +678,7 @@ function delGas(id){if(!confirm('¿Eliminar?'))return;gastos=gastos.filter(g=>g.
 function exportGastos(){
   const h=['Fecha','Cabaña','Categoría','Descripción','Monto $','Comprobante'];
   const rows=gastos.map(g=>[g.fecha,g.depto==='General'?'General':(DN[g.depto]||g.depto),g.categoria,g.descripcion,g.monto,g.comprobante].join(','));
-  csvDown([h.join(','),...rows],'gastos_bananos.csv');
+  csvDown([h.join(','),...rows],'gastos_demo.csv');
 }
 
 function renderRendimiento(){
@@ -726,7 +712,7 @@ function exportRendimiento(){
   const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
   const h=['Cabaña','Reservas','Noches','Subtotal','Com.','Líquido','Ticket Prom.'];
   const rows=CABANAS.map(code=>{const dr=fil.filter(r=>r.depto===code);let s=0,com=0,l=0,no=0;dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});return[DN[code],dr.length,no,s,com,l,dr.length?(s/dr.length).toFixed(0):'0'].join(',');});
-  csvDown([h.join(','),...rows],'rendimiento_bananos.csv');
+  csvDown([h.join(','),...rows],'rendimiento_demo.csv');
 }
 
 function renderAvisos(){
@@ -785,15 +771,15 @@ function renderDashboard(){
 }
 
 function renderConfig(){
-  pins=lo('bn_p',{...DEFAULT_PINS});
-  const us=[{k:'admin',n:'Admin (tu hermano)',d:'Acceso total'},{k:'gabi',n:'Gabi',d:'Acceso total'}];
+  pins=lo('mc_p',{...DEFAULT_PINS});
+  const us=[{k:'admin',n:'Admin',d:'Acceso total'},{k:'gabi',n:'Usuario',d:'Acceso total'}];
   document.getElementById('pin-settings-grid').innerHTML=us.map(u=>`<div class="pin-user-card"><h4>${u.n}</h4><p>${u.d}</p><div class="pin-input-row"><input type="password" id="pi-${u.k}" value="${pins[u.k]||''}" maxlength="4" placeholder="••••"><button class="btn btn-outline btn-sm" onclick="tp('${u.k}')">👁</button></div></div>`).join('');
-  const wa=lo('bn_wa',{admin:''});
+  const wa=lo('mc_wa',{admin:''});
   document.getElementById('wa-config-section').innerHTML=`
     <div style="margin-top:28px;border-top:2px solid var(--cream2);padding-top:24px;">
       <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--green-dark);margin-bottom:6px;">📱 WhatsApp para Avisos</div>
       <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px;">Número con código de país, sin espacios. Ej: 5493757123456</div>
-      <div class="pin-user-card"><h4>Tu hermano</h4><p>Recibe avisos de check-in</p><input type="tel" id="wa-admin" value="${wa.admin}" placeholder="5493757123456"></div>
+      <div class="pin-user-card"><h4>Propietario</h4><p>Recibe avisos de check-in</p><input type="tel" id="wa-admin" value="${wa.admin}" placeholder="5493757123456"></div>
     </div>`;
 }
 function tp(k){const i=document.getElementById('pi-'+k);i.type=i.type==='password'?'text':'password';}
@@ -801,8 +787,8 @@ function guardarConfig(){
   const ks=['admin','gabi'],np={};
   for(const k of ks){const v=document.getElementById('pi-'+k).value.trim();if(!/^\d{4}$/.test(v)){toast('Cada PIN debe tener 4 dígitos',false);return;}np[k]=v;}
   const vals=Object.values(np);if(new Set(vals).size!==vals.length){toast('Los PINs deben ser distintos',false);return;}
-  sd('bn_p',np);pins=np;
-  sd('bn_wa',{admin:document.getElementById('wa-admin').value.trim()});
+  sd('mc_p',np);pins=np;
+  sd('mc_wa',{admin:document.getElementById('wa-admin').value.trim()});
   toast('Configuración guardada ✓');
 }
 
@@ -810,7 +796,7 @@ function waMsg(rid){
   const r=reservas.find(x=>x.id===rid);if(!r){toast('Reserva no encontrada',false);return;}
   const c=calc(r),diff=Math.round((new Date(r.checkin)-new Date())/86400000);
   const cuando=diff<=0?'HOY':diff===1?'mañana':'en '+diff+' días';
-  const msg='🌿 *AVISO CHECK-IN — Los Bananos*\n\n'
+  const msg='🌿 *AVISO CHECK-IN — Mi Cabaña · Gestión*\n\n'
     +'📍 *Cabaña:* '+DN[r.depto]+'\n'
     +'👤 *Huésped:* '+r.huesped+(r.nac?' ('+r.nac+')':'')+'\n'
     +'📅 *Check-in:* '+fmtD(r.checkin)+' ('+cuando+')\n'
@@ -819,9 +805,42 @@ function waMsg(rid){
     +'🏨 *Plataforma:* '+r.plataforma+'\n'
     +(r.notas?'📝 *Notas:* '+r.notas+'\n':'')
     +'\n✅ Confirmar recepción.';
-  const wa=lo('bn_wa',{admin:''});
+  const wa=lo('mc_wa',{admin:''});
   if(!wa.admin){toast('Configurá el número en Config.',false);return;}
   window.open('https://wa.me/'+wa.admin.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+
+async function preloadDemoData(){
+  // Only preload if bins are empty
+  if(reservas.length > 0) return;
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  const pad = n => String(n).padStart(2,'0');
+  const dt = (y,mo,d) => `${y}-${pad(mo+1)}-${pad(d)}`;
+  
+  reservas = [
+    {id:'demo1',depto:'C1',huesped:'García, María',nac:'Argentina',checkin:dt(y,m,3),checkout:dt(y,m,7),precio:45000,plataforma:'Airbnb',estado:'Confirmada',notas:'',creado:new Date().toISOString()},
+    {id:'demo2',depto:'C2',huesped:'Silva, João',nac:'Brasil',checkin:dt(y,m,5),checkout:dt(y,m,10),precio:48000,plataforma:'Booking',estado:'Confirmada',notas:'Llegada tardía',creado:new Date().toISOString()},
+    {id:'demo3',depto:'C3',huesped:'Rodríguez, Carlos',nac:'Argentina',checkin:dt(y,m,8),checkout:dt(y,m,12),precio:45000,plataforma:'Directo',estado:'Confirmada',notas:'',creado:new Date().toISOString()},
+    {id:'demo4',depto:'C4',huesped:'Fernández, Ana',nac:'Uruguay',checkin:dt(y,m,10),checkout:dt(y,m,15),precio:50000,plataforma:'Airbnb',estado:'Confirmada',notas:'2 mascotas',creado:new Date().toISOString()},
+    {id:'demo5',depto:'C5',huesped:'Oliveira, Pedro',nac:'Brasil',checkin:dt(y,m,12),checkout:dt(y,m,16),precio:48000,plataforma:'Airbnb',estado:'Confirmada',notas:'',creado:new Date().toISOString()},
+    {id:'demo6',depto:'C1',huesped:'López, Martín',nac:'Argentina',checkin:dt(y,m,18),checkout:dt(y,m,22),precio:45000,plataforma:'Directo',estado:'Confirmada',notas:'',creado:new Date().toISOString()},
+    {id:'demo7',depto:'C2',huesped:'Costa, Fernanda',nac:'Brasil',checkin:dt(y,m,20),checkout:dt(y,m,25),precio:48000,plataforma:'Booking',estado:'Confirmada',notas:'',creado:new Date().toISOString()},
+    {id:'demo8',depto:'C3',huesped:'Méndez, Laura',nac:'Paraguay',checkin:dt(y,m,22),checkout:dt(y,m,26),precio:45000,plataforma:'Directo',estado:'Pendiente',notas:'Confirmar llegada',creado:new Date().toISOString()},
+    {id:'demo9',depto:'C6',huesped:'Ramírez, Diego',nac:'Argentina',checkin:dt(y,m+1,2),checkout:dt(y,m+1,6),precio:52000,plataforma:'Airbnb',estado:'Confirmada',notas:'',creado:new Date().toISOString()},
+    {id:'demo10',depto:'C4',huesped:'Santos, Roberto',nac:'Brasil',checkin:dt(y,m+1,5),checkout:dt(y,m+1,10),precio:50000,plataforma:'Booking',estado:'Confirmada',notas:'',creado:new Date().toISOString()},
+  ];
+  gastos = [
+    {id:'gd1',fecha:dt(y,m,2),depto:'General',categoria:'Limpieza',descripcion:'Servicio limpieza general',monto:25000,comprobante:''},
+    {id:'gd2',fecha:dt(y,m,5),depto:'C1',categoria:'Mantenimiento',descripcion:'Reparación aire acondicionado',monto:18000,comprobante:'FAC-0023'},
+    {id:'gd3',fecha:dt(y,m,8),depto:'General',categoria:'Servicios',descripcion:'Electricidad y agua',monto:35000,comprobante:''},
+    {id:'gd4',fecha:dt(y,m,12),depto:'C3',categoria:'Limpieza',descripcion:'Limpieza profunda',monto:8000,comprobante:''},
+    {id:'gd5',fecha:dt(y,m,15),depto:'General',categoria:'Mantenimiento',descripcion:'Pintura pileta',monto:45000,comprobante:'FAC-0031'},
+  ];
+  saveToSheets('reservas', reservas);
+  saveToSheets('gastos', gastos);
 }
 
 let editingId=null;
@@ -831,7 +850,7 @@ function editRes(id){
   document.getElementById('e-depto').value=r.depto;document.getElementById('e-huesped').value=r.huesped;
   document.getElementById('e-nac').value=r.nac||'';document.getElementById('e-estado').value=r.estado;
   document.getElementById('e-checkin').value=r.checkin;document.getElementById('e-checkout').value=r.checkout;
-  document.getElementById('e-precio').value=r.precio;document.getElementById('e-pax').value=r.pax||2;document.getElementById('e-plus').value=r.plus||0;document.getElementById('e-plataforma').value=r.plataforma;
+  document.getElementById('e-precio').value=r.precio;document.getElementById('e-plataforma').value=r.plataforma;
   document.getElementById('e-notas').value=r.notas||'';
   document.getElementById('edit-modal').style.display='flex';
 }
@@ -842,7 +861,7 @@ function saveEdit(){
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
   const conf=reservas.find(r=>r.id!==editingId&&r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
   if(conf){toast('Superposición con '+conf.huesped,false);return;}
-  reservas=reservas.map(r=>{if(r.id!==editingId)return r;const epax=parseInt(document.getElementById('e-pax').value)||2;const eplus=parseFloat(document.getElementById('e-plus').value)||0;return{...r,depto:dep,huesped:hue,nac:document.getElementById('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax:epax,plus:eplus,plataforma:document.getElementById('e-plataforma').value,estado:document.getElementById('e-estado').value,notas:document.getElementById('e-notas').value.trim()};});
+  reservas=reservas.map(r=>{if(r.id!==editingId)return r;return{...r,depto:dep,huesped:hue,nac:document.getElementById('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:document.getElementById('e-plataforma').value,estado:document.getElementById('e-estado').value,notas:document.getElementById('e-notas').value.trim()};});
   saveToSheets('reservas',reservas);closeEdit();renderReservas();toast('Reserva actualizada ✓');
 }
 </script>
