@@ -217,7 +217,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
       <button class="pin-btn clear" onclick="pinClear()">✕</button><button class="pin-btn" onclick="pinPress('0')">0</button><button class="pin-btn enter" onclick="pinEnter()">✓</button>
     </div>
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">PINs por defecto:<br>Admin: <b>1234</b> · Gabi: <b>2345</b></div>
+    <div class="login-hint">PINs por defecto:<br>Admin: <b>1234</b> · Usuario: <b>2345</b></div>
   </div>
 </div>
 
@@ -473,7 +473,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
 
 <script>
 const DEFAULT_PINS={admin:'1234',gabi:'2345'};
-const USER_META={admin:{name:'Administrador',role:'Admin · Acceso total'},gabi:{name:'Gabi',role:'Acceso total'}};
+const USER_META={admin:{name:'Administrador',role:'Admin · Acceso total'},gabi:{name:'Usuario',role:'Acceso total'}};
 const NAV_CONFIG={admin:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config'],gabi:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config']};
 const NAV_META={
   'dashboard':{icon:'◈',label:'Dashboard',sec:'Principal'},
@@ -490,7 +490,7 @@ const CABANAS=['C1','C2','C3','C4','C5','C6','C7','C8'];
 const DC={C1:'#2d5a1b',C2:'#3d7a25',C3:'#c55a11',C4:'#7030a0',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276'};
 const DN={C1:'Cabaña 1',C2:'Cabaña 2',C3:'Cabaña 3',C4:'Cabaña 4',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8'};
 
-// JSONBin — tu hermano necesita crear sus propios bins
+// JSONBin — el cliente debe configurar sus propios bins
 const BIN_R='69a99501ae596e708f62460c';
 const BIN_G='69a994eb43b1c97be9b67ac0';
 const JKEY='$2a$10$PDORfAHzOpsMgSJC0Ka9eO.lfBYtUfz8I91vNnUK7mQf9qxKKrC22';
@@ -771,14 +771,14 @@ function renderDashboard(){
 
 function renderConfig(){
   pins=lo('mc_p',{...DEFAULT_PINS});
-  const us=[{k:'admin',n:'Admin (tu hermano)',d:'Acceso total'},{k:'gabi',n:'Gabi',d:'Acceso total'}];
+  const us=[{k:'admin',n:'Admin',d:'Acceso total'},{k:'gabi',n:'Usuario',d:'Acceso total'}];
   document.getElementById('pin-settings-grid').innerHTML=us.map(u=>`<div class="pin-user-card"><h4>${u.n}</h4><p>${u.d}</p><div class="pin-input-row"><input type="password" id="pi-${u.k}" value="${pins[u.k]||''}" maxlength="4" placeholder="••••"><button class="btn btn-outline btn-sm" onclick="tp('${u.k}')">👁</button></div></div>`).join('');
   const wa=lo('mc_wa',{admin:''});
   document.getElementById('wa-config-section').innerHTML=`
     <div style="margin-top:28px;border-top:2px solid var(--cream2);padding-top:24px;">
       <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--green-dark);margin-bottom:6px;">📱 WhatsApp para Avisos</div>
       <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px;">Número con código de país, sin espacios. Ej: 5493757123456</div>
-      <div class="pin-user-card"><h4>Tu hermano</h4><p>Recibe avisos de check-in</p><input type="tel" id="wa-admin" value="${wa.admin}" placeholder="5493757123456"></div>
+      <div class="pin-user-card"><h4>Propietario</h4><p>Recibe avisos de check-in</p><input type="tel" id="wa-admin" value="${wa.admin}" placeholder="5493757123456"></div>
     </div>`;
 }
 function tp(k){const i=document.getElementById('pi-'+k);i.type=i.type==='password'?'text':'password';}
