@@ -1009,7 +1009,7 @@ async function sincronizarIcal(){
   let ok=0,err=0;
   for(const code of deptos){
     try{
-      const proxy='https://corsproxy.io/?'+encodeURIComponent(ical[code]);
+      const proxy='https://api.allorigins.win/raw?url='+encodeURIComponent(ical[code]);
       const res=await fetch(proxy);
       const text=await res.text();
       bloqueos[code]=parseIcal(text);
