@@ -130,8 +130,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
 .cal-scroll{overflow-x:auto;}
 .cal-grid{display:grid;gap:2px;font-size:0.72rem;min-width:700px;}
 .cal-header{background:var(--green-dark);color:var(--white);padding:8px 4px;text-align:center;font-weight:700;border-radius:4px;}
-.cal-depto{color:var(--white);padding:8px 10px;font-weight:700;border-radius:4px;display:flex;align-items:center;font-size:0.75rem;position:sticky;left:0;z-index:2;}
-.cal-header-depto{position:sticky;left:0;z-index:3;background:var(--green-dark);}
+.cal-depto{color:var(--white);padding:8px 10px;font-weight:700;border-radius:4px;display:flex;align-items:center;font-size:0.75rem;}
 .cal-cell{background:var(--cream);min-height:34px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:600;text-align:center;padding:2px;}
 .cal-cell.occupied{color:white;}
 .cal-cell.available{background:#e8f5ef;color:#1e7e5a;}
@@ -548,6 +547,12 @@ async function loadFromBins(){
 }
 async function saveToBin(binId,data){
   const key=binId===BIN_R?'r':'g';
+  // Safety: never overwrite with fewer records than what's stored
+  const current=lo('bn_'+key,[]);
+  if(Array.isArray(data)&&Array.isArray(current)&&data.length<current.length){
+    console.warn('saveToBin abortado: datos nuevos ('+data.length+') < actuales ('+current.length+')');
+    return;
+  }
   sl('bn_'+key,data);
   if(BIN_R==='PENDIENTE_R')return;
   try{await fetch(JURL+binId,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JKEY},body:JSON.stringify({data:data})});}catch(e){}
@@ -577,7 +582,6 @@ async function loginOk(){
   ol.innerHTML='<div style="background:white;border-radius:12px;padding:32px 40px;text-align:center;"><div style="font-family:DM Serif Display,serif;font-size:1.1rem;color:#2d5a1b;margin-bottom:8px;">Cargando datos...</div><div style="font-size:0.8rem;color:#5a6a50">Sincronizando con la nube</div></div>';
   document.body.appendChild(ol);
   await loadFromBins();
-  await syncAllIcal(false);
   ol.remove();buildBottomNav();showScreen(NAV_CONFIG[cu][0]);
 }
 function logout(){cu=null;pb='';document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';ud();}
@@ -620,14 +624,7 @@ const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
 function calc(r){const n=nights(r.checkin,r.checkout);const sub=n*r.precio;const com=r.plataforma==='Airbnb'?sub*0.03:0;return{n,sub,com,liq:sub-com};}
 function toast(msg,ok=true){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;document.getElementById('toast-icon').textContent=ok?'✓':'⚠';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
-function csvDown(rows,fn){
-  const content='sep=;\n'+rows.join('\n');
-  const bom='\uFEFF';
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+content);
-  a.download=fn;a.click();
-}
-function csvRow(arr){return arr.map(v=>typeof v==='string'&&(v.includes(';')||v.includes('"'))?'"'+v.replace(/"/g,'""')+'"':v).join(';');}
+function csvDown(rows,fn){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));a.download=fn;a.click();}
 
 function calcNights(){
   const ci=document.getElementById('r-checkin').value,co=document.getElementById('r-checkout').value;
@@ -677,24 +674,23 @@ function renderReservas(){
 }
 function delRes(id){if(!confirm('¿Eliminar reserva?'))return;reservas=reservas.filter(r=>r.id!==id);saveToSheets('reservas',reservas);renderReservas();toast('Reserva eliminada');}
 function exportReservas(){
-  const h=['Cabaña','Huésped','Nac','Check-in','Check-out','Noches','$/Noche','Subtotal','Com.','Líquido','Estado','Plataforma','Seña','Saldo'];
-  const rows=reservas.filter(r=>!r.icalUid).map(r=>{const c=calc(r);return csvRow([DN[r.depto],r.huesped,r.nac||'',r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma,r.sena||0,r.saldo||0]);});
-  csvDown([csvRow(h),...rows],'reservas_bananos.csv');
+  const h=['Cabaña','Huésped','Nac','Check-in','Check-out','Noches','$/Noche','Subtotal','Com.','Líquido','Estado','Plataforma'];
+  const rows=reservas.map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,r.nac,r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma].join(',');});
+  csvDown([h.join(','),...rows],'reservas_bananos.csv');
 }
 
 function renderCalendario(){
   const mes=parseInt(document.getElementById('cal-mes').value),anio=parseInt(document.getElementById('cal-anio').value);
   const dim=new Date(anio,mes+1,0).getDate();
   let h=`<div class="cal-grid" style="grid-template-columns:70px repeat(${dim},1fr)">`;
-  h+=`<div class="cal-header cal-header-depto">Cabaña</div>`;
+  h+=`<div class="cal-header">Cabaña</div>`;
   for(let d=1;d<=dim;d++){const dow=new Date(anio,mes,d).getDay();h+=`<div class="cal-header" style="${dow===0||dow===6?'background:#1a3a0a':''}">${d}</div>`;}
   CABANAS.forEach(code=>{
     h+=`<div class="cal-depto" style="background:${DC[code]}">${DN[code]}</div>`;
     for(let d=1;d<=dim;d++){
       const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);
-      const esBloq=res&&res.icalUid;
-      h+=res?(esBloq?`<div class="cal-cell occupied" style="background:repeating-linear-gradient(45deg,#e67e22,#e67e22 4px,#f39c12 4px,#f39c12 8px)" title="${res.huesped}">Air</div>`:`<div class="cal-cell occupied" style="background:${DC[code]}" title="${res.huesped}">${res.huesped.split(' ')[0].substr(0,4)}</div>`):`<div class="cal-cell available"></div>`;
+      h+=res?`<div class="cal-cell occupied" style="background:${DC[code]}" title="${res.huesped}">${res.huesped.split(' ')[0].substr(0,4)}</div>`:`<div class="cal-cell available"></div>`;
     }
   });
   h+='</div>';
@@ -708,9 +704,9 @@ function exportOcupacion(){
   const days=Array.from({length:dim},(_,i)=>i+1);
   const rows=CABANAS.map(code=>{
     const cells=days.map(d=>{const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);return res?res.huesped.split(' ')[0]:'';});
-    return csvRow([DN[code],...cells]);
+    return[DN[code],...cells].join(',');
   });
-  csvDown([`Ocupación ${meses[mes]} ${anio}`,csvRow(['Cabaña',...days]),...rows],`ocupacion_${meses[mes]}_${anio}.csv`);
+  csvDown([`Ocupación ${meses[mes]} ${anio}`,['Cabaña',...days].join(','),...rows],`ocupacion_${meses[mes]}_${anio}.csv`);
 }
 
 function renderGastos(){
@@ -730,8 +726,8 @@ function guardarGasto(){
 function delGas(id){if(!confirm('¿Eliminar?'))return;gastos=gastos.filter(g=>g.id!==id);saveToSheets('gastos',gastos);renderGastos();toast('Eliminado');}
 function exportGastos(){
   const h=['Fecha','Cabaña','Categoría','Descripción','Monto $','Comprobante'];
-  const rows=gastos.map(g=>csvRow([g.fecha,g.depto==='General'?'General':(DN[g.depto]||g.depto),g.categoria,g.descripcion,g.monto,g.comprobante||'']));
-  csvDown([csvRow(h),...rows],'gastos_bananos.csv');
+  const rows=gastos.map(g=>[g.fecha,g.depto==='General'?'General':(DN[g.depto]||g.depto),g.categoria,g.descripcion,g.monto,g.comprobante].join(','));
+  csvDown([h.join(','),...rows],'gastos_bananos.csv');
 }
 
 function renderRendimiento(){
@@ -772,8 +768,8 @@ function exportRendimiento(){
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
   const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
   const h=['Cabaña','Reservas','Noches','Subtotal','Com.','Líquido','Ticket Prom.'];
-  const rows=CABANAS.map(code=>{const dr=fil.filter(r=>r.depto===code&&!r.icalUid);let s=0,com=0,l=0,no=0;dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});return csvRow([DN[code],dr.length,no,s,com,l,dr.length?(s/dr.length).toFixed(0):'0']);});
-  csvDown([csvRow(h),...rows],'rendimiento_bananos.csv');
+  const rows=CABANAS.map(code=>{const dr=fil.filter(r=>r.depto===code);let s=0,com=0,l=0,no=0;dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});return[DN[code],dr.length,no,s,com,l,dr.length?(s/dr.length).toFixed(0):'0'].join(',');});
+  csvDown([h.join(','),...rows],'rendimiento_bananos.csv');
 }
 
 function renderAvisos(){
@@ -948,12 +944,21 @@ async function syncAllIcal(manual=false){
   if(!cabsWithUrl.length){if(manual)toast('No hay URLs configuradas',false);return;}
   const statusEl=document.getElementById('ical-sync-status');
   if(statusEl)statusEl.textContent='Sincronizando...';
+  const reservasAntes=reservas.length;
   let ok=0,fail=0;
   for(const code of cabsWithUrl){
     const r=await syncIcalCabin(code,urls[code],urls['src_'+code]||'airbnb');
     if(r.ok)ok++;else fail++;
   }
-  saveToSheets('reservas',reservas);
+  // Only save if sync was useful and didn't destroy data
+  if(ok>0&&reservas.length>=reservasAntes){
+    saveToSheets('reservas',reservas);
+  } else if(ok===0){
+    // All failed — restore original reservas from localStorage
+    reservas=lo('bn_r',[]);
+    if(manual)toast('Sync fallido — datos sin cambios',false);
+    return;
+  }
   const msg=`iCal: ${ok} cabaña${ok!==1?'s':''} sincronizada${ok!==1?'s':''}${fail>0?' · '+fail+' con error':''}`;
   if(statusEl)statusEl.textContent=msg+' · '+new Date().toLocaleTimeString('es-AR');
   if(manual)toast(msg,fail===0);
