@@ -534,30 +534,29 @@ const sd=(k,v)=>sl(k,v);
 let reservas=[],gastos=[],pins=lo('bn_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 async function loadFromBins(){
-  if(BIN_R==='PENDIENTE_R'){reservas=lo('bn_r',[]);gastos=lo('bn_g',[]);return;}
+  if(BIN_R==='PENDIENTE_R'){reservas=lo('bn_r',[]).filter(r=>!r.icalUid);gastos=lo('bn_g',[]);return;}
   try{
     const [rRes,gRes]=await Promise.all([
       fetch(JURL+BIN_R+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'}}),
       fetch(JURL+BIN_G+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'}})
     ]);
     const rData=await rRes.json();const gData=await gRes.json();
-    reservas=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);
+    // Filtrar bloqueos iCal — se regeneran con syncAllIcal
+    const all=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);
+    reservas=all.filter(r=>!r.icalUid);
     gastos=Array.isArray(gData.data)?gData.data:(Array.isArray(gData)?gData:[]);
-  }catch(err){reservas=lo('bn_r',[]);gastos=lo('bn_g',[]);}
+  }catch(err){reservas=lo('bn_r',[]).filter(r=>!r.icalUid);gastos=lo('bn_g',[]);}
 }
 async function saveToBin(binId,data){
   const key=binId===BIN_R?'r':'g';
-  // Safety: never overwrite with fewer records than what's stored
-  const current=lo('bn_'+key,[]);
-  if(Array.isArray(data)&&Array.isArray(current)&&data.length<current.length){
-    console.warn('saveToBin abortado: datos nuevos ('+data.length+') < actuales ('+current.length+')');
-    return;
-  }
   sl('bn_'+key,data);
   if(BIN_R==='PENDIENTE_R')return;
   try{await fetch(JURL+binId,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JKEY},body:JSON.stringify({data:data})});}catch(e){}
 }
-function saveToSheets(sheet,data){saveToBin(sheet==='reservas'?BIN_R:BIN_G,data);}
+function saveToSheets(sheet,data){
+  const toSave=sheet==='reservas'?data.filter(r=>!r.icalUid):data;
+  saveToBin(sheet==='reservas'?BIN_R:BIN_G,toSave);
+}
 
 const ud=()=>{for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.toggle('filled',i<pb.length);};
 function pinPress(n){if(pb.length>=4)return;pb+=n;ud();if(pb.length===4)setTimeout(pinEnter,200);}
