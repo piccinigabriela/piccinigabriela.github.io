@@ -668,7 +668,7 @@ const qAll=s=>document.querySelectorAll(s);
 async function loadFromBins(){
   try{
     const ac=new AbortController();
-    const tm=setTimeout(()=>ac.abort(),6000);
+    const tm=setTimeout(()=>ac.abort(),15000);
     const opts={headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'},signal:ac.signal};
     const [rRes,gRes,cRes]=await Promise.all([
       fetch(JURL+BIN_R+'/latest',opts),
@@ -688,9 +688,27 @@ async function loadFromBins(){
     const bloqueos=(cData.data&&cData.data.bloqueos)?cData.data.bloqueos:null;
     if(bloqueos) sl('cn_bloqueos',bloqueos);
   }catch(err){
-    console.log('JSONBin load error, using local:',err);
-    reservas=lo('cn_r',[]);
-    gastos=lo('cn_g',[]);
+    console.log('JSONBin load error, reintentando individualmente:',err);
+    // Intento individual con timeout más largo
+    try{
+      const fetchBin=async(id)=>{
+        const ac2=new AbortController();
+        const tm2=setTimeout(()=>ac2.abort(),20000);
+        const res=await fetch(JURL+id+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'},signal:ac2.signal});
+        clearTimeout(tm2);
+        return res.json();
+      };
+      const rData=await fetchBin(BIN_R).catch(()=>null);
+      const gData=await fetchBin(BIN_G).catch(()=>null);
+      if(rData) reservas=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);
+      else reservas=lo('cn_r',[]);
+      if(gData) gastos=Array.isArray(gData.data)?gData.data:(Array.isArray(gData)?gData:[]);
+      else gastos=lo('cn_g',[]);
+    }catch(err2){
+      console.log('JSONBin retry failed, using local:',err2);
+      reservas=lo('cn_r',[]);
+      gastos=lo('cn_g',[]);
+    }
   }
 }
 async function saveWaConfig(wa){
