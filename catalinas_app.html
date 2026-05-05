@@ -666,49 +666,29 @@ const $=id=>document.getElementById(id);
 const qAll=s=>document.querySelectorAll(s);
 
 async function loadFromBins(){
-  try{
-    const ac=new AbortController();
-    const tm=setTimeout(()=>ac.abort(),15000);
-    const opts={headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'},signal:ac.signal};
-    const [rRes,gRes,cRes]=await Promise.all([
-      fetch(JURL+BIN_R+'/latest',opts),
-      fetch(JURL+BIN_G+'/latest',opts),
-      fetch(JURL+BIN_C+'/latest',opts)
-    ]);
-    clearTimeout(tm);
-    const rData=await rRes.json();
-    const gData=await gRes.json();
-    const cData=await cRes.json();
-    reservas=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);
-    gastos=Array.isArray(gData.data)?gData.data:(Array.isArray(gData)?gData:[]);
-    const waCloud=(cData.data&&cData.data.wa)?cData.data.wa:null;
-    if(waCloud) sl('cn_wa',waCloud);
-    const icalCloud=(cData.data&&cData.data.ical)?cData.data.ical:null;
-    if(icalCloud) sl('cn_ical',icalCloud);
-    const bloqueos=(cData.data&&cData.data.bloqueos)?cData.data.bloqueos:null;
-    if(bloqueos) sl('cn_bloqueos',bloqueos);
-  }catch(err){
-    console.log('JSONBin load error, reintentando individualmente:',err);
-    // Intento individual con timeout más largo
-    try{
-      const fetchBin=async(id)=>{
-        const ac2=new AbortController();
-        const tm2=setTimeout(()=>ac2.abort(),20000);
-        const res=await fetch(JURL+id+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'},signal:ac2.signal});
-        clearTimeout(tm2);
-        return res.json();
-      };
-      const rData=await fetchBin(BIN_R).catch(()=>null);
-      const gData=await fetchBin(BIN_G).catch(()=>null);
-      if(rData) reservas=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);
-      else reservas=lo('cn_r',[]);
-      if(gData) gastos=Array.isArray(gData.data)?gData.data:(Array.isArray(gData)?gData:[]);
-      else gastos=lo('cn_g',[]);
-    }catch(err2){
-      console.log('JSONBin retry failed, using local:',err2);
-      reservas=lo('cn_r',[]);
-      gastos=lo('cn_g',[]);
+  const hdr={'X-Master-Key':JKEY,'X-Bin-Meta':'false'};
+  const fetchBin=async(id)=>{
+    for(let i=0;i<3;i++){
+      try{
+        const res=await fetch(JURL+id+'/latest',{headers:hdr});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        return await res.json();
+      }catch(e){
+        console.log('fetchBin intento '+(i+1)+' fallido para '+id,e.message);
+        if(i<2)await new Promise(r=>setTimeout(r,2000*(i+1)));
+      }
     }
+    return null;
+  };
+  const [rData,gData,cData]=await Promise.all([fetchBin(BIN_R),fetchBin(BIN_G),fetchBin(BIN_C)]);
+  if(rData){reservas=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);sl('cn_r',reservas);}
+  else{reservas=lo('cn_r',[]);console.log('Usando reservas del localStorage:',reservas.length);}
+  if(gData){gastos=Array.isArray(gData.data)?gData.data:(Array.isArray(gData)?gData:[]);sl('cn_g',gastos);}
+  else{gastos=lo('cn_g',[]);}
+  if(cData&&cData.data){
+    if(cData.data.wa)sl('cn_wa',cData.data.wa);
+    if(cData.data.ical)sl('cn_ical',cData.data.ical);
+    if(cData.data.bloqueos)sl('cn_bloqueos',cData.data.bloqueos);
   }
 }
 async function saveWaConfig(wa){
