@@ -9,7 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="Los Bananos">
 <meta name="theme-color" content="#2d5a1b">
 <title>Los Bananos — Gestión</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
   --green-dark:#2d5a1b;--green2:#3d7a25;--gold:#c9a84c;--gold-light:#e8c97a;
@@ -21,11 +23,11 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;}
-body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+body{font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-weight:400;letter-spacing:-0.005em;}
 
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--green-dark) 0%,#1a3a0a 100%);}
 .login-box{background:var(--white);border-radius:20px;padding:48px 40px;width:360px;box-shadow:var(--shadow-lg);text-align:center;}
-.login-logo{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--green-dark);}
+.login-logo{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--green-dark);}
 .login-sub{font-size:0.8rem;color:var(--text-soft);margin:6px 0 32px;letter-spacing:0.06em;text-transform:uppercase;}
 .pin-label{font-size:0.78rem;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}
 .pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
@@ -43,7 +45,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
 #app{display:none;}
 .sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--green-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
 .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(201,168,76,0.2);}
-.sidebar-logo h1{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gold);line-height:1.2;}
+.sidebar-logo h1{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--gold);line-height:1.2;}
 .sidebar-logo p{font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;}
 .user-badge{margin:12px 16px 8px;padding:10px 14px;border-radius:8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;justify-content:space-between;}
 .ub-name{font-size:0.78rem;color:var(--gold);font-weight:600;}
@@ -59,7 +61,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
 .sidebar-footer{padding:14px 24px;border-top:1px solid rgba(255,255,255,0.07);font-size:0.7rem;color:rgba(255,255,255,0.2);}
 .main{margin-left:var(--sidebar);min-height:100vh;}
 .topbar{background:var(--white);padding:16px 36px;border-bottom:1px solid var(--cream2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
-.topbar-title{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--green-dark);}
+.topbar-title{font-family:'Fraunces',serif;font-size:1.35rem;color:var(--green-dark);}
 .topbar-date{font-size:0.8rem;color:var(--text-soft);}
 .content{padding:32px 36px;}
 
@@ -70,7 +72,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
 .bn-icon{font-size:1.2rem;}
 .bn-label{font-size:0.58rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
 .mobile-header{display:none;background:var(--green-dark);color:white;padding:14px 20px;position:sticky;top:0;z-index:50;align-items:center;justify-content:space-between;}
-.mobile-header-title{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold);}
+.mobile-header-title{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--gold);}
 .mobile-user{font-size:0.7rem;color:rgba(255,255,255,0.5);}
 
 .screen{display:none;animation:fadeIn 0.25s ease;}
@@ -233,9 +235,10 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
   </nav>
 
   <div class="mobile-header" id="mobile-header">
-    <div class="mobile-header-title">🌿 Los Bananos</div>
+    <div class="mobile-header-title" style="font-family:'Fraunces',serif;">🌿 Los Bananos</div>
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="mobile-user" id="mobile-user">—</div>
+      <button id="mobile-config-btn" onclick="showScreen('config')" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;padding:4px;display:none" title="Configuración">⚙️</button>
       <button class="logout-btn" onclick="logout()">⏻</button>
     </div>
   </div>
@@ -329,6 +332,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
           <label>Estado:</label>
           <select id="fil-estado" onchange="renderReservas()"><option value="">Todos</option><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
           <button class="btn btn-outline btn-sm" onclick="exportReservas()">↓ CSV</button>
+          <button class="btn btn-outline btn-sm" onclick="exportReservasPDF()">↓ PDF</button>
         </div>
         <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap"><table>
@@ -352,6 +356,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
             </select>
             <label>Año:</label><select id="cal-anio" onchange="renderCalendario()"></select>
             <button class="btn btn-outline btn-sm" onclick="exportOcupacion()">↓ CSV</button>
+            <button class="btn btn-outline btn-sm" onclick="exportOcupacionPDF()">↓ PDF</button>
           </div>
           <div class="cal-scroll"><div id="calendario-grid"></div></div>
           <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;" id="cal-legend"></div>
@@ -410,6 +415,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
           </select>
           <label>Año:</label><select id="rend-anio" onchange="renderRendimiento()"></select>
           <button class="btn btn-outline btn-sm" onclick="exportRendimiento()">↓ CSV</button>
+          <button class="btn btn-outline btn-sm" onclick="exportRendimientoPDF()">↓ PDF</button>
         </div>
         <div class="totals-box" id="rend-totals"></div>
         <div style="height:24px;"></div>
@@ -582,6 +588,8 @@ async function loginOk(){
   document.body.appendChild(ol);
   await loadFromBins();
   ol.remove();buildBottomNav();showScreen(NAV_CONFIG[cu][0]);
+  const mcb=document.getElementById('mobile-config-btn');
+  if(mcb)mcb.style.display=NAV_CONFIG[cu].includes('config')?'inline-block':'none';
 }
 function logout(){cu=null;pb='';document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';ud();}
 
@@ -623,7 +631,8 @@ const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
 function calc(r){const n=nights(r.checkin,r.checkout);const sub=n*r.precio;const com=r.plataforma==='Airbnb'?sub*0.03:0;return{n,sub,com,liq:sub-com};}
 function toast(msg,ok=true){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;document.getElementById('toast-icon').textContent=ok?'✓':'⚠';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
-function csvDown(rows,fn){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));a.download=fn;a.click();}
+function csvDown(rows,fn){const bom='\uFEFF';const content='sep=;\n'+rows.join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+content);a.download=fn;a.click();}
+function csvRow(arr){return arr.map(v=>{const s=String(v??'');return(s.includes(';')||s.includes('"')||s.includes('\n'))?'"'+s.replace(/"/g,'""')+'"':s;}).join(';');}
 
 function calcNights(){
   const ci=document.getElementById('r-checkin').value,co=document.getElementById('r-checkout').value;
@@ -673,9 +682,18 @@ function renderReservas(){
 }
 function delRes(id){if(!confirm('¿Eliminar reserva?'))return;reservas=reservas.filter(r=>r.id!==id);saveToSheets('reservas',reservas);renderReservas();toast('Reserva eliminada');}
 function exportReservas(){
-  const h=['Cabaña','Huésped','Nac','Check-in','Check-out','Noches','$/Noche','Subtotal','Com.','Líquido','Estado','Plataforma'];
-  const rows=reservas.map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,r.nac,r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma].join(',');});
-  csvDown([h.join(','),...rows],'reservas_bananos.csv');
+  const h=['Cabaña','Huésped','Nac','Check-in','Check-out','Noches','$/Noche','Subtotal','Com.','Líquido','Estado','Plataforma','Seña','Saldo'];
+  const rows=reservas.filter(r=>!r.icalUid).map(r=>{const c=calc(r);return csvRow([DN[r.depto],r.huesped,r.nac||'',r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma,r.sena||0,r.saldo||0]);});
+  csvDown([csvRow(h),...rows],'reservas_bananos.csv');
+}
+function exportReservasPDF(){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text('Reservas — Los Bananos',14,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(new Date().toLocaleDateString('es-AR'),14,22);
+  const h=['Cabaña','Huésped','Check-in','Check-out','N','$/N','Subtotal','Líquido','Estado','Plataforma'];
+  const rows=reservas.filter(r=>!r.icalUid).map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,r.checkin,r.checkout,c.n,r.precio,c.sub,c.liq,r.estado,r.plataforma];});
+  doc.autoTable({head:[h],body:rows,startY:26,styles:{fontSize:8},headStyles:{fillColor:[26,74,58]}});
+  doc.save('reservas_bananos.pdf');
 }
 
 function renderCalendario(){
@@ -703,9 +721,24 @@ function exportOcupacion(){
   const days=Array.from({length:dim},(_,i)=>i+1);
   const rows=CABANAS.map(code=>{
     const cells=days.map(d=>{const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);return res?res.huesped.split(' ')[0]:'';});
-    return[DN[code],...cells].join(',');
+    return csvRow([DN[code],...cells]);
   });
-  csvDown([`Ocupación ${meses[mes]} ${anio}`,['Cabaña',...days].join(','),...rows],`ocupacion_${meses[mes]}_${anio}.csv`);
+  csvDown([`Ocupación ${meses[mes]} ${anio}`,csvRow(['Cabaña',...days]),...rows],`ocupacion_${meses[mes]}_${anio}.csv`);
+}
+function exportOcupacionPDF(){
+  const mes=parseInt(document.getElementById('cal-mes').value),anio=parseInt(document.getElementById('cal-anio').value);
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dim=new Date(anio,mes+1,0).getDate();
+  const days=Array.from({length:dim},(_,i)=>i+1);
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text(`Ocupación ${meses[mes]} ${anio}`,14,16);
+  const h=['Cabaña',...days.map(String)];
+  const rows=CABANAS.map(code=>{
+    const cells=days.map(d=>{const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);return res?res.huesped.split(' ')[0].substr(0,4):'';});
+    return[DN[code],...cells];
+  });
+  doc.autoTable({head:[h],body:rows,startY:22,styles:{fontSize:6,cellPadding:1},headStyles:{fillColor:[26,74,58]}});
+  doc.save(`ocupacion_${meses[mes]}_${anio}.pdf`);
 }
 
 function renderGastos(){
@@ -725,8 +758,8 @@ function guardarGasto(){
 function delGas(id){if(!confirm('¿Eliminar?'))return;gastos=gastos.filter(g=>g.id!==id);saveToSheets('gastos',gastos);renderGastos();toast('Eliminado');}
 function exportGastos(){
   const h=['Fecha','Cabaña','Categoría','Descripción','Monto $','Comprobante'];
-  const rows=gastos.map(g=>[g.fecha,g.depto==='General'?'General':(DN[g.depto]||g.depto),g.categoria,g.descripcion,g.monto,g.comprobante].join(','));
-  csvDown([h.join(','),...rows],'gastos_bananos.csv');
+  const rows=gastos.map(g=>csvRow([g.fecha,g.depto==='General'?'General':(DN[g.depto]||g.depto),g.categoria,g.descripcion,g.monto,g.comprobante||'']));
+  csvDown([csvRow(h),...rows],'gastos_bananos.csv');
 }
 
 function renderRendimiento(){
@@ -767,8 +800,45 @@ function exportRendimiento(){
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
   const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
   const h=['Cabaña','Reservas','Noches','Subtotal','Com.','Líquido','Ticket Prom.'];
-  const rows=CABANAS.map(code=>{const dr=fil.filter(r=>r.depto===code);let s=0,com=0,l=0,no=0;dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});return[DN[code],dr.length,no,s,com,l,dr.length?(s/dr.length).toFixed(0):'0'].join(',');});
-  csvDown([h.join(','),...rows],'rendimiento_bananos.csv');
+  const rows=CABANAS.map(code=>{const dr=fil.filter(r=>r.depto===code);let s=0,com=0,l=0,no=0;dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});return csvRow([DN[code],dr.length,no,s,com,l,dr.length?(s/dr.length).toFixed(0):'0']);});
+  csvDown([csvRow(h),...rows],'rendimiento_bananos.csv');
+}
+function exportRendimientoPDF(){
+  const mv=document.getElementById('rend-mes').value,ay=parseInt(document.getElementById('rend-anio').value);
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const hm=mv!=='',mes=hm?parseInt(mv):-1;
+  const titulo=hm?`Rendimiento ${meses[mes]} ${ay}`:`Rendimiento Anual ${ay}`;
+  const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const {jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text('Los Bananos · Wood Cabin Iguazú',14,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.text(titulo,14,24);
+  doc.setFontSize(9);doc.text(new Date().toLocaleDateString('es-AR'),14,30);
+  const h=['Cabaña','Reservas','Noches','Subtotal','Com.','Líquido','Ticket Prom.'];
+  let ts=0,tc=0,tl=0,tno=0;
+  const rows=CABANAS.map(code=>{
+    const dr=fil.filter(r=>r.depto===code);let s=0,com=0,l=0,no=0;
+    dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});
+    ts+=s;tc+=com;tl+=l;tno+=no;
+    return[DN[code],dr.length,no,s.toFixed(0),com.toFixed(0),l.toFixed(0),dr.length?(s/dr.length).toFixed(0):'—'];
+  });
+  rows.push(['TOTAL',fil.length,tno,ts.toFixed(0),tc.toFixed(0),tl.toFixed(0),'—']);
+  doc.autoTable({
+    head:[h],body:rows,startY:35,
+    styles:{fontSize:9},
+    headStyles:{fillColor:[26,74,58],textColor:255},
+    didParseCell:(data)=>{if(data.row.index===rows.length-1){data.cell.styles.fillColor=[26,74,58];data.cell.styles.textColor=255;data.cell.styles.fontStyle='bold';}}
+  });
+  const gf=gastos.filter(g=>{const d=new Date(g.fecha);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const tgas=gf.reduce((s,g)=>s+g.monto,0);
+  const finalY=doc.lastAutoTable.finalY+10;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Resumen',14,finalY);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text(`Ingresos brutos: $${ts.toFixed(0)}`,14,finalY+7);
+  doc.text(`Comisiones: $${tc.toFixed(0)}`,14,finalY+13);
+  doc.text(`Gastos: $${tgas.toFixed(0)}`,14,finalY+19);
+  doc.setFont('helvetica','bold');
+  doc.text(`Resultado neto: $${(tl-tgas).toFixed(0)}`,14,finalY+27);
+  doc.save(`rendimiento_${hm?meses[mes]+'_':''}${ay}.pdf`);
 }
 
 function renderAvisos(){
