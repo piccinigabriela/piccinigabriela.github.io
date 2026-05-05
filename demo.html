@@ -9,7 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="Mi Cabaña · Gestión">
 <meta name="theme-color" content="#1a4a3a">
 <title>Mi Cabaña · Gestión — Gestión</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
   --green-dark:#1a4a3a;--green2:#2a6a50;--gold:#c9a84c;--gold-light:#e8c97a;
@@ -21,11 +23,11 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;}
-body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+body{font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-weight:400;letter-spacing:-0.005em;}
 
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--green-dark) 0%,#1a3a0a 100%);}
 .login-box{background:var(--white);border-radius:20px;padding:48px 40px;width:360px;box-shadow:var(--shadow-lg);text-align:center;}
-.login-logo{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--green-dark);}
+.login-logo{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--green-dark);}
 .login-sub{font-size:0.8rem;color:var(--text-soft);margin:6px 0 32px;letter-spacing:0.06em;text-transform:uppercase;}
 .pin-label{font-size:0.78rem;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;}
 .pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
@@ -43,7 +45,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
 #app{display:none;}
 .sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--green-dark);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,0.15);}
 .sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid rgba(201,168,76,0.2);}
-.sidebar-logo h1{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gold);line-height:1.2;}
+.sidebar-logo h1{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--gold);line-height:1.2;}
 .sidebar-logo p{font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:4px;letter-spacing:0.08em;text-transform:uppercase;}
 .user-badge{margin:12px 16px 8px;padding:10px 14px;border-radius:8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;justify-content:space-between;}
 .ub-name{font-size:0.78rem;color:var(--gold);font-weight:600;}
@@ -59,7 +61,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);
 .sidebar-footer{padding:14px 24px;border-top:1px solid rgba(255,255,255,0.07);font-size:0.7rem;color:rgba(255,255,255,0.2);}
 .main{margin-left:var(--sidebar);min-height:100vh;}
 .topbar{background:var(--white);padding:16px 36px;border-bottom:1px solid var(--cream2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
-.topbar-title{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--green-dark);}
+.topbar-title{font-family:'Fraunces',serif;font-size:1.35rem;color:var(--green-dark);}
 .topbar-date{font-size:0.8rem;color:var(--text-soft);}
 .content{padding:32px 36px;}
 
@@ -218,7 +220,6 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
       <button class="pin-btn clear" onclick="pinClear()">✕</button><button class="pin-btn" onclick="pinPress('0')">0</button><button class="pin-btn enter" onclick="pinEnter()">✓</button>
     </div>
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">PINs por defecto:<br>Admin: <b>1234</b> · Usuario: <b>2345</b></div>
   </div>
 </div>
 
@@ -234,9 +235,10 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
   </nav>
 
   <div class="mobile-header" id="mobile-header">
-    <div class="mobile-header-title">Mi Cabaña · Gestión</div>
+    <div class="mobile-header-title" style="font-family:'Fraunces',serif;">Mi Cabaña · Gestión</div>
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="mobile-user" id="mobile-user">—</div>
+      <button id="mobile-config-btn" onclick="showScreen('config')" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;padding:4px;display:none" title="Configuración">⚙️</button>
       <button class="logout-btn" onclick="logout()">⏻</button>
     </div>
   </div>
@@ -322,6 +324,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
           <label>Estado:</label>
           <select id="fil-estado" onchange="renderReservas()"><option value="">Todos</option><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
           <button class="btn btn-outline btn-sm" onclick="exportReservas()">↓ CSV</button>
+          <button class="btn btn-outline btn-sm" onclick="exportReservasPDF()">↓ PDF</button>
         </div>
         <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap"><table>
@@ -345,6 +348,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
             </select>
             <label>Año:</label><select id="cal-anio" onchange="renderCalendario()"></select>
             <button class="btn btn-outline btn-sm" onclick="exportOcupacion()">↓ CSV</button>
+            <button class="btn btn-outline btn-sm" onclick="exportOcupacionPDF()">↓ PDF</button>
           </div>
           <div class="cal-scroll"><div id="calendario-grid"></div></div>
           <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;" id="cal-legend"></div>
@@ -558,6 +562,8 @@ async function loginOk(){
   await loadFromBins();
   await preloadDemoData();
   ol.remove();buildBottomNav();showScreen(NAV_CONFIG[cu][0]);
+  const mcb=document.getElementById('mobile-config-btn');
+  if(mcb)mcb.style.display=NAV_CONFIG[cu].includes('config')?'inline-block':'none';
   // Auto-sync iCal on login (admin only), 2s delay
   if(cu==='admin'){setTimeout(()=>{const icals=lo('mc_ical',{});if(Object.keys(icals).some(k=>icals[k]))syncIcalNow();},2000);}
 }
@@ -602,7 +608,7 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
 function calc(r){const n=nights(r.checkin,r.checkout);const sub=n*r.precio;const com=r.plataforma==='Airbnb'?sub*0.03:0;const liq=sub-com;const senia=r.senia||0;const saldo=r.saldo||0;const pendiente=liq-senia-saldo;return{n,sub,com,liq,senia,saldo,pendiente};}
 function toast(msg,ok=true){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;document.getElementById('toast-icon').textContent=ok?'✓':'⚠';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 function csvRow(arr){return arr.map(v=>{const s=String(v??'');return(s.includes(';')||s.includes('"')||s.includes('\n'))?'"'+s.replace(/"/g,'""')+'"':s;}).join(';');}
-function csvDown(rows,fn){const bom='\uFEFF';const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+rows.join('\n'));a.download=fn;a.click();}
+function csvDown(rows,fn){const bom='\uFEFF';const content='sep=;\n'+rows.join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+content);a.download=fn;a.click();}
 
 function calcNights(){
   const ci=document.getElementById('r-checkin').value,co=document.getElementById('r-checkout').value;
@@ -623,7 +629,7 @@ function guardarReserva(){
   if(!dep||!hue||!ci||!co||isNaN(pre)){toast('Completá todos los campos obligatorios',false);return;}
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
   const conf=reservas.find(r=>r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
-  if(conf){toast('Superposición con '+conf.huesped+' en '+DN[dep]+' ('+fmtD(conf.checkin)+'–'+fmtD(conf.checkout)+')',false);return;}
+  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' en '+DN[dep]+' ('+fmtD(conf.checkin)+'–'+fmtD(conf.checkout)+')',false);return;}
   reservas.push({id:uid(),depto:dep,huesped:hue,nac:document.getElementById('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:document.getElementById('r-plataforma').value,estado:document.getElementById('r-estado').value,notas:document.getElementById('r-notas').value.trim(),creado:new Date().toISOString()});
   saveToSheets('reservas',reservas);clearReservaForm();toast('Reserva guardada ✓');
 }
@@ -655,6 +661,15 @@ function exportReservas(){
   const rows=reservas.map(r=>{const c=calc(r);return csvRow([DN[r.depto],r.huesped,r.nac,r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma,c.senia,c.saldo,c.pendiente]);});
   csvDown([csvRow(h),...rows],'reservas_demo.csv');
 }
+function exportReservasPDF(){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text('Reservas — Mi Cabaña Demo',14,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(new Date().toLocaleDateString('es-AR'),14,22);
+  const h=['Cabaña','Huésped','Check-in','Check-out','N','$/N','Subtotal','Líquido','Estado','Plataforma'];
+  const rows=reservas.map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,r.checkin,r.checkout,c.n,r.precio,c.sub,c.liq,r.estado,r.plataforma];});
+  doc.autoTable({head:[h],body:rows,startY:26,styles:{fontSize:8},headStyles:{fillColor:[26,74,58]}});
+  doc.save('reservas_demo.pdf');
+}
 
 function renderCalendario(){
   const mes=parseInt(document.getElementById('cal-mes').value),anio=parseInt(document.getElementById('cal-anio').value);
@@ -684,6 +699,21 @@ function exportOcupacion(){
     return csvRow([DN[code],...cells]);
   });
   csvDown([`Ocupación ${meses[mes]} ${anio}`,csvRow(['Cabaña',...days]),...rows],`ocupacion_${meses[mes]}_${anio}.csv`);
+}
+function exportOcupacionPDF(){
+  const mes=parseInt(document.getElementById('cal-mes').value),anio=parseInt(document.getElementById('cal-anio').value);
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dim=new Date(anio,mes+1,0).getDate();
+  const days=Array.from({length:dim},(_,i)=>i+1);
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape'});
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text(`Ocupación ${meses[mes]} ${anio}`,14,16);
+  const h=['Cabaña',...days.map(String)];
+  const rows=CABANAS.map(code=>{
+    const cells=days.map(d=>{const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);return res?res.huesped.split(' ')[0].substr(0,4):'';});
+    return[DN[code],...cells];
+  });
+  doc.autoTable({head:[h],body:rows,startY:22,styles:{fontSize:6,cellPadding:1},headStyles:{fillColor:[26,74,58]}});
+  doc.save(`ocupacion_${meses[mes]}_${anio}.pdf`);
 }
 
 function renderGastos(){
@@ -942,7 +972,7 @@ function saveEdit(){
   if(!hue||!ci||!co||isNaN(pre)){toast('Completá todos los campos',false);return;}
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
   const conf=reservas.find(r=>r.id!==editingId&&r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
-  if(conf){toast('Superposición con '+conf.huesped+' ('+fmtD(conf.checkin)+'–'+fmtD(conf.checkout)+')',false);return;}
+  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' ('+fmtD(conf.checkin)+'–'+fmtD(conf.checkout)+')',false);return;}
   reservas=reservas.map(r=>{if(r.id!==editingId)return r;return{...r,depto:dep,huesped:hue,nac:document.getElementById('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:document.getElementById('e-plataforma').value,estado:document.getElementById('e-estado').value,notas:document.getElementById('e-notas').value.trim(),senia:parseFloat(document.getElementById('e-senia').value)||0,saldo:parseFloat(document.getElementById('e-saldo').value)||0};});
   saveToSheets('reservas',reservas);closeEdit();renderReservas();toast('Reserva actualizada ✓');
 }
