@@ -3,1492 +3,432 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wood Cabin Iguazú · Los Bananos</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Catalinas Norte Apartamentos · Buenos Aires</title>
+<meta name="description" content="Apartamentos temporarios en Catalinas Norte, Buenos Aires. Temporary apartments in Catalinas Norte, Buenos Aires.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --verde: #2d4a2d;
-    --verde-claro: #4a7c4a;
-    --selva: #1a3320;
-    --tierra: #8b6914;
-    --crema: #f5f0e8;
-    --crema-oscura: #e8e0d0;
-    --blanco: #fdfaf5;
-    --texto: #1a2a1a;
-    --acento: #c8a84b;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    background: var(--blanco);
-    color: var(--texto);
-    overflow-x: hidden;
-  }
-
-  /* ——— HERO ——— */
-  .hero {
-    min-height: 100vh;
-    background: var(--selva);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  .hero-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse at 20% 50%, rgba(74,124,74,0.3) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, rgba(45,74,45,0.5) 0%, transparent 50%),
-      radial-gradient(ellipse at 60% 80%, rgba(26,51,32,0.8) 0%, transparent 40%);
-    animation: breathe 8s ease-in-out infinite;
-  }
-
-  @keyframes breathe {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-
-  /* Leaves decorativas */
-  .leaf {
-    position: absolute;
-    opacity: 0.08;
-    font-size: 8rem;
-    animation: sway 6s ease-in-out infinite;
-  }
-  .leaf:nth-child(1) { top: 5%; left: 3%; animation-delay: 0s; font-size: 6rem; }
-  .leaf:nth-child(2) { top: 15%; right: 5%; animation-delay: 1.5s; font-size: 10rem; }
-  .leaf:nth-child(3) { bottom: 20%; left: 8%; animation-delay: 3s; font-size: 7rem; }
-  .leaf:nth-child(4) { bottom: 10%; right: 10%; animation-delay: 4.5s; font-size: 9rem; }
-  .leaf:nth-child(5) { top: 40%; left: 0%; animation-delay: 2s; font-size: 5rem; }
-
-  @keyframes sway {
-    0%, 100% { transform: rotate(-5deg) translateY(0); }
-    50% { transform: rotate(5deg) translateY(-10px); }
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    padding: 6rem 2rem 2rem;
-    animation: fadeUp 1.2s ease both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .hero-eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.3em;
-    color: var(--acento);
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-    opacity: 0.9;
-  }
-
-  .hero-title {
-    font-size: clamp(3rem, 8vw, 7rem);
-    font-weight: 300;
-    color: var(--crema);
-    line-height: 0.95;
-    margin-bottom: 0.3rem;
-    letter-spacing: -0.02em;
-  }
-
-  .hero-title span {
-    font-style: italic;
-    color: var(--acento);
-  }
-
-  .hero-subtitle {
-    font-size: clamp(1rem, 2.5vw, 1.4rem);
-    color: rgba(245,240,232,0.6);
-    font-weight: 300;
-    letter-spacing: 0.1em;
-    margin-top: 1rem;
-    margin-bottom: 3rem;
-  }
-
-  .hero-cta {
-    display: inline-block;
-    border: 1px solid var(--acento);
-    color: var(--acento);
-    padding: 0.8rem 2.5rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: all 0.3s;
-    cursor: pointer;
-    background: transparent;
-  }
-
-  .hero-cta:hover {
-    background: var(--acento);
-    color: var(--selva);
-  }
-
-  .scroll-hint {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    animation: bounce 2s infinite;
-  }
-
-  @keyframes bounce {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(8px); }
-  }
-
-  .scroll-hint span {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    color: rgba(245,240,232,0.4);
-    letter-spacing: 0.3em;
-    display: block;
-    text-align: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .scroll-hint svg { stroke: rgba(245,240,232,0.3); }
-
-  .hero-award {
-    display: inline-flex;
-    align-items: center;
-    gap: 1rem;
-    border: 1px solid rgba(200,168,75,0.4);
-    padding: 0.8rem 1.8rem;
-    margin-bottom: 2rem;
-    background: rgba(200,168,75,0.07);
-    animation: fadeUp 1.4s ease both;
-  }
-
-  .award-num {
-    font-size: 3rem;
-    font-weight: 300;
-    color: var(--acento);
-    line-height: 1;
-  }
-
-  .award-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--crema);
-    text-align: left;
-    line-height: 1.8;
-  }
-
-  .award-sep {
-    width: 1px;
-    height: 40px;
-    background: rgba(200,168,75,0.3);
-    margin: 0 0.5rem;
-  }
-  .buscador-section {
-    background: var(--crema);
-    padding: 5rem 2rem;
-  }
-
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: var(--verde-claro);
-    text-transform: uppercase;
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-
-  .section-title {
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 300;
-    text-align: center;
-    color: var(--selva);
-    margin-bottom: 3rem;
-    line-height: 1.1;
-  }
-
-  .section-title em {
-    font-style: italic;
-    color: var(--verde-claro);
-  }
-
-  .buscador {
-    max-width: 800px;
-    margin: 0 auto;
-    background: var(--blanco);
-    border: 1px solid var(--crema-oscura);
-    padding: 2.5rem;
-    box-shadow: 0 4px 40px rgba(26,51,32,0.08);
-  }
-
-  .buscador-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  @media (max-width: 600px) {
-    .buscador-grid { grid-template-columns: 1fr; }
-  }
-
-  .campo {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .campo label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--verde-claro);
-  }
-
-  .campo input, .campo select {
-    border: none;
-    border-bottom: 1px solid var(--crema-oscura);
-    padding: 0.6rem 0;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    color: var(--texto);
-    background: transparent;
-    outline: none;
-    transition: border-color 0.3s;
-    cursor: pointer;
-  }
-
-  .campo input:focus, .campo select:focus {
-    border-color: var(--verde);
-  }
-
-  .btn-buscar {
-    width: 100%;
-    background: var(--selva);
-    color: var(--crema);
-    border: none;
-    padding: 1.1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .btn-buscar:hover { background: var(--verde); }
-
-  /* Resultado */
-  .resultado {
-    margin-top: 2rem;
-    display: none;
-  }
-
-  .resultado.visible { display: block; }
-
-  .resultado-titulo {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
-    color: var(--verde-claro);
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-  }
-
-  .cabanas-resultado {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .cabana-card-resultado {
-    border: 1px solid var(--crema-oscura);
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    background: var(--crema);
-    animation: slideIn 0.4s ease both;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .cabana-card-resultado.no-disponible {
-    opacity: 0.4;
-    background: #f0f0f0;
-  }
-
-  .cabana-info h3 {
-    font-size: 1.3rem;
-    font-weight: 400;
-    color: var(--selva);
-    margin-bottom: 0.3rem;
-  }
-
-  .cabana-info p {
-    font-size: 0.9rem;
-    color: rgba(26,42,26,0.6);
-    font-style: italic;
-  }
-
-  .cabana-estado {
-    text-align: right;
-  }
-
-  .badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 0.3rem 0.8rem;
-    margin-bottom: 0.8rem;
-    display: inline-block;
-  }
-
-  .badge.disponible { background: #e8f5e8; color: var(--verde); }
-  .badge.no-disp { background: #f5e8e8; color: #8b2020; }
-
-  .btn-whatsapp {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #25D366;
-    color: white;
-    padding: 0.6rem 1.2rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: background 0.3s;
-  }
-
-  .btn-whatsapp:hover { background: #1da851; }
-
-  .no-disponible .btn-whatsapp { display: none; }
-
-  .sin-resultados {
-    text-align: center;
-    padding: 2rem;
-    color: rgba(26,42,26,0.5);
-    font-style: italic;
-    font-size: 1.1rem;
-  }
-
-  /* ——— TIPOS DE CABAÑA ——— */
-  .tipos-section {
-    padding: 6rem 2rem;
-    background: var(--blanco);
-  }
-
-  .tipos-grid {
-    max-width: 1100px;
-    margin: 3rem auto 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-  }
-
-  @media (max-width: 700px) {
-    .tipos-grid { grid-template-columns: 1fr; }
-  }
-
-  .tipo-card {
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .tipo-foto {
-    width: 100%;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.6s ease;
-    background: var(--crema-oscura);
-  }
-
-  .tipo-card:hover .tipo-foto { transform: scale(1.03); }
-
-  .tipo-foto-placeholder {
-    width: 100%;
-    aspect-ratio: 4/3;
-    background: linear-gradient(135deg, var(--selva) 0%, var(--verde) 60%, var(--verde-claro) 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    transition: transform 0.6s ease;
-  }
-
-  .tipo-card:hover .tipo-foto-placeholder { transform: scale(1.03); }
-
-  .tipo-foto-placeholder .icon { font-size: 4rem; opacity: 0.6; }
-  .tipo-foto-placeholder .foto-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: rgba(245,240,232,0.5);
-    text-transform: uppercase;
-  }
-
-  .tipo-info {
-    padding: 1.5rem 0 0;
-  }
-
-  .tipo-eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: var(--acento);
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-
-  .tipo-nombre {
-    font-size: 1.8rem;
-    font-weight: 300;
-    color: var(--selva);
-    margin-bottom: 0.5rem;
-  }
-
-  .tipo-desc {
-    font-size: 1rem;
-    color: rgba(26,42,26,0.6);
-    font-style: italic;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
-
-  .tipo-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 0.3rem 0.7rem;
-    border: 1px solid var(--crema-oscura);
-    color: rgba(26,42,26,0.5);
-  }
-
-  /* ——— COMODIDADES ——— */
-  .comodidades-section {
-    background: var(--selva);
-    padding: 6rem 2rem;
-  }
-
-  .comodidades-section .section-title { color: var(--crema); }
-  .comodidades-section .section-label { color: var(--acento); }
-
-  .comodidades-grid {
-    max-width: 900px;
-    margin: 3rem auto 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-  }
-
-  @media (max-width: 700px) {
-    .comodidades-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  .comodidad {
-    text-align: center;
-    padding: 1.5rem 1rem;
-    border: 1px solid rgba(245,240,232,0.1);
-    transition: border-color 0.3s, background 0.3s;
-  }
-
-  .comodidad:hover {
-    border-color: rgba(200,168,75,0.4);
-    background: rgba(200,168,75,0.05);
-  }
-
-  .comodidad-icono {
-    font-size: 2rem;
-    margin-bottom: 0.8rem;
-    display: block;
-  }
-
-  .comodidad-nombre {
-    font-size: 0.95rem;
-    color: var(--crema);
-    font-weight: 300;
-    line-height: 1.3;
-  }
-
-  /* ——— BANNER CATARATAS ——— */
-  .cataratas-banner {
-    position: relative;
-    height: 60vh;
-    min-height: 380px;
-    overflow: hidden;
-  }
-
-  .cataratas-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 40%;
-    display: block;
-    filter: brightness(0.6);
-    transition: transform 8s ease;
-  }
-
-  .cataratas-banner:hover .cataratas-img {
-    transform: scale(1.04);
-  }
-
-  .cataratas-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 2rem;
-  }
-
-  .cataratas-eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.3em;
-    color: var(--acento);
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-  }
-
-  .cataratas-titulo {
-    font-size: clamp(2.5rem, 6vw, 5rem);
-    font-weight: 300;
-    color: var(--crema);
-    line-height: 1;
-    margin-bottom: 1rem;
-  }
-
-  .cataratas-titulo em {
-    font-style: italic;
-    color: var(--acento);
-  }
-
-  .cataratas-sub {
-    font-size: 1rem;
-    color: rgba(245,240,232,0.7);
-    font-style: italic;
-    line-height: 1.6;
-  }
-
-  .cataratas-credit {
-    position: absolute;
-    bottom: 0.6rem;
-    right: 1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.5rem;
-    color: rgba(255,255,255,0.3);
-    letter-spacing: 0.1em;
-  }
-
-  /* ——— VIDEO ——— */
-  .video-section {
-    padding: 6rem 2rem;
-    background: var(--blanco);
-  }
-
-  .video-wrapper {
-    max-width: 900px;
-    margin: 3rem auto 0;
-    position: relative;
-    background: var(--selva);
-    aspect-ratio: 16/9;
-    overflow: hidden;
-  }
-
-  .video-wrapper video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .video-play-hint {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    background: rgba(26,51,32,0.5);
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .video-play-hint:hover { background: rgba(26,51,32,0.3); }
-
-  .play-btn {
-    width: 70px;
-    height: 70px;
-    border: 2px solid var(--acento);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: var(--acento);
-    transition: background 0.3s;
-  }
-
-  .video-play-hint:hover .play-btn {
-    background: rgba(200,168,75,0.2);
-  }
-
-  .video-play-hint p {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: var(--crema);
-    text-transform: uppercase;
-  }
-
-  /* ——— GALERÍA ——— */
-  .galeria-section {
-    padding: 6rem 2rem;
-    background: var(--crema);
-  }
-
-  .galeria-grid {
-    max-width: 1100px;
-    margin: 3rem auto 0;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto auto;
-    gap: 0.8rem;
-  }
-
-  @media (max-width: 700px) {
-    .galeria-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  .galeria-item {
-    aspect-ratio: 1;
-    background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .galeria-item:nth-child(1) { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
-
-  .galeria-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    height: 100%;
-    min-height: 120px;
-  }
-
-  .galeria-placeholder .icon { font-size: 2rem; opacity: 0.4; }
-  .galeria-placeholder .lbl {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.5rem;
-    letter-spacing: 0.25em;
-    color: rgba(245,240,232,0.35);
-    text-transform: uppercase;
-    text-align: center;
-    padding: 0 0.5rem;
-  }
-
-  .galeria-item:nth-child(1) .galeria-placeholder .icon { font-size: 3.5rem; opacity: 0.3; }
-  .galeria-item:nth-child(1) .galeria-placeholder .lbl { font-size: 0.65rem; }
-
-  .galeria-overlay {
-    position: absolute; inset: 0;
-    background: rgba(26,51,32,0);
-    transition: background 0.3s;
-  }
-
-  .galeria-item:hover .galeria-overlay {
-    background: rgba(26,51,32,0.2);
-  }
-
-  /* ——— UBICACIÓN ——— */
-  .ubicacion-section {
-    padding: 6rem 2rem;
-    background: var(--blanco);
-  }
-
-  .ubicacion-content {
-    max-width: 700px;
-    margin: 3rem auto 0;
-    text-align: center;
-  }
-
-  .ubicacion-content p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: rgba(26,42,26,0.7);
-    font-style: italic;
-    margin-bottom: 2rem;
-  }
-
-  .ubicacion-datos {
-    display: flex;
-    justify-content: center;
-    gap: 3rem;
-    flex-wrap: wrap;
-    margin-bottom: 2rem;
-  }
-
-  .dato {
-    text-align: center;
-  }
-
-  .dato-numero {
-    font-size: 2.5rem;
-    font-weight: 300;
-    color: var(--selva);
-    line-height: 1;
-    margin-bottom: 0.3rem;
-  }
-
-  .dato-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: rgba(26,42,26,0.4);
-    text-transform: uppercase;
-  }
-
-  .mapa-wrapper {
-    margin-top: 2rem;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px solid var(--crema-oscura);
-    overflow: hidden;
-  }
-
-  /* ——— FOOTER ——— */
-  footer {
-    background: var(--selva);
-    padding: 3rem 2rem;
-    text-align: center;
-  }
-
-  .footer-logo {
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: var(--crema);
-    margin-bottom: 0.5rem;
-  }
-
-  .footer-logo span { font-style: italic; color: var(--acento); }
-
-  .footer-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: rgba(245,240,232,0.35);
-    text-transform: uppercase;
-    margin-bottom: 2rem;
-  }
-
-  .footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .footer-links a {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: rgba(245,240,232,0.5);
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: color 0.3s;
-  }
-
-  .footer-links a:hover { color: var(--acento); }
-
-  .footer-copy {
-    font-size: 0.8rem;
-    color: rgba(245,240,232,0.2);
-  }
-
-  /* ——— NAV ——— */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    padding: 1.2rem 2.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.4s;
-  }
-
-  nav.scrolled {
-    background: rgba(26,51,32,0.95);
-    backdrop-filter: blur(10px);
-  }
-
-  .nav-logo {
-    font-size: 1rem;
-    font-weight: 300;
-    color: var(--crema);
-    letter-spacing: 0.05em;
-  }
-
-  .nav-logo span { font-style: italic; color: var(--acento); }
-
-  .nav-links {
-    display: flex;
-    gap: 2rem;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: rgba(245,240,232,0.7);
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: color 0.3s;
-  }
-
-  .nav-links a:hover { color: var(--acento); }
-
-  @media (max-width: 600px) {
-    .nav-links { display: none; }
-  }
-
-  /* ——— RESEÑAS ——— */
-  .resenas-section {
-    padding: 6rem 2rem;
-    background: var(--crema-oscura);
-  }
-
-  .resenas-grid {
-    max-width: 900px;
-    margin: 3rem auto 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  @media (max-width: 700px) {
-    .resenas-grid { grid-template-columns: 1fr; }
-  }
-
-  .resena {
-    background: var(--blanco);
-    padding: 1.8rem;
-    border-left: 3px solid var(--acento);
-  }
-
-  .resena-texto {
-    font-size: 0.95rem;
-    font-style: italic;
-    color: rgba(26,42,26,0.75);
-    line-height: 1.7;
-    margin-bottom: 1rem;
-  }
-
-  .resena-autor {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: var(--verde-claro);
-    text-transform: uppercase;
-  }
-
-  .estrellas { color: var(--acento); margin-bottom: 0.7rem; font-size: 0.8rem; }
-
-  .award-booking-banner {
-    max-width: 400px;
-    margin: 0 auto 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    border: 1px solid rgba(200,168,75,0.5);
-    padding: 1.5rem 2.5rem;
-    background: rgba(200,168,75,0.08);
-  }
-
-  .award-booking-num {
-    font-size: 5rem;
-    font-weight: 300;
-    color: var(--acento);
-    line-height: 1;
-    font-family: 'Cormorant Garamond', serif;
-  }
-
-  .award-booking-label {
-    font-size: 1.1rem;
-    font-weight: 300;
-    color: var(--crema);
-    margin-bottom: 0.3rem;
-  }
-
-  .award-booking-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    color: rgba(200,168,75,0.7);
-    text-transform: uppercase;
-  }
+:root {
+  --navy: #0d1b2a;
+  --navy2: #162236;
+  --gold: #c8a45a;
+  --gold2: #e2c07a;
+  --cream: #f4efe6;
+  --cream2: #ece5d8;
+  --white: #ffffff;
+  --text: #1a1a2e;
+  --soft: #6b7280;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--text); overflow-x: hidden; }
+
+/* LANG BAR */
+.lang-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: var(--navy); padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; }
+.lang-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; }
+.lang-btns { display: flex; gap: 6px; }
+.lang-btn { background: none; border: 1px solid rgba(200,164,90,0.3); color: rgba(255,255,255,0.5); font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; padding: 4px 12px; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
+.lang-btn.active { border-color: var(--gold); color: var(--gold); }
+.lang-btn:hover { color: var(--white); border-color: var(--white); }
+
+/* HERO */
+.hero { min-height: 100vh; background-image: linear-gradient(rgba(13,27,42,0.6), rgba(13,27,42,0.75)), url('hero.jpg'); background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 40px 60px; position: relative; overflow: hidden; }
+.hero-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; position: relative; display: flex; align-items: center; gap: 16px; }
+.hero-eyebrow::before, .hero-eyebrow::after { content: ''; width: 40px; height: 1px; background: var(--gold); opacity: 0.5; }
+.hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 8vw, 6.5rem); font-weight: 300; color: var(--white); line-height: 1.05; position: relative; margin-bottom: 8px; }
+.hero-title em { font-style: italic; color: var(--gold2); }
+.hero-subtitle { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 2.5vw, 1.5rem); font-weight: 300; color: rgba(255,255,255,0.45); letter-spacing: 0.08em; margin-bottom: 48px; position: relative; }
+.hero-cta { display: inline-flex; align-items: center; gap: 12px; background: var(--gold); color: var(--navy); padding: 16px 36px; font-family: 'Jost', sans-serif; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; border-radius: 2px; transition: all 0.3s; position: relative; }
+.hero-cta:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(200,164,90,0.3); }
+.hero-scroll { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(255,255,255,0.25); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; }
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(200,164,90,0.5), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+@keyframes scrollPulse { 0%,100%{opacity:0.3;transform:scaleY(0.6)} 50%{opacity:1;transform:scaleY(1)} }
+
+/* STATS */
+.stats { background: var(--navy2); padding: 48px 40px; display: grid; grid-template-columns: repeat(4, 1fr); }
+.stat-item { text-align: center; padding: 24px; border-right: 1px solid rgba(200,164,90,0.15); }
+.stat-item:last-child { border-right: none; }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; color: var(--gold); line-height: 1; }
+.stat-label { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-top: 8px; }
+
+/* SECTIONS */
+section { padding: 96px 40px; max-width: 1200px; margin: 0 auto; }
+.section-tag { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.section-tag::after { content: ''; flex: 1; max-width: 40px; height: 1px; background: var(--gold); opacity: 0.5; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300; color: var(--navy); line-height: 1.15; margin-bottom: 20px; }
+.section-title em { font-style: italic; color: var(--gold); }
+.section-body { font-size: 0.95rem; line-height: 1.85; color: var(--soft); max-width: 560px; }
+
+/* AMENITIES */
+.amenities-section { background: var(--white); padding: 96px 0; }
+.amenities-inner { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+.amenities-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 56px; }
+.amenity-item { background: var(--cream); padding: 36px 28px; text-align: center; transition: all 0.3s; }
+.amenity-item:hover { background: var(--navy); }
+.amenity-item:hover .amenity-name { color: var(--white); }
+.amenity-icon { font-size: 1.8rem; margin-bottom: 14px; display: block; }
+.amenity-name { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); transition: color 0.3s; }
+
+/* APARTMENTS */
+.apartments-section { padding: 96px 0; background: var(--cream2); }
+.apartments-inner { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+.apt-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin-top: 56px; }
+.apt-card { background: var(--white); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+.apt-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(13,27,42,0.15); }
+.apt-img-placeholder { width: 100%; height: 260px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: rgba(200,164,90,0.2); }
+.apt-body { padding: 32px 28px; }
+.apt-tag { display: inline-block; background: var(--gold); color: var(--navy); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; margin-bottom: 14px; }
+.apt-name { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 400; color: var(--navy); margin-bottom: 10px; }
+.apt-features { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.apt-feat { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.06em; color: var(--soft); background: var(--cream); padding: 4px 10px; border-radius: 2px; }
+.apt-desc { font-size: 0.88rem; line-height: 1.75; color: var(--soft); margin-bottom: 24px; }
+.apt-cta { display: inline-flex; align-items: center; gap: 8px; color: var(--navy); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; transition: all 0.2s; }
+.apt-cta:hover { color: var(--gold); gap: 14px; }
+
+/* LOCATION */
+.location-section { padding: 96px 0; background: var(--navy); }
+.location-inner { max-width: 1200px; margin: 0 auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.location-section .section-title { color: var(--white); }
+.location-section .section-body { color: rgba(255,255,255,0.5); max-width: 100%; }
+.location-points { margin-top: 32px; display: flex; flex-direction: column; gap: 16px; }
+.location-point { display: flex; align-items: flex-start; gap: 16px; }
+.lp-icon { font-size: 1.1rem; margin-top: 2px; flex-shrink: 0; }
+.lp-text { font-size: 0.88rem; line-height: 1.6; color: rgba(255,255,255,0.55); }
+.lp-text strong { color: var(--gold); font-weight: 500; }
+.map-embed { border-radius: 4px; overflow: hidden; height: 380px; }
+.map-embed iframe { width: 100%; height: 100%; border: none; filter: grayscale(20%) contrast(1.1); }
+
+/* CONTACT */
+.contact-section { padding: 96px 0; background: var(--cream); }
+.contact-inner { max-width: 700px; margin: 0 auto; padding: 0 40px; text-align: center; }
+.contact-inner .section-tag { justify-content: center; }
+.contact-inner .section-tag::after { display: none; }
+.contact-inner .section-body { margin: 0 auto 40px; text-align: center; max-width: 100%; }
+.wa-btn { display: inline-flex; align-items: center; gap: 14px; background: #25D366; color: white; padding: 18px 44px; font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-radius: 2px; transition: all 0.3s; }
+.wa-btn:hover { background: #1fba59; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(37,211,102,0.3); }
+.wa-btn svg { width: 20px; height: 20px; fill: white; flex-shrink: 0; }
+
+/* FOOTER */
+footer { background: var(--navy); padding: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+.footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.1em; }
+.footer-text { font-size: 0.72rem; color: rgba(255,255,255,0.25); letter-spacing: 0.06em; }
+.footer-managed { font-size: 0.7rem; color: rgba(255,255,255,0.2); }
+.footer-managed a { color: rgba(200,164,90,0.5); text-decoration: none; }
+.footer-managed a:hover { color: var(--gold); }
+
+/* ANIMATIONS */
+.fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* RESPONSIVE */
+@media(max-width: 900px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat-item { border-right: none; border-bottom: 1px solid rgba(200,164,90,0.15); }
+  .amenities-grid { grid-template-columns: repeat(2, 1fr); }
+  .apt-grid { grid-template-columns: 1fr; }
+  .location-inner { grid-template-columns: 1fr; gap: 48px; }
+  .map-embed { height: 280px; }
+}
+@media(max-width: 600px) {
+  .lang-bar { padding: 10px 20px; }
+  section { padding: 64px 20px; }
+  .amenities-inner, .apartments-inner { padding: 0 20px; }
+  .location-inner, .contact-inner { padding: 0 20px; }
+  .hero { padding: 100px 24px 60px; }
+  .stats { padding: 32px 20px; }
+  footer { padding: 28px 20px; flex-direction: column; text-align: center; }
+}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav id="nav">
-  <div class="nav-logo">Wood Cabin · <span>Los Bananos</span></div>
-  <ul class="nav-links">
-    <li><a href="#buscar">Reservar</a></li>
-    <li><a href="#cabanas">Cabañas</a></li>
-    <li><a href="#comodidades">Comodidades</a></li>
-    <li><a href="#ubicacion">Ubicación</a></li>
-  </ul>
-</nav>
+<div class="lang-bar">
+  <div class="lang-logo">Catalinas Norte</div>
+  <div class="lang-btns">
+    <button class="lang-btn active" onclick="setLang('es')" id="btn-es">ES</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+  </div>
+</div>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <span class="leaf">🌿</span>
-  <span class="leaf">🍃</span>
-  <span class="leaf">🌿</span>
-  <span class="leaf">🍃</span>
-  <span class="leaf">🌱</span>
-  <div class="hero-content">
-    <p class="hero-eyebrow">Puerto Iguazú · Misiones · Argentina</p>
-    <h1 class="hero-title">Wood Cabin<br><span>Iguazú</span></h1>
-    <p class="hero-subtitle">Los Bananos — Tiny &amp; Big Wood Cabin</p>
-    <div class="hero-award">
-      <span class="award-num">9,6</span>
-      <span class="award-text">Puntuación<br><span style="color:rgba(245,240,232,0.5)">Booking.com</span></span>
-      <span class="award-sep"></span>
-      <span class="award-num" style="font-size:2.2rem">4,8</span>
-      <span class="award-text">Puntuación<br><span style="color:rgba(245,240,232,0.5)">Google · 132 reseñas</span></span>
-    </div>
-    <a href="#buscar" class="hero-cta">Consultar disponibilidad</a>
-  </div>
-  <div class="scroll-hint">
-    <span>Scroll</span>
-    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-    </svg>
-  </div>
+<div class="hero">
+  <div class="hero-eyebrow"><span data-es="Buenos Aires · Catalinas Norte" data-en="Buenos Aires · Catalinas Norte">Buenos Aires · Catalinas Norte</span></div>
+  <h1 class="hero-title"><em data-es="Apartamentos" data-en="Apartments">Apartamentos</em><br><span data-es="temporarios" data-en="for short stays">temporarios</span></h1>
+  <p class="hero-subtitle" data-es="Confort, ubicación y atención profesional" data-en="Comfort, location and professional care">Confort, ubicación y atención profesional</p>
+  <a href="#contacto" class="hero-cta" data-es="Consultar disponibilidad" data-en="Check availability">Consultar disponibilidad</a>
+  <div class="hero-scroll"><div class="scroll-line"></div><span>scroll</span></div>
+</div>
+
+<div class="stats">
+  <div class="stat-item fade-in"><div class="stat-num">7</div><div class="stat-label" data-es="Apartamentos" data-en="Apartments">Apartamentos</div></div>
+  <div class="stat-item fade-in"><div class="stat-num">5.0</div><div class="stat-label" data-es="Calificación Airbnb" data-en="Airbnb Rating">Calificación Airbnb</div></div>
+  <div class="stat-item fade-in"><div class="stat-num">24h</div><div class="stat-label" data-es="Respuesta garantizada" data-en="Guaranteed response">Respuesta garantizada</div></div>
+  <div class="stat-item fade-in"><div class="stat-num">ES·EN</div><div class="stat-label" data-es="Idiomas de atención" data-en="Service languages">Idiomas de atención</div></div>
+</div>
+
+<section class="fade-in">
+  <div class="section-tag" data-es="Sobre nosotros" data-en="About us">Sobre nosotros</div>
+  <h2 class="section-title" data-es="Una estadía <em>diferente</em> en el corazón de Buenos Aires" data-en="A <em>different</em> stay in the heart of Buenos Aires">Una estadía <em>diferente</em> en el corazón de Buenos Aires</h2>
+  <p class="section-body" data-es="Catalinas Norte Apartamentos ofrece alquileres temporarios gestionados con más de 30 años de experiencia en turismo y hotelería. Cada departamento está preparado para que llegues y te sientas en casa desde el primer momento, con todo lo necesario y atención disponible cuando la necesites." data-en="Catalinas Norte Apartments offers short-term rentals managed with over 30 years of experience in tourism and hospitality. Each apartment is ready for you to arrive and feel at home from the very first moment, with everything you need and support available whenever you need it.">Catalinas Norte Apartamentos ofrece alquileres temporarios gestionados con más de 30 años de experiencia en turismo y hotelería. Cada departamento está preparado para que llegues y te sientas en casa desde el primer momento, con todo lo necesario y atención disponible cuando la necesites.</p>
 </section>
 
-<!-- BUSCADOR -->
-<section class="buscador-section" id="buscar">
-  <p class="section-label">Disponibilidad</p>
-  <h2 class="section-title">Encontrá tu <em>cabaña</em></h2>
-
-  <div class="buscador">
-    <div class="buscador-grid">
-      <div class="campo">
-        <label>Ingreso</label>
-        <input type="date" id="fecha-ingreso" min="">
-      </div>
-      <div class="campo">
-        <label>Egreso</label>
-        <input type="date" id="fecha-egreso" min="">
-      </div>
-      <div class="campo">
-        <label>Personas</label>
-        <select id="personas">
-          <option value="">Seleccioná</option>
-          <option value="1">1 persona</option>
-          <option value="2">2 personas</option>
-          <option value="3">3 personas</option>
-          <option value="4">4 personas</option>
-        </select>
-      </div>
-    </div>
-    <button class="btn-buscar" onclick="buscar()">Verificar disponibilidad</button>
-
-    <div class="resultado" id="resultado">
-      <p class="resultado-titulo">Resultado de búsqueda</p>
-      <div class="cabanas-resultado" id="cabanas-resultado"></div>
+<div class="amenities-section">
+  <div class="amenities-inner">
+    <div class="section-tag fade-in" data-es="Servicios incluidos" data-en="Included amenities">Servicios incluidos</div>
+    <h2 class="section-title fade-in" data-es="Todo lo que <em>necesitás</em>" data-en="Everything you <em>need</em>">Todo lo que <em>necesitás</em></h2>
+    <div class="amenities-grid">
+      <div class="amenity-item fade-in"><span class="amenity-icon">❄️</span><span class="amenity-name" data-es="Aire acondicionado" data-en="Air conditioning">Aire acondicionado</span></div>
+      <div class="amenity-item fade-in"><span class="amenity-icon">🔥</span><span class="amenity-name" data-es="Calefacción" data-en="Heating">Calefacción</span></div>
+      <div class="amenity-item fade-in"><span class="amenity-icon">📶</span><span class="amenity-name" data-es="WiFi de alta velocidad" data-en="High-speed WiFi">WiFi de alta velocidad</span></div>
+      <div class="amenity-item fade-in"><span class="amenity-icon">🍳</span><span class="amenity-name" data-es="Cocina completa" data-en="Full kitchen">Cocina completa</span></div>
+      <div class="amenity-item fade-in"><span class="amenity-icon">🛏️</span><span class="amenity-name" data-es="Ropa de cama" data-en="Bed linen">Ropa de cama</span></div>
+      <div class="amenity-item fade-in"><span class="amenity-icon">🚿</span><span class="amenity-name" data-es="Baño completo" data-en="Full bathroom">Baño completo</span></div>
+      <div class="amenity-item fade-in"><span class="amenity-icon">👕</span><span class="amenity-name" data-es="Plancha" data-en="Iron">Plancha</span></div>
+      <div class="amenity-item fade-in"><span class="amenity-icon">🔒</span><span class="amenity-name" data-es="Puertas blindadas" data-en="Security doors">Puertas blindadas</span></div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- TIPOS DE CABAÑA -->
-<section class="tipos-section" id="cabanas">
-  <p class="section-label">Alojamiento</p>
-  <h2 class="section-title">Dos tipos de <em>cabaña</em></h2>
+<div class="apartments-section">
+  <div class="apartments-inner">
+    <div class="section-tag fade-in" data-es="Disponibles" data-en="Available">Disponibles</div>
+    <h2 class="section-title fade-in" data-es="Nuestros <em>apartamentos</em>" data-en="Our <em>apartments</em>">Nuestros <em>apartamentos</em></h2>
+    <div class="apt-grid">
 
-  <div class="tipos-grid">
-    <div class="tipo-card">
-      <div style="width:100%;aspect-ratio:4/3;overflow:hidden;">
-        <img src="img/cabana-terraza.jpg" alt="Tiny Wood Cabin" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;">
-      </div>
-      <div class="tipo-info">
-        <p class="tipo-eyebrow">Hasta 2 personas</p>
-        <h3 class="tipo-nombre">Tiny Wood Cabin</h3>
-        <p class="tipo-desc">Cabaña compacta de madera rodeada de vegetación. Ideal para parejas que buscan privacidad y contacto con la naturaleza.</p>
-        <div class="tipo-tags">
-          <span class="tag">Cama matrimonial</span>
-          <span class="tag">Cocina equipada</span>
-          <span class="tag">Baño privado</span>
-          <span class="tag">AC</span>
-          <span class="tag">TV</span>
-          <span class="tag">WiFi</span>
+      <div class="apt-card fade-in">
+        <img src="1A.jpg" alt="Apartamento 1A" style="width:100%;height:260px;object-fit:cover;display:block;">
+        <div class="apt-body">
+          <span class="apt-tag" data-es="Disponible" data-en="Available">Disponible</span>
+          <div class="apt-name">1A</div>
+          <div class="apt-features">
+            <span class="apt-feat" data-es="Primer piso" data-en="First floor">Primer piso</span>
+            <span class="apt-feat" data-es="Cocina completa" data-en="Full kitchen">Cocina completa</span>
+          </div>
+          <p class="apt-desc" data-es="Apartamento en primer piso, cómodo y bien equipado. Ideal para estadías de negocios o turismo en el corazón de Buenos Aires." data-en="First floor apartment, comfortable and well-equipped. Ideal for business or leisure stays in the heart of Buenos Aires.">Apartamento en primer piso, cómodo y bien equipado. Ideal para estadías de negocios o turismo en el corazón de Buenos Aires.</p>
+          <a href="#contacto" class="apt-cta"><span data-es="Consultar" data-en="Enquire">Consultar</span> →</a>
         </div>
       </div>
-    </div>
 
-    <div class="tipo-card">
-      <div style="width:100%;aspect-ratio:4/3;overflow:hidden;">
-        <img src="img/cabana-hamaca.jpg" alt="Big Wood Cabin" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;">
-      </div>
-      <div class="tipo-info">
-        <p class="tipo-eyebrow">Hasta 4 personas</p>
-        <h3 class="tipo-nombre">Big Wood Cabin</h3>
-        <p class="tipo-desc">Cabaña amplia de dos dormitorios, perfecta para familias o grupos pequeños. Espacio generoso y todas las comodidades del hogar.</p>
-        <div class="tipo-tags">
-          <span class="tag">2 dormitorios</span>
-          <span class="tag">Cocina completa</span>
-          <span class="tag">Baño privado</span>
-          <span class="tag">AC</span>
-          <span class="tag">TV satélite</span>
-          <span class="tag">WiFi</span>
-          <span class="tag">Lavadora</span>
+      <div class="apt-card fade-in">
+        <img src="1B.jpg" alt="Apartamento 1B" style="width:100%;height:260px;object-fit:cover;display:block;">
+        <div class="apt-body">
+          <span class="apt-tag" data-es="Disponible" data-en="Available">Disponible</span>
+          <div class="apt-name">1B</div>
+          <div class="apt-features">
+            <span class="apt-feat" data-es="Primer piso" data-en="First floor">Primer piso</span>
+            <span class="apt-feat" data-es="Lavarropas" data-en="Washing machine">Lavarropas</span>
+            <span class="apt-feat" data-es="Cocina completa" data-en="Full kitchen">Cocina completa</span>
+          </div>
+          <p class="apt-desc" data-es="Apartamento en primer piso con lavarropas incluido. Una ventaja práctica para estadías más largas o quienes viajan con más equipaje." data-en="First floor apartment with washing machine included. A practical advantage for longer stays or those travelling with more luggage.">Apartamento en primer piso con lavarropas incluido. Una ventaja práctica para estadías más largas o quienes viajan con más equipaje.</p>
+          <a href="#contacto" class="apt-cta"><span data-es="Consultar" data-en="Enquire">Consultar</span> →</a>
         </div>
       </div>
+
+      <div class="apt-card fade-in">
+        <img src="2C.jpg" alt="Apartamento 2C" style="width:100%;height:260px;object-fit:cover;display:block;">
+        <div class="apt-body">
+          <span class="apt-tag" data-es="Disponible" data-en="Available">Disponible</span>
+          <div class="apt-name">2C</div>
+          <div class="apt-features">
+            <span class="apt-feat" data-es="Segundo piso" data-en="Second floor">Segundo piso</span>
+            <span class="apt-feat" data-es="Cocina completa" data-en="Full kitchen">Cocina completa</span>
+          </div>
+          <p class="apt-desc" data-es="Apartamento en segundo piso, tranquilo y luminoso. Perfecto para disfrutar de Buenos Aires con toda la comodidad." data-en="Second floor apartment, quiet and bright. Perfect for enjoying Buenos Aires in full comfort.">Apartamento en segundo piso, tranquilo y luminoso. Perfecto para disfrutar de Buenos Aires con toda la comodidad.</p>
+          <a href="#contacto" class="apt-cta"><span data-es="Consultar" data-en="Enquire">Consultar</span> →</a>
+        </div>
+      </div>
+
+      <div class="apt-card fade-in">
+        <img src="2D.jpg" alt="Apartamento 2D" style="width:100%;height:260px;object-fit:cover;display:block;">
+        <div class="apt-body">
+          <span class="apt-tag" data-es="Disponible" data-en="Available">Disponible</span>
+          <div class="apt-name">2D</div>
+          <div class="apt-features">
+            <span class="apt-feat" data-es="Segundo piso" data-en="Second floor">Segundo piso</span>
+            <span class="apt-feat" data-es="Cocina completa" data-en="Full kitchen">Cocina completa</span>
+          </div>
+          <p class="apt-desc" data-es="Apartamento en segundo piso con buena orientación y ambientes confortables. Una opción versátil para cualquier tipo de estadía." data-en="Second floor apartment with good orientation and comfortable spaces. A versatile option for any type of stay.">Apartamento en segundo piso con buena orientación y ambientes confortables. Una opción versátil para cualquier tipo de estadía.</p>
+          <a href="#contacto" class="apt-cta"><span data-es="Consultar" data-en="Enquire">Consultar</span> →</a>
+        </div>
+      </div>
+
     </div>
   </div>
-</section>
+</div>
 
-<!-- COMODIDADES -->
-<section class="comodidades-section" id="comodidades">
-  <p class="section-label">El espacio</p>
-  <h2 class="section-title">Todo lo que <em>necesitás</em></h2>
-
-  <div class="comodidades-grid">
-    <div class="comodidad">
-      <span class="comodidad-icono">🏊</span>
-      <p class="comodidad-nombre">Piscina exterior con pileta de inmersión</p>
+<div class="location-section">
+  <div class="location-inner">
+    <div class="fade-in">
+      <div class="section-tag" style="color:var(--gold)" data-es="Ubicación" data-en="Location">Ubicación</div>
+      <h2 class="section-title" data-es="En el <em>centro</em> de todo" data-en="At the <em>center</em> of everything">En el <em>centro</em> de todo</h2>
+      <p class="section-body" data-es="Catalinas Norte es uno de los barrios más exclusivos y seguros de Buenos Aires, con acceso directo al microcentro, Puerto Madero y los principales centros de negocios." data-en="Catalinas Norte is one of Buenos Aires' most exclusive and safe neighborhoods, with direct access to the city center, Puerto Madero and the main business districts.">Catalinas Norte es uno de los barrios más exclusivos y seguros de Buenos Aires, con acceso directo al microcentro, Puerto Madero y los principales centros de negocios.</p>
+      <div class="location-points">
+        <div class="location-point"><span class="lp-icon">🚇</span><div class="lp-text"><strong data-es="Transporte" data-en="Transport">Transporte</strong><br><span data-es="Subtes y colectivos a metros. Fácil acceso desde el aeropuerto." data-en="Subway and buses nearby. Easy access from the airport.">Subtes y colectivos a metros. Fácil acceso desde el aeropuerto.</span></div></div>
+        <div class="location-point"><span class="lp-icon">🏢</span><div class="lp-text"><strong data-es="Negocios" data-en="Business">Negocios</strong><br><span data-es="A pasos de las torres corporativas y del centro financiero." data-en="Steps away from corporate towers and the financial district.">A pasos de las torres corporativas y del centro financiero.</span></div></div>
+        <div class="location-point"><span class="lp-icon">🌊</span><div class="lp-text"><strong data-es="Puerto Madero" data-en="Puerto Madero">Puerto Madero</strong><br><span data-es="Caminando al barrio gastronómico más moderno de la ciudad." data-en="Walking distance to the city's most modern gastronomic district.">Caminando al barrio gastronómico más moderno de la ciudad.</span></div></div>
+      </div>
     </div>
-    <div class="comodidad">
-      <span class="comodidad-icono">🌿</span>
-      <p class="comodidad-nombre">Jardín selvático y espacio verde</p>
-    </div>
-    <div class="comodidad">
-      <span class="comodidad-icono">🔥</span>
-      <p class="comodidad-nombre">Parrilla / Barbacoa</p>
-    </div>
-
-    <div class="comodidad">
-      <span class="comodidad-icono">🚗</span>
-      <p class="comodidad-nombre">Estacionamiento privado</p>
-    </div>
-    <div class="comodidad">
-      <span class="comodidad-icono">🐾</span>
-      <p class="comodidad-nombre">Acepta mascotas</p>
-    </div>
-    <div class="comodidad">
-      <span class="comodidad-icono">📶</span>
-      <p class="comodidad-nombre">WiFi en todo el complejo</p>
-    </div>
-    <div class="comodidad">
-      <span class="comodidad-icono">🌡️</span>
-      <p class="comodidad-nombre">Aire acondicionado</p>
-    </div>
-    <div class="comodidad">
-      <span class="comodidad-icono">🍳</span>
-      <p class="comodidad-nombre">Cocina totalmente equipada</p>
+    <div class="map-embed fade-in">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3283.5588931746904!2d-58.37427492346643!3d-34.59771565678201!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95a335345e0b5807%3A0x25a28b4e33e8ee4!2sCatalinas%20Norte%2C%20Ciudad%20Aut%C3%B3noma%20de%20Buenos%20Aires!5e0!3m2!1ses!2sar!4v1715000000000!5m2!1ses!2sar" allowfullscreen loading="lazy"></iframe>
     </div>
   </div>
-</section>
-
-<!-- BANNER CATARATAS -->
-<section class="cataratas-banner">
-  <img 
-    src="img/cataratas.jpg"
-    alt="Cataratas del Iguazú"
-    class="cataratas-img"
-  >
-  <div class="cataratas-overlay">
-    <p class="cataratas-eyebrow">Patrimonio Natural de la Humanidad · UNESCO</p>
-    <h2 class="cataratas-titulo">A 30 minutos<br><em>de las Cataratas</em></h2>
-    <p class="cataratas-sub">Una de las 7 Maravillas Naturales del Mundo,<br>a la vuelta de la cabaña.</p>
-  </div>
-  <p class="cataratas-credit">Foto: Unsplash · Licencia libre</p>
-</section>
-
-<!-- VIDEO DRON -->
-<section class="video-section">
-  <p class="section-label">El complejo desde el aire</p>
-  <h2 class="section-title">Wood Cabin <em>desde el cielo</em></h2>
-  <div class="video-wrapper">
-    <video
-      id="drone-video"
-      src="video/dron.mp4"
-      poster=""
-      playsinline
-      loop
-      muted
-      controls
-    ></video>
-    <div class="video-play-hint" id="play-hint" onclick="playVideo()">
-      <div class="play-btn">▶</div>
-      <p>Ver video</p>
-    </div>
-  </div>
-</section>
-
-<!-- GALERÍA -->
-<section class="galeria-section" id="galeria">
-  <p class="section-label">Galería</p>
-  <h2 class="section-title">El entorno <em>natural</em></h2>
-
-  <div class="galeria-grid">
-    <div class="galeria-item">
-      <img src="img/sendero-noche.jpg" alt="Sendero nocturno" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div class="galeria-overlay"></div>
-    </div>
-    <div class="galeria-item">
-      <img src="img/piscina.jpg" alt="Piscina" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div class="galeria-overlay"></div>
-    </div>
-    <div class="galeria-item">
-      <img src="img/cabana-hamaca.jpg" alt="Cabaña con hamaca" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div class="galeria-overlay"></div>
-    </div>
-    <div class="galeria-item">
-      <img src="img/cabana-terraza.jpg" alt="Terraza cabaña" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div class="galeria-overlay"></div>
-    </div>
-    <div class="galeria-item">
-      <img src="img/jardin-heliconia.jpg" alt="Jardín heliconias" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div class="galeria-overlay"></div>
-    </div>
-    <div class="galeria-item">
-      <img src="img/mate-jardin.jpg" alt="Mate en el jardín" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div class="galeria-overlay"></div>
-    </div>
-    <div class="galeria-item">
-      <img src="img/deck-hamaca.jpg" alt="Deck con hamaca" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div class="galeria-overlay"></div>
-    </div>
-  </div>
-</section>
+</div>
 
 <!-- RESEÑAS -->
-<section class="resenas-section">
-  <p class="section-label">Huéspedes</p>
-  <h2 class="section-title">Lo que dicen <em>quienes nos visitan</em></h2>
+<div style="background:var(--navy);padding:96px 0;">
+  <div style="max-width:1200px;margin:0 auto;padding:0 40px;">
+    <div class="section-tag fade-in" style="color:var(--gold)" data-es="Reseñas" data-en="Reviews">Reseñas</div>
+    <h2 class="section-title fade-in" style="color:var(--white)" data-es="Lo que dicen nuestros <em>huéspedes</em>" data-en="What our <em>guests</em> say">Lo que dicen nuestros <em>huéspedes</em></h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:56px;" class="reviews-grid">
 
-  <div class="award-booking-banner">
-    <div class="award-booking-num">9,6</div>
-    <div class="award-booking-info">
-      <div class="award-booking-label">Puntuación destacada</div>
-      <div class="award-booking-sub">Booking.com</div>
+      <div class="fade-in" style="background:var(--navy2);padding:36px 32px;">
+        <div style="color:var(--gold);font-size:1rem;margin-bottom:20px;letter-spacing:2px">★★★★★</div>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:300;color:rgba(255,255,255,0.8);line-height:1.7;margin-bottom:24px;font-style:italic;">"Muy lindo lugar y buen punto!! Volvería sin dudas!!"</p>
+        <div style="font-size:0.78rem;font-weight:600;color:var(--gold);letter-spacing:0.08em;">Guillermo</div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:4px;">Montevideo, Uruguay</div>
+      </div>
+
+      <div class="fade-in" style="background:var(--navy2);padding:36px 32px;">
+        <div style="color:var(--gold);font-size:1rem;margin-bottom:20px;letter-spacing:2px">★★★★★</div>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:300;color:rgba(255,255,255,0.8);line-height:1.7;margin-bottom:24px;font-style:italic;">"Un lugar maravilloso para hospedarte y un anfitrión excelente."</p>
+        <div style="font-size:0.78rem;font-weight:600;color:var(--gold);letter-spacing:0.08em;">Noah</div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:4px;">Walden, Tennessee</div>
+      </div>
+
+      <div class="fade-in" style="background:var(--navy2);padding:36px 32px;">
+        <div style="color:var(--gold);font-size:1rem;margin-bottom:20px;letter-spacing:2px">★★★★★</div>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:300;color:rgba(255,255,255,0.8);line-height:1.7;margin-bottom:24px;font-style:italic;">"Hermosa estadía. Reservé sobre la hora y María siempre predispuesta a ayudarme en todo lo que precisaba. Muchas gracias."</p>
+        <div style="font-size:0.78rem;font-weight:600;color:var(--gold);letter-spacing:0.08em;">Juan</div>
+        <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:4px;">Córdoba, Argentina</div>
+      </div>
+
     </div>
   </div>
+</div>
+<style>@media(max-width:900px){.reviews-grid{grid-template-columns:1fr!important;}}</style>
 
-  <div class="resenas-grid">
-    <div class="resena">
-      <div class="estrellas">★★★★★</div>
-      <p class="resena-texto">"Un lugar increíble para disfrutar de la paz y la naturaleza. Fernando siempre atento y con recomendaciones para recorrer Iguazú. Volvería siempre."</p>
-      <p class="resena-autor">Huésped verificado · Booking</p>
-    </div>
-    <div class="resena">
-      <div class="estrellas">★★★★★</div>
-      <p class="resena-texto">"Excelente ubicación. Una vez que entrás al complejo te sentís en la selva. Hermoso todo: pileta, vegetación, la cabaña, la limpieza. Privacidad total."</p>
-      <p class="resena-autor">Huésped verificado · Booking</p>
-    </div>
-    <div class="resena">
-      <div class="estrellas">★★★★★</div>
-      <p class="resena-texto">"Fernando fue un lujo como anfitrión. Cabañas funcionales y limpias, rodeadas de naturaleza con mucho comfort. 100% recomendable."</p>
-      <p class="resena-autor">Huésped verificado · Booking</p>
-    </div>
-  </div>
-</section>
+<div class="contact-section" id="contacto">
+  <div class="contact-inner fade-in">
+    <div class="section-tag" data-es="Disponibilidad" data-en="Availability">Disponibilidad</div>
+    <h2 class="section-title" data-es="Consultá <em>disponibilidad</em>" data-en="Check <em>availability</em>">Consultá <em>disponibilidad</em></h2>
+    <p class="section-body" data-es="Elegí tus fechas y te mostramos qué apartamentos están libres." data-en="Choose your dates and we'll show you which apartments are available.">Elegí tus fechas y te mostramos qué apartamentos están libres.</p>
 
-<!-- UBICACIÓN -->
-<section class="ubicacion-section" id="ubicacion">
-  <p class="section-label">Cómo llegar</p>
-  <h2 class="section-title">En el corazón de <em>la selva</em></h2>
-
-  <div class="ubicacion-content">
-    <p>Av. Los Pioneros 730, Puerto Iguazú, Misiones. En un barrio tranquilo rodeado de naturaleza, a minutos de las principales atracciones de la región.</p>
-
-    <div class="ubicacion-datos">
-      <div class="dato">
-        <div class="dato-numero">20'</div>
-        <div class="dato-label">Al aeropuerto</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0;max-width:420px;margin-left:auto;margin-right:auto;">
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--soft);display:block;margin-bottom:8px;" data-es="Llegada" data-en="Check-in">Llegada</label>
+        <input type="date" id="busq-entrada" style="width:100%;padding:12px 16px;border:1px solid var(--cream2);border-radius:2px;font-family:'Jost',sans-serif;font-size:0.9rem;color:var(--text);background:var(--white);outline:none;">
       </div>
-      <div class="dato">
-        <div class="dato-numero">17'</div>
-        <div class="dato-label">A pie · La Aripuca</div>
-      </div>
-      <div class="dato">
-        <div class="dato-numero">4 km</div>
-        <div class="dato-label">Centro de Iguazú</div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--soft);display:block;margin-bottom:8px;" data-es="Salida" data-en="Check-out">Salida</label>
+        <input type="date" id="busq-salida" style="width:100%;padding:12px 16px;border:1px solid var(--cream2);border-radius:2px;font-family:'Jost',sans-serif;font-size:0.9rem;color:var(--text);background:var(--white);outline:none;">
       </div>
     </div>
 
-    <a href="https://wa.me/5493757558957?text=Hola!%20Quisiera%20consultar%20sobre%20la%20ubicaci%C3%B3n%20de%20Wood%20Cabin%20Iguaz%C3%BA" 
-       class="btn-whatsapp" target="_blank" style="display:inline-flex; margin: 0 auto;">
-      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      Consultar cómo llegar
-    </a>
+    <button onclick="buscarDisponibilidad()" style="background:var(--navy);color:var(--white);border:none;padding:14px 36px;font-family:'Jost',sans-serif;font-size:0.82rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;border-radius:2px;cursor:pointer;transition:all 0.3s;margin-bottom:32px;" data-es="Ver disponibilidad" data-en="Check availability">Ver disponibilidad</button>
 
-    <div class="mapa-wrapper">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3641.5!2d-54.5744!3d-25.5786!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94f69357a8ab606b%3A0x7ae59f40bade607c!2sWood%20Cabin%20Iguazu%20-%20Los%20Bananos!5e0!3m2!1ses!2sar!4v1"
-        width="100%" height="320" style="border:0;" allowfullscreen="" loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
-    </div>
+    <div id="busq-resultado" style="width:100%;max-width:560px;margin:0 auto;"></div>
   </div>
-</section>
+</div>
 
-<!-- FOOTER -->
 <footer>
-  <div class="footer-logo">Wood Cabin · <span>Iguazú</span></div>
-  <p class="footer-sub">Los Bananos · Puerto Iguazú · Misiones</p>
-  <div class="footer-links">
-    <a href="https://instagram.com/woodcabiniguazu" target="_blank">Instagram</a>
-    <a href="#buscar">Reservar</a>
-    <a href="#comodidades">Comodidades</a>
-    <a href="#ubicacion">Cómo llegar</a>
-  </div>
-  <p class="footer-copy">© 2025 Wood Cabin Iguazú · Los Bananos</p>
+  <div class="footer-logo">Catalinas Norte Apartamentos</div>
+  <div class="footer-text">Buenos Aires, Argentina</div>
+  <div class="footer-managed">Gestionado con <a href="https://checkinn.com.ar" target="_blank">CheckInn</a></div>
 </footer>
 
 <script>
-// ——— Video dron ———
-function playVideo() {
-  const video = document.getElementById('drone-video');
-  const hint  = document.getElementById('play-hint');
-  video.muted = false;
-  video.play();
-  hint.style.display = 'none';
+let currentLang = 'es';
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.querySelectorAll('[data-es]').forEach(el => {
+    const val = el.getAttribute('data-' + lang);
+    if (val) el.innerHTML = val;
+  });
+  document.documentElement.lang = lang;
 }
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+<script>
+// Buscador de disponibilidad — consulta JSONBin en tiempo real
+const DEPTOS_WEB = {
+  'D02': '1A', 'D07': '1B', 'D03': '2C', 'D04': '2D'
+};
+const BIN_R_CAT = '69a97dbcd0ea881f40f19cbb';
+const JKEY_CAT = '$2a$10$PDORfAHzOpsMgSJC0Ka9eO.lfBYtUfz8I91vNnUK7mQf9qxKKrC22';
+const WA_NUM = '5491140925939';
 
-// ——— CONFIG ———
-const JSONBIN_BIN_ID = '69a99501ae596e708f62460c';
-const JSONBIN_API_KEY = '$2a$10$PDORfAHzOpsMgSJC0Ka9eO.lfBYtUfz8I91vNnUK7mQf9qxKKrC22';
-const WHATSAPP_NUM = '5493757558957';
+async function buscarDisponibilidad() {
+  const entrada = document.getElementById('busq-entrada').value;
+  const salida = document.getElementById('busq-salida').value;
+  const res = document.getElementById('busq-resultado');
 
-// Definición fija de cabañas
-// depto: valor exacto del campo en JSONBin (C1–C8)
-// C1–C4 = Tiny (studio, hasta 2 personas)
-// C5–C8 = Big  (2 dormitorios, hasta 4 personas)
-const CABANAS_DEF = [
-  { depto: 'cabaña 2', tipo: 'big',  nombre: 'Big Wood Cabin Nº2',  capacidad: 4, descripcion: '2 dormitorios · 1–4 personas' },
-  { depto: 'cabaña 3', tipo: 'big',  nombre: 'Big Wood Cabin Nº3',  capacidad: 4, descripcion: '2 dormitorios · 1–4 personas' },
-  { depto: 'cabaña 5', tipo: 'tiny', nombre: 'Tiny Wood Cabin Nº5', capacidad: 2, descripcion: 'Studio · 1–2 personas' },
-  { depto: 'cabaña 6', tipo: 'tiny', nombre: 'Tiny Wood Cabin Nº6', capacidad: 2, descripcion: 'Studio · 1–2 personas' },
-  { depto: 'cabaña 7', tipo: 'tiny', nombre: 'Tiny Wood Cabin Nº7', capacidad: 2, descripcion: 'Studio · 1–2 personas' },
-  { depto: 'cabaña 8', tipo: 'tiny', nombre: 'Tiny Wood Cabin Nº8', capacidad: 2, descripcion: 'Studio · 1–2 personas' },
-  { depto: 'cabaña 9', tipo: 'tiny', nombre: 'Tiny Wood Cabin Nº9', capacidad: 2, descripcion: 'Studio · 1–2 personas' },
-];
-
-// Cache de reservas cargadas desde JSONBin
-let reservasCache = [];
-let cargando = false;
-
-// ——— NAV scroll ———
-window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 80);
-});
-
-// ——— Fechas mínimas ———
-const hoy = new Date().toISOString().split('T')[0];
-document.getElementById('fecha-ingreso').min = hoy;
-document.getElementById('fecha-egreso').min = hoy;
-document.getElementById('fecha-ingreso').addEventListener('change', function() {
-  document.getElementById('fecha-egreso').min = this.value;
-  if (document.getElementById('fecha-egreso').value <= this.value) {
-    document.getElementById('fecha-egreso').value = '';
+  if (!entrada || !salida) {
+    res.innerHTML = '<p style="color:#c0392b;font-size:0.88rem;text-align:center">Por favor elegí fechas de entrada y salida.</p>';
+    return;
   }
-});
-
-// ——— Cargar reservas desde JSONBin ———
-async function cargarReservas() {
-  // Primero intentar localStorage como caché rápido
-  const cached = localStorage.getItem('lb_reservas_cache');
-  const cachedTs = localStorage.getItem('lb_reservas_ts');
-  const ahora = Date.now();
-  // Usar caché si tiene menos de 5 minutos
-  if (cached && cachedTs && (ahora - parseInt(cachedTs)) < 300000) {
-    reservasCache = JSON.parse(cached);
-    return true;
+  if (entrada >= salida) {
+    res.innerHTML = '<p style="color:#c0392b;font-size:0.88rem;text-align:center">La fecha de salida debe ser posterior a la de entrada.</p>';
+    return;
   }
+
+  res.innerHTML = '<p style="color:var(--soft);font-size:0.88rem;text-align:center">Consultando disponibilidad...</p>';
 
   try {
-    const resp = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN_R_CAT + '/latest', {
+      headers: {'X-Master-Key': JKEY_CAT, 'X-Bin-Meta': 'false'}
     });
-    if (!resp.ok) throw new Error('Error JSONBin');
-    const data = await resp.json();
-    // El bin guarda { reservas: [...] } o directamente [...]
-    reservasCache = Array.isArray(data.record) ? data.record : (data.record.reservas || []);
-    localStorage.setItem('lb_reservas_cache', JSON.stringify(reservasCache));
-    localStorage.setItem('lb_reservas_ts', ahora.toString());
-    return true;
-  } catch (e) {
-    console.warn('No se pudo cargar JSONBin, usando caché local:', e);
-    if (cached) {
-      reservasCache = JSON.parse(cached);
-      return true;
-    }
-    return false;
-  }
-}
+    const data = await r.json();
+    const reservas = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
 
-// ——— Verificar si una cabaña está disponible ———
-// Compara el campo unidad/cabaña de cada reserva con el id de la cabaña
-function estaDisponible(cabana, desde, hasta) {
-  const dIngreso = new Date(desde);
-  const dEgreso  = new Date(hasta);
+    const fmtFecha = d => {
+      const [y,m,dia] = d.split('-');
+      return dia+'/'+m+'/'+y;
+    };
 
-  for (const r of reservasCache) {
-    // Ignorar reservas canceladas
-    if ((r.estado || '').toLowerCase().includes('cancel')) continue;
+    const noches = Math.round((new Date(salida) - new Date(entrada)) / 86400000);
 
-    // Comparar campo depto exacto (C1–C8)
-    if (r.depto !== cabana.depto) continue;
-
-    // Fechas con campos exactos: checkin / checkout
-    const rIngreso = new Date(r.checkin);
-    const rEgreso  = new Date(r.checkout);
-    if (isNaN(rIngreso) || isNaN(rEgreso)) continue;
-
-    // Solapamiento
-    if (dIngreso < rEgreso && dEgreso > rIngreso) return false;
-  }
-  return true;
-}
-
-// ——— Buscar ———
-async function buscar() {
-  const ingreso  = document.getElementById('fecha-ingreso').value;
-  const egreso   = document.getElementById('fecha-egreso').value;
-  const personas = parseInt(document.getElementById('personas').value);
-
-  if (!ingreso || !egreso || !personas) {
-    alert('Por favor completá todos los campos.');
-    return;
-  }
-  if (egreso <= ingreso) {
-    alert('La fecha de egreso debe ser posterior al ingreso.');
-    return;
-  }
-
-  const res   = document.getElementById('resultado');
-  const lista = document.getElementById('cabanas-resultado');
-  const btn   = document.querySelector('.btn-buscar');
-
-  // Mostrar estado de carga
-  btn.textContent = 'Consultando disponibilidad...';
-  btn.disabled = true;
-  res.classList.add('visible');
-  lista.innerHTML = '<div class="sin-resultados" style="padding:1rem">Cargando reservas...</div>';
-
-  await cargarReservas();
-
-  btn.textContent = 'Verificar disponibilidad';
-  btn.disabled = false;
-
-  const noches = Math.round((new Date(egreso + 'T12:00:00') - new Date(ingreso + 'T12:00:00')) / 86400000);
-  const formatFecha = f => new Date(f + 'T12:00:00').toLocaleDateString('es-AR', {day:'numeric', month:'long'});
-
-  // Filtrar por capacidad y disponibilidad
-  const aptas       = CABANAS_DEF.filter(c => c.capacidad >= personas);
-  const disponibles = aptas.filter(c => estaDisponible(c, ingreso, egreso));
-
-  if (disponibles.length === 0) {
-    lista.innerHTML = `<div class="sin-resultados">
-      No hay disponibilidad para ${personas} persona${personas>1?'s':''} 
-      entre el ${formatFecha(ingreso)} y el ${formatFecha(egreso)}.<br><br>
-      Escribinos por WhatsApp para ver alternativas.
-    </div>`;
-    return;
-  }
-
-  // Agrupar por tipo
-  const tipoDisp = {};
-  for (const c of disponibles) {
-    if (!tipoDisp[c.tipo]) tipoDisp[c.tipo] = [];
-    tipoDisp[c.tipo].push(c);
-  }
-
-  let html = '';
-  for (const tipo of Object.keys(tipoDisp)) {
-    const cabanas = tipoDisp[tipo];
-    const primera = cabanas[0];
-    const cantidad = cabanas.length;
-    const nombre = tipo === 'tiny' ? 'Tiny Wood Cabin' : 'Big Wood Cabin';
-    const icono  = tipo === 'tiny' ? '🏚' : '🪵';
-    const texto  = `Hola! Quisiera consultar disponibilidad para *${nombre}* (${noches} noche${noches>1?'s':''}) del ${formatFecha(ingreso)} al ${formatFecha(egreso)} para ${personas} persona${personas>1?'s':''}.`;
-    const link   = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(texto)}`;
-
-    html += `
-      <div class="cabana-card-resultado">
-        <div class="cabana-info">
-          <h3>${icono} ${nombre}</h3>
-          <p>${primera.descripcion} · ${cantidad} unidad${cantidad>1?'es':''} disponible${cantidad>1?'s':''} · ${noches} noche${noches>1?'s':''}</p>
+    let html = '<div style="display:grid;gap:12px;margin-top:8px;">';
+    Object.entries(DEPTOS_WEB).forEach(([code, nombre]) => {
+      const ocupado = reservas.some(r =>
+        r.depto === code &&
+        r.estado !== 'Cancelada' &&
+        !(salida <= r.checkin || entrada >= r.checkout)
+      );
+      const waText = encodeURIComponent(
+        'Hola! Me interesa reservar el Apartamento ' + nombre +
+        ' del ' + fmtFecha(entrada) + ' al ' + fmtFecha(salida) +
+        ' (' + noches + ' noche' + (noches > 1 ? 's' : '') + ').'
+      );
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:${ocupado?'#fdf2f2':'#f0faf5'};border-left:3px solid ${ocupado?'#e74c3c':'#27ae60'};border-radius:2px;">
+        <div>
+          <div style="font-weight:600;font-size:0.95rem;color:var(--navy)">Apartamento ${nombre}</div>
+          <div style="font-size:0.78rem;color:${ocupado?'#c0392b':'#27ae60'};font-weight:500;margin-top:2px;">${ocupado ? '✗ No disponible' : '✓ Disponible'}</div>
         </div>
-        <div class="cabana-estado">
-          <span class="badge disponible">Disponible</span><br>
-          <a class="btn-whatsapp" href="${link}" target="_blank">
-            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            Consultar precio
-          </a>
-        </div>
+        ${!ocupado ? `<a href="https://wa.me/${WA_NUM}?text=${waText}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:white;padding:10px 18px;font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;border-radius:2px;white-space:nowrap;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Reservar
+        </a>` : ''}
       </div>`;
+    });
+    html += '</div>';
+    html += `<p style="font-size:0.72rem;color:var(--soft);text-align:center;margin-top:16px;">${fmtFecha(entrada)} → ${fmtFecha(salida)} · ${noches} noche${noches>1?'s':''}</p>`;
+    res.innerHTML = html;
+  } catch(e) {
+    res.innerHTML = '<p style="color:#c0392b;font-size:0.88rem;text-align:center">Error al consultar disponibilidad. Intentá de nuevo.</p>';
   }
-
-  lista.innerHTML = html;
-  res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+
+// Setear fecha mínima de hoy
+const hoy = new Date().toISOString().split('T')[0];
+document.getElementById('busq-entrada').min = hoy;
+document.getElementById('busq-salida').min = hoy;
+document.getElementById('busq-entrada').addEventListener('change', function() {
+  document.getElementById('busq-salida').min = this.value;
+});
 </script>
-<script data-goatcounter="https://woodcabin.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://catalinas.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
