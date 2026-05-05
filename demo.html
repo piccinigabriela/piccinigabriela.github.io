@@ -406,6 +406,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
           </select>
           <label>Año:</label><select id="rend-anio" onchange="renderRendimiento()"></select>
           <button class="btn btn-outline btn-sm" onclick="exportRendimiento()">↓ CSV</button>
+          <button class="btn btn-outline btn-sm" onclick="exportRendimientoPDF()">↓ PDF</button>
         </div>
         <div class="totals-box" id="rend-totals"></div>
         <div style="height:24px;"></div>
@@ -769,6 +770,45 @@ function exportRendimiento(){
   const h=['Cabaña','Reservas','Noches','Subtotal','Com.','Líquido','Ticket Prom.'];
   const rows=CABANAS.map(code=>{const dr=fil.filter(r=>r.depto===code);let s=0,com=0,l=0,no=0;dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});return csvRow([DN[code],dr.length,no,s,com,l,dr.length?(s/dr.length).toFixed(0):'0']);});
   csvDown([csvRow(h),...rows],'rendimiento_demo.csv');
+}
+function exportRendimientoPDF(){
+  const mv=document.getElementById('rend-mes').value,ay=parseInt(document.getElementById('rend-anio').value);
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const hm=mv!=='',mes=hm?parseInt(mv):-1;
+  const titulo=hm?`Rendimiento ${meses[mes]} ${ay}`:`Rendimiento Anual ${ay}`;
+  const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const {jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text('Mi Cabaña · Gestión',14,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.text(titulo,14,24);
+  doc.setFontSize(9);doc.text(new Date().toLocaleDateString('es-AR'),14,30);
+  const h=['Cabaña','Reservas','Noches','Subtotal','Com.','Líquido','Ticket Prom.'];
+  let ts=0,tc=0,tl=0,tno=0;
+  const rows=CABANAS.map(code=>{
+    const dr=fil.filter(r=>r.depto===code);let s=0,com=0,l=0,no=0;
+    dr.forEach(r=>{const c=calc(r);s+=c.sub;com+=c.com;l+=c.liq;no+=c.n;});
+    ts+=s;tc+=com;tl+=l;tno+=no;
+    return[DN[code],dr.length,no,s.toFixed(0),com.toFixed(0),l.toFixed(0),dr.length?(s/dr.length).toFixed(0):'—'];
+  });
+  rows.push(['TOTAL',fil.length,tno,ts.toFixed(0),tc.toFixed(0),tl.toFixed(0),'—']);
+  doc.autoTable({
+    head:[h],body:rows,startY:35,
+    styles:{fontSize:9},
+    headStyles:{fillColor:[26,74,58],textColor:255},
+    footStyles:{fillColor:[26,74,58],textColor:255},
+    didParseCell:(data)=>{if(data.row.index===rows.length-1){data.cell.styles.fillColor=[26,74,58];data.cell.styles.textColor=255;data.cell.styles.fontStyle='bold';}}
+  });
+  // Totales resumen
+  const gf=gastos.filter(g=>{const d=new Date(g.fecha);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const tgas=gf.reduce((s,g)=>s+g.monto,0);
+  const finalY=doc.lastAutoTable.finalY+10;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text('Resumen',14,finalY);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text(`Ingresos brutos: $${ts.toFixed(0)}`,14,finalY+7);
+  doc.text(`Comisiones: $${tc.toFixed(0)}`,14,finalY+13);
+  doc.text(`Gastos: $${tgas.toFixed(0)}`,14,finalY+19);
+  doc.setFont('helvetica','bold');
+  doc.text(`Resultado neto: $${(tl-tgas).toFixed(0)}`,14,finalY+27);
+  doc.save(`rendimiento_${hm?meses[mes]+'_':''  }${ay}.pdf`);
 }
 
 function renderAvisos(){
