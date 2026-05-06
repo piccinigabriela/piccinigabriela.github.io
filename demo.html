@@ -727,6 +727,7 @@ function importarCSV(input){
   reader.readAsText(file,'UTF-8');
 }
 
+function exportReservas(){
   const h=['Cabaña','Huésped','Nac','Check-in','Check-out','Noches','$/Noche','Subtotal','Com.','Líquido','Estado','Plataforma','Seña','Saldo','Pendiente'];
   const rows=reservas.map(r=>{const c=calc(r);return csvRow([DN[r.depto],r.huesped,r.nac,r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma,c.senia,c.saldo,c.pendiente]);});
   csvDown([csvRow(h),...rows],'reservas_demo.csv');
