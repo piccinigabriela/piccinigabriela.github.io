@@ -280,7 +280,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
             <div class="form-group"><label>Huésped</label><input type="text" id="r-huesped" placeholder="Nombre completo"></div>
             <div class="form-group"><label>Nacionalidad</label><input type="text" id="r-nac" placeholder="Ej: Brasileño"></div>
             <div class="form-group"><label>Estado</label>
-              <select id="r-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
+              <select id="r-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
             </div>
             <div class="form-group"><label>Check-in</label><input type="date" id="r-checkin" onchange="calcNights()"></div>
             <div class="form-group"><label>Check-out</label><input type="date" id="r-checkout" onchange="calcNights()"></div>
@@ -339,7 +339,8 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
             <option value="C7">Cabaña 7</option><option value="C8">Cabaña 8</option><option value="C9">Cabaña 9</option>
           </select>
           <label>Estado:</label>
-          <select id="fil-estado" onchange="renderReservas()"><option value="">Todos</option><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
+          <select id="fil-estado" onchange="renderReservas()"><option value="">Todos</option><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
+          <input type="text" id="fil-nombre" placeholder="🔍 Buscar huésped..." style="padding:6px 12px;border:1px solid var(--cream2);border-radius:6px;font-size:0.82rem;min-width:160px;" oninput="renderReservas()">
           <button class="btn btn-outline btn-sm" onclick="exportReservas()">↓ CSV</button>
           <button class="btn btn-outline btn-sm" onclick="exportReservasPDF()">↓ PDF</button>
         </div>
@@ -494,7 +495,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
       <div class="form-group"><label>Huésped</label><input type="text" id="e-huesped"></div>
       <div class="form-group"><label>Nacionalidad</label><input type="text" id="e-nac"></div>
       <div class="form-group"><label>Estado</label>
-        <select id="e-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
+        <select id="e-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
       </div>
       <div class="form-group"><label>Check-in</label><input type="date" id="e-checkin"></div>
       <div class="form-group"><label>Check-out</label><input type="date" id="e-checkout"></div>
@@ -641,7 +642,7 @@ const fmtP=n=>isNaN(n)||n===''?'—':'$ '+Number(n).toFixed(0).replace(/\B(?=(\d
 const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
 const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
-function calc(r){const n=nights(r.checkin,r.checkout);const sub=n*r.precio;const com=r.plataforma==='Airbnb'?sub*0.03:0;return{n,sub,com,liq:sub-com};}
+function calc(r){const n=nights(r.checkin,r.checkout);const sub=n*r.precio;const com=r.plataforma==='Airbnb'?sub*0.03:0;const bkCom=r.plataforma==='Booking'&&r.estado==='Shown'?((sub-com)*0.15):0;return{n,sub,com,liq:sub-com,bkCom};}
 function toast(msg,ok=true){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;document.getElementById('toast-icon').textContent=ok?'✓':'⚠';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 function csvDown(rows,fn){const bom='\uFEFF';const content='sep=;\n'+rows.join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+content);a.download=fn;a.click();}
 function csvRow(arr){return arr.map(v=>{const s=String(v??'');return(s.includes(';')||s.includes('"')||s.includes('\n'))?'"'+s.replace(/"/g,'""')+'"':s;}).join(';');}
@@ -676,10 +677,11 @@ function clearReservaForm(){['r-depto','r-huesped','r-nac','r-checkin','r-checko
 
 function renderReservas(){
   const fd=document.getElementById('fil-depto').value,fe=document.getElementById('fil-estado').value;
-  const data=reservas.filter(r=>(!fd||r.depto===fd)&&(!fe||r.estado===fe)).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
+  const fn=(document.getElementById('fil-nombre')?.value||'').toLowerCase().trim();
+  const data=reservas.filter(r=>(!fd||r.depto===fd)&&(!fe||r.estado===fe)&&(!fn||r.huesped.toLowerCase().includes(fn))).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
   const tb=document.getElementById('tabla-reservas');
   if(!data.length){tb.innerHTML=`<tr><td colspan="13" style="text-align:center;padding:40px;color:var(--text-soft)">Sin reservas</td></tr>`;return;}
-  tb.innerHTML=data.map((r,i)=>{const c=calc(r);const b=r.estado==='Confirmada'?'badge-green':r.estado==='Pendiente'?'badge-gold':r.estado==='Cortesía'?'badge-purple':'badge-red';
+  tb.innerHTML=data.map((r,i)=>{const c=calc(r);const b=r.estado==='Confirmada'||r.estado==='Shown'?'badge-green':r.estado==='Pendiente'||r.estado==='Stand by'?'badge-gold':r.estado==='Cortesía'?'badge-purple':'badge-red';
     return`<tr><td style="font-weight:600;color:var(--text-soft)">${i+1}</td>
     <td><span style="background:${DC[r.depto]};color:white;padding:3px 8px;border-radius:5px;font-size:0.72rem;font-weight:700">${DN[r.depto]}</span></td>
     <td style="font-weight:500">${r.huesped}</td><td>${fmtD(r.checkin)}</td><td>${fmtD(r.checkout)}</td>
@@ -807,6 +809,7 @@ function renderRendimiento(){
     ${tpendiente>0?'<div class="totals-item"><div class="tl">⚠️ Pendiente de cobro</div><div class="tv" style="color:#f9a8a0">'+fmtP(tpendiente)+'</div></div>':''}
     <div class="totals-item"><div class="tl">Ticket Promedio</div><div class="tv">${fil.length?fmtP(ts/fil.length):'—'}</div></div>
     <div class="totals-item highlight"><div class="tl">Resultado Neto</div><div class="tv">${fmtP(tl-tgas)}</div></div>
+    ${(()=>{const bkShown=fil.filter(r=>r.plataforma==='Booking'&&r.estado==='Shown');const bkDeuda=bkShown.reduce((s,r)=>s+calc(r).bkCom,0);if(!bkDeuda)return'';return`<div class="totals-item" style="border-left:3px solid #f59e0b;padding-left:12px;margin-top:8px"><div class="tl">⚠️ Deuda Booking (15%)</div><div class="tv" style="color:#f59e0b">${fmtP(bkDeuda)}</div></div><div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:4px">${bkShown.length} reserva${bkShown.length>1?'s':''} con estado Shown</div>`;})()}
     ${(()=>{const destinos={};fil.forEach(r=>{const d=r.destino||'Sin especificar';if(!destinos[d])destinos[d]=0;destinos[d]+=calc(r).liq;});const keys=Object.keys(destinos);if(!keys.length)return'';return'<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.1)"><div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px">Líquido por destino de cobro</div>'+keys.map(k=>`<div class="totals-item"><div class="tl">${k}</div><div class="tv">${fmtP(destinos[k])}</div></div>`).join('')+'</div>';})()}`;
 }
 function exportRendimiento(){
@@ -914,7 +917,7 @@ function renderDashboard(){
   const ps=[...pr].sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);
   document.getElementById('proximos-checkins').innerHTML=ps.length?ps.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--cream2)"><div><span style="background:${DC[r.depto]};color:white;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:700;margin-right:8px">${DN[r.depto]}</span><span style="font-weight:500">${r.huesped}</span></div><span style="font-size:0.82rem;color:var(--text-soft)">${fmtD(r.checkin)}</span></div>`).join(''):`<div class="empty-state" style="padding:20px"><p>Sin check-ins próximos</p></div>`;
   const ul=[...reservas].sort((a,b)=>b.creado.localeCompare(a.creado)).slice(0,5);
-  document.getElementById('ultimas-reservas').innerHTML=ul.length?ul.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--cream2)"><div><span style="background:${DC[r.depto]};color:white;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:700;margin-right:8px">${DN[r.depto]}</span><span style="font-weight:500">${r.huesped}</span></div><span class="badge ${r.estado==='Confirmada'?'badge-green':r.estado==='Pendiente'?'badge-gold':r.estado==='Cortesía'?'badge-purple':'badge-red'}">${r.estado}</span></div>`).join(''):`<div class="empty-state" style="padding:20px"><p>Cargá tu primera reserva</p></div>`;
+  document.getElementById('ultimas-reservas').innerHTML=ul.length?ul.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--cream2)"><div><span style="background:${DC[r.depto]};color:white;padding:2px 7px;border-radius:4px;font-size:0.72rem;font-weight:700;margin-right:8px">${DN[r.depto]}</span><span style="font-weight:500">${r.huesped}</span></div><span class="badge ${r.estado==='Confirmada'||r.estado==='Shown'?'badge-green':r.estado==='Pendiente'||r.estado==='Stand by'?'badge-gold':r.estado==='Cortesía'?'badge-purple':'badge-red'}">${r.estado}</span></div>`).join(''):`<div class="empty-state" style="padding:20px"><p>Cargá tu primera reserva</p></div>`;
 }
 
 function renderConfig(){
