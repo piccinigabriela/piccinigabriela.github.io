@@ -603,9 +603,9 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
 <div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg"></span></div>
 
 <script>
-const DEFAULT_PINS={admin:'1234',gabi:'2345'};
-const USER_META={admin:{name:'Administrador',role:'Admin · Acceso total'},gabi:{name:'Gabi',role:'Acceso total'}};
-const NAV_CONFIG={admin:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config'],gabi:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config']};
+const DEFAULT_PINS={admin:'1234',gabi:'2345',vol:'0000'};
+const USER_META={admin:{name:'Administrador',role:'Admin · Acceso total'},gabi:{name:'Gabi',role:'Acceso total'},vol:{name:'Voluntario',role:'Ocupación · Avisos'}};
+const NAV_CONFIG={admin:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config'],gabi:['dashboard','nueva-reserva','reservas','ocupacion','gastos','rendimiento','avisos','config'],vol:['ocupacion','avisos']};
 const NAV_META={
   'dashboard':{icon:'◈',label:'Dashboard',sec:'Principal'},
   'nueva-reserva':{icon:'＋',label:'Nueva Reserva',sec:'Operaciones'},
@@ -616,7 +616,7 @@ const NAV_META={
   'avisos':{icon:'◻',label:'Avisos',sec:'Reportes'},
   'config':{icon:'⚙',label:'Config.',sec:'Sistema'}
 };
-const MOBILE_NAV={admin:['nueva-reserva','reservas','ocupacion','rendimiento','avisos'],gabi:['nueva-reserva','reservas','ocupacion','rendimiento','avisos']};
+const MOBILE_NAV={admin:['nueva-reserva','reservas','ocupacion','rendimiento','avisos'],gabi:['nueva-reserva','reservas','ocupacion','rendimiento','avisos'],vol:['ocupacion','avisos']};
 const CABANAS=['C2','C3','C5','C6','C7','C8','C9'];
 const DC={C2:'#3d7a25',C3:'#c55a11',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276',C9:'#7030a0'};
 const DN={C2:'Cabaña 2',C3:'Cabaña 3',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8',C9:'Cabaña 9'};
@@ -661,7 +661,7 @@ const ud=()=>{for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.to
 function pinPress(n){if(pb.length>=4)return;pb+=n;ud();if(pb.length===4)setTimeout(pinEnter,200);}
 function pinClear(){pb=pb.slice(0,-1);ud();}
 function pinEnter(){
-  pins=lo('bn_p',{...DEFAULT_PINS});
+  pins={...DEFAULT_PINS,...lo('bn_p',{})};// merge: defaults para roles nuevos, localStorage para los existentes
   const m=Object.entries(pins).find(([,p])=>p===pb);
   if(m){cu=m[0];document.getElementById('login-error').textContent='';sessionStorage.setItem('bn_cu',cu);loginOk();}
   else{document.getElementById('login-error').textContent='PIN incorrecto';pb='';ud();setTimeout(()=>document.getElementById('login-error').textContent='',2000);}
@@ -880,6 +880,7 @@ function renderCalendario(){
   document.getElementById('cal-legend').innerHTML=CABANAS.map(c=>`<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem"><div style="width:14px;height:14px;border-radius:3px;background:${DC[c]}"></div>${DN[c]}</div>`).join('')+`<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem"><div style="width:14px;height:14px;border-radius:3px;background:linear-gradient(to bottom right,#e8f5ef 50%,#3d7a25 50%);border:1px solid #1e7e5a"></div>Día compartido</div><div style="display:flex;align-items:center;gap:6px;font-size:0.78rem"><div style="width:14px;height:14px;border-radius:3px;background:#e8f5ef;border:1px solid #1e7e5a"></div>Libre</div>`;
 }
 function openCalPopup(id){
+  if(cu==='vol')return;// Voluntario no ve popup
   const r=reservas.find(x=>x.id===id);if(!r)return;
   const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
   const n=Math.max(0,Math.round((new Date(r.checkout)-new Date(r.checkin))/86400000));
@@ -1068,6 +1069,7 @@ function renderAvisos(){
   const prox=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin>=today&&r.checkin<=in7.toISOString().split('T')[0]);
   prox.sort((a,b)=>a.checkin.localeCompare(b.checkin));
   const cont=document.getElementById('avisos-list');
+  const isVol=cu==='vol';
   if(!prox.length){cont.innerHTML=`<div class="empty-state"><div class="es-icon">☑</div><p>Sin check-ins en los próximos 7 días</p></div>`;return;}
   cont.innerHTML=prox.map(r=>{
     const c=calc(r),diff=Math.round((new Date(r.checkin)-new Date())/86400000);
@@ -1082,11 +1084,13 @@ function renderAvisos(){
         <div><div class="af-label">Noches</div><div class="af-value">${c.n}</div></div>
         <div><div class="af-label">Plataforma</div><div class="af-value">${r.plataforma}</div></div>
         <div><div class="af-label">Nacionalidad</div><div class="af-value">${r.nac||'—'}</div></div>
+        ${!isVol?`
         <div><div class="af-label">Líquido</div><div class="af-value" style="color:var(--green)">${fmtP(c.liq)}</div></div>
         <div><div class="af-label">Seña</div><div class="af-value" style="color:var(--green)">${r.sena?fmtP(r.sena):'—'}</div></div>
         <div><div class="af-label">Saldo</div><div class="af-value" style="color:var(--green)">${r.saldo?fmtP(r.saldo):'—'}</div></div>
         <div><div class="af-label">Total cobrado</div><div class="af-value" style="color:var(--green);font-weight:700">${fmtP((r.sena||0)+(r.saldo||0))}</div></div>
         ${((r.sena||0)+(r.saldo||0))<c.liq?'<div style="grid-column:1/-1"><div class="af-label" style="color:#f9a8a0">⚠️ Saldo pendiente</div><div class="af-value" style="color:#f9a8a0;font-weight:700">'+fmtP(c.liq-((r.sena||0)+(r.saldo||0)))+'</div></div>':''}
+        `:''}
         <div><div class="af-label">Notas</div><div class="af-value" style="font-size:0.82rem">${r.notas||'—'}</div></div>
       </div>
       <div class="aviso-footer">
@@ -1094,9 +1098,7 @@ function renderAvisos(){
         <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox"> Limpieza</label>
         <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox"> Acceso</label>
         <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;cursor:pointer;text-transform:none;letter-spacing:0"><input type="checkbox"> Confirmado</label>
-        <div class="wa-btns" style="margin-left:auto;display:flex;gap:8px;">
-          <button class="btn btn-sm" style="background:#25D366;color:white;border:none" onclick="waMsg('${r.id}')">📱 WhatsApp</button>
-        </div>
+        ${!isVol?`<div class="wa-btns" style="margin-left:auto;display:flex;gap:8px;"><button class="btn btn-sm" style="background:#25D366;color:white;border:none" onclick="waMsg('${r.id}')">📱 WhatsApp</button></div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1146,8 +1148,8 @@ function toggleLimpio(id){
 }
 
 function renderConfig(){
-  pins=lo('bn_p',{...DEFAULT_PINS});
-  const us=[{k:'admin',n:'Admin (tu hermano)',d:'Acceso total'},{k:'gabi',n:'Gabi',d:'Acceso total'}];
+  pins={...DEFAULT_PINS,...lo('bn_p',{})};// merge para incluir roles nuevos
+  const us=[{k:'admin',n:'Admin (tu hermano)',d:'Acceso total'},{k:'gabi',n:'Gabi',d:'Acceso total'},{k:'vol',n:'Voluntario',d:'Solo ocupación y avisos · sin datos de dinero'}];
   document.getElementById('pin-settings-grid').innerHTML=us.map(u=>`<div class="pin-user-card"><h4>${u.n}</h4><p>${u.d}</p><div class="pin-input-row"><input type="password" id="pi-${u.k}" value="${pins[u.k]||''}" maxlength="4" placeholder="••••"><button class="btn btn-outline btn-sm" onclick="tp('${u.k}')">👁</button></div></div>`).join('');
   const wa=lo('bn_wa',{admin:''});
   document.getElementById('wa-config-section').innerHTML=`
@@ -1318,7 +1320,7 @@ function importarICS(input){
 }
 function tp(k){const i=document.getElementById('pi-'+k);i.type=i.type==='password'?'text':'password';}
 function guardarConfig(){
-  const ks=['admin','gabi'],np={};
+  const ks=['admin','gabi','vol'],np={};
   for(const k of ks){const v=document.getElementById('pi-'+k).value.trim();if(!/^\d{4}$/.test(v)){toast('Cada PIN debe tener 4 dígitos',false);return;}np[k]=v;}
   const vals=Object.values(np);if(new Set(vals).size!==vals.length){toast('Los PINs deben ser distintos',false);return;}
   sd('bn_p',np);pins=np;
