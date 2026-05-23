@@ -21,6 +21,13 @@
   --shadow:0 4px 24px rgba(45,90,27,0.13);--shadow-lg:0 12px 48px rgba(45,90,27,0.18);
   --radius:12px;--sidebar:230px;--bottom-nav:64px;
 }
+html.dark{
+  --green-dark:#1a3a0a;--green2:#2d5a1b;--gold:#d4b06a;--gold-light:#c9a84c;
+  --cream:#181c15;--cream2:#202818;--white:#1e2419;
+  --text:#d4cfc6;--text-soft:#8a9880;
+  --red:#c86060;--green:#4a9a6a;--green-bg:rgba(30,126,90,0.15);--red-bg:rgba(192,57,43,0.15);
+  --shadow:0 2px 8px rgba(0,0,0,0.3);--shadow-lg:0 8px 32px rgba(0,0,0,0.4);
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;}
 body{font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--cream);color:var(--text);min-height:100vh;font-weight:400;letter-spacing:-0.005em;}
@@ -229,6 +236,26 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
   .wa-btns{width:100%;display:flex;gap:8px;}
   .wa-btns button{flex:1;}
 }
+
+html.dark body{background:var(--cream);color:var(--text);}
+html.dark .sidebar{background:#0f1f09;box-shadow:4px 0 20px rgba(0,0,0,0.4);}
+html.dark .topbar{background:var(--white);border-bottom-color:var(--cream2);}
+html.dark .card{background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+html.dark .stat-card{background:var(--white);}
+html.dark thead th{background:#1a3a0a;}
+html.dark tbody tr:hover{background:rgba(45,90,27,0.15);}
+html.dark .cal-cell{background:var(--cream2);}
+html.dark .cal-cell.available{background:rgba(30,126,90,0.1);}
+html.dark .filter-row select,html.dark .filter-row input,html.dark input,html.dark select,html.dark textarea{background:var(--cream2);color:var(--text);border-color:var(--cream2);}
+html.dark .modal-bg,html.dark #edit-modal{background:rgba(0,0,0,0.7);}
+html.dark #edit-modal>div{background:var(--white);}
+html.dark .badge-green{background:rgba(30,126,90,0.2);color:#6ee7b7;}
+html.dark .badge-gold{background:rgba(201,168,76,0.2);color:#e8c97a;}
+html.dark .badge-red{background:rgba(192,57,43,0.2);color:#f9a8a0;}
+html.dark .pin-user-card{background:var(--cream2);}
+html.dark .cal-popup-box{background:var(--white);}
+html.dark .cal-popup-value{color:var(--text);}
+html.dark .bottom-nav{background:#0f1f09;}
 </style>
 </head>
 <body>
@@ -268,6 +295,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="mobile-user" id="mobile-user">—</div>
       <button id="mobile-config-btn" onclick="showScreen('config')" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;padding:4px;display:none" title="Configuración">⚙️</button>
+      <button id="dark-toggle-mobile" onclick="toggleDark()" style="background:none;border:none;cursor:pointer;font-size:0.9rem;padding:4px;line-height:1" title="Modo oscuro">🌙</button>
       <button class="logout-btn" onclick="logout()">⏻</button>
     </div>
   </div>
@@ -275,7 +303,7 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
   <div class="main">
     <div class="topbar">
       <div class="topbar-title" id="topbar-title">—</div>
-      <div class="topbar-date" id="topbar-date"></div>
+      <div style="display:flex;align-items:center;gap:12px"><button id="dark-toggle" onclick="toggleDark()" style="background:none;border:1px solid var(--cream2);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:0.82rem;color:var(--text-soft);line-height:1" title="Modo oscuro">🌙</button><div class="topbar-date" id="topbar-date"></div></div>
     </div>
     <div class="content">
 
@@ -1260,6 +1288,25 @@ function saveEdit(){
   reservas=reservas.map(r=>{if(r.id!==editingId)return r;return{...r,depto:dep,huesped:hue,nac:document.getElementById('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:document.getElementById('e-plataforma').value,destino:document.getElementById('e-destino')?document.getElementById('e-destino').value:'',estado:document.getElementById('e-estado').value,notas:document.getElementById('e-notas').value.trim(),early:document.getElementById('e-early')?document.getElementById('e-early').checked:r.early||false,late:document.getElementById('e-late')?document.getElementById('e-late').checked:r.late||false,senia:parseFloat(document.getElementById('e-senia').value)||0,saldo:parseFloat(document.getElementById('e-saldo').value)||0};});
   saveToSheets('reservas',reservas);closeEdit();renderReservas();toast('Reserva actualizada ✓');
 }
+// ── DARK MODE ──
+function toggleDark(){
+  const isDark=document.documentElement.classList.toggle('dark');
+  localStorage.setItem('demo_dark',isDark?'1':'0');
+  const icon=isDark?'☀️':'🌙';
+  const btn=document.getElementById('dark-toggle');if(btn)btn.textContent=icon;
+  const btnM=document.getElementById('dark-toggle-mobile');if(btnM)btnM.textContent=icon;
+}
+(function(){
+  const saved=localStorage.getItem('demo_dark');
+  const prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if(saved==='1'||(saved===null&&prefersDark)){
+    document.documentElement.classList.add('dark');
+    const setBtn=()=>{const b=document.getElementById('dark-toggle');if(b)b.textContent='☀️';};
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setBtn);
+    else setBtn();
+  }
+})();
+
 </script>
 </body>
 </html>
