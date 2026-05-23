@@ -22,10 +22,10 @@
   --radius:12px;--sidebar:230px;--bottom-nav:64px;
 }
 html.dark{
-  --green-dark:#1a3a0a;--green2:#2d5a1b;--gold:#d4b06a;--gold-light:#c9a84c;
-  --cream:#181c15;--cream2:#202818;--white:#1e2419;
-  --text:#d4cfc6;--text-soft:#8a9880;
-  --red:#c86060;--green:#4a9a6a;--green-bg:rgba(30,126,90,0.15);--red-bg:rgba(192,57,43,0.15);
+  --green-dark:#4a9a6a;--green2:#5ab07a;--gold:#d4b06a;--gold-light:#e8c97a;
+  --cream:#141710;--cream2:#2a3024;--white:#1e2419;
+  --text:#e8e4dc;--text-soft:#a8b89a;
+  --red:#e08080;--green:#6abf8a;--green-bg:rgba(74,154,106,0.15);--red-bg:rgba(224,128,128,0.15);
   --shadow:0 2px 8px rgba(0,0,0,0.3);--shadow-lg:0 8px 32px rgba(0,0,0,0.4);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -238,24 +238,72 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
 }
 
 html.dark body{background:var(--cream);color:var(--text);}
-html.dark .sidebar{background:#0f1f09;box-shadow:4px 0 20px rgba(0,0,0,0.4);}
-html.dark .topbar{background:var(--white);border-bottom-color:var(--cream2);}
-html.dark .card{background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
-html.dark .stat-card{background:var(--white);}
-html.dark thead th{background:#1a3a0a;}
-html.dark tbody tr:hover{background:rgba(45,90,27,0.15);}
-html.dark .cal-cell{background:var(--cream2);}
-html.dark .cal-cell.available{background:rgba(30,126,90,0.1);}
-html.dark .filter-row select,html.dark .filter-row input,html.dark input,html.dark select,html.dark textarea{background:var(--cream2);color:var(--text);border-color:var(--cream2);}
-html.dark .modal-bg,html.dark #edit-modal{background:rgba(0,0,0,0.7);}
-html.dark #edit-modal>div{background:var(--white);}
-html.dark .badge-green{background:rgba(30,126,90,0.2);color:#6ee7b7;}
-html.dark .badge-gold{background:rgba(201,168,76,0.2);color:#e8c97a;}
-html.dark .badge-red{background:rgba(192,57,43,0.2);color:#f9a8a0;}
-html.dark .pin-user-card{background:var(--cream2);}
-html.dark .cal-popup-box{background:var(--white);}
-html.dark .cal-popup-value{color:var(--text);}
-html.dark .bottom-nav{background:#0f1f09;}
+html.dark .sidebar{background:#0c110a;box-shadow:4px 0 20px rgba(0,0,0,0.4);}
+html.dark .nav-item{color:rgba(232,228,220,0.7);}
+html.dark .nav-item:hover,html.dark .nav-item.active{color:#e8e4dc;background:rgba(255,255,255,0.08);}
+html.dark .nav-label{color:rgba(232,228,220,0.3);}
+html.dark .sidebar-logo h1,html.dark .sidebar-logo p{color:#e8e4dc;}
+html.dark .user-badge,html.dark .ub-name,html.dark .ub-role{color:#e8e4dc;}
+html.dark .topbar{background:#1e2419;border-bottom:1px solid rgba(255,255,255,0.06);}
+html.dark .topbar-title{color:#e8e4dc;}
+html.dark .topbar-date{color:var(--text-soft);}
+html.dark .section-title{color:#e8e4dc;}
+html.dark .section-sub{color:var(--text-soft);}
+html.dark .card{background:#1e2419;box-shadow:0 2px 12px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.05);}
+html.dark .card-title{color:#e8e4dc;}
+html.dark .stat-card{background:#1e2419;border:1px solid rgba(255,255,255,0.05);}
+html.dark .stat-label{color:var(--text-soft);}
+html.dark .stat-value{color:#e8e4dc;}
+html.dark .stat-sub{color:var(--text-soft);}
+html.dark label{color:var(--text-soft);}
+html.dark .form-group label{color:var(--text-soft);}
+html.dark input,html.dark select,html.dark textarea{background:#2a3024;color:#e8e4dc;border-color:rgba(255,255,255,0.1);}
+html.dark input::placeholder,html.dark textarea::placeholder{color:rgba(232,228,220,0.3);}
+html.dark .filter-row select,html.dark .filter-row input{background:#2a3024;color:#e8e4dc;border-color:rgba(255,255,255,0.1);}
+html.dark thead th{background:#2a3024;color:#e8e4dc;}
+html.dark tbody td{color:#e8e4dc;}
+html.dark tbody tr{border-bottom-color:rgba(255,255,255,0.06);}
+html.dark tbody tr:hover{background:rgba(255,255,255,0.04);}
+html.dark .cal-header{background:#2a3024;color:#e8e4dc;}
+html.dark .cal-depto{opacity:0.9;}
+html.dark .cal-cell{background:#2a3024;}
+html.dark .cal-cell.available{background:rgba(74,154,106,0.08);color:rgba(106,191,138,0.5);}
+html.dark .login-box{background:#1e2419;}
+html.dark .login-logo{color:#e8e4dc !important;}
+html.dark .login-sub{color:var(--text-soft);}
+html.dark .pin-label{color:var(--text-soft);}
+html.dark .pin-dot{background:#2a3024;}
+html.dark .pin-dot.filled{background:var(--gold);}
+html.dark .pin-btn{background:#2a3024;color:#e8e4dc;}
+html.dark .pin-btn:hover{background:#354030;}
+html.dark .pin-btn.enter{background:var(--green);color:white;}
+html.dark .pin-btn.clear{background:#3a2020;}
+html.dark .login-error{color:#e08080;}
+html.dark .modal-bg,html.dark #edit-modal{background:rgba(0,0,0,0.75);}
+html.dark #edit-modal>div{background:#1e2419;color:#e8e4dc;}
+html.dark .badge-green{background:rgba(74,154,106,0.2);color:#6abf8a;}
+html.dark .badge-gold{background:rgba(212,176,106,0.2);color:#d4b06a;}
+html.dark .badge-red{background:rgba(224,128,128,0.2);color:#e08080;}
+html.dark .badge-navy{background:rgba(255,255,255,0.08);color:#a8b89a;}
+html.dark .badge-purple{background:rgba(160,120,200,0.2);color:#c09ae0;}
+html.dark .pin-user-card{background:#2a3024;color:#e8e4dc;}
+html.dark .pin-user-card h4{color:#e8e4dc;}
+html.dark .pin-user-card p{color:var(--text-soft);}
+html.dark .pin-input-row input{background:#141710;color:#e8e4dc;border-color:rgba(255,255,255,0.1);}
+html.dark .cal-popup-box{background:#1e2419;}
+html.dark .cal-popup-label{color:var(--text-soft);}
+html.dark .cal-popup-value{color:#e8e4dc;}
+html.dark .cal-popup-close{background:#2a3024;border-color:rgba(255,255,255,0.1);color:#e8e4dc;}
+html.dark .empty-state{color:var(--text-soft);}
+html.dark .af-label{color:var(--text-soft);}
+html.dark .af-value{color:#e8e4dc;}
+html.dark .aviso-footer{background:#2a3024;}
+html.dark .totals-box{background:#0c110a;}
+html.dark .bottom-nav{background:#0c110a;border-top-color:rgba(255,255,255,0.06);}
+html.dark .bn-item{color:rgba(232,228,220,0.5);}
+html.dark .bn-item.active{color:#e8e4dc;}
+html.dark .mobile-header{background:#0c110a;}
+html.dark .sidebar-footer{color:rgba(232,228,220,0.2);}
 </style>
 </head>
 <body>
