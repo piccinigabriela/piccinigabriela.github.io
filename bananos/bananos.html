@@ -515,6 +515,33 @@ tbody td{padding:11px 14px;color:var(--text);white-space:nowrap;}
           </div>
           <div id="ical-sync-status" style="font-size:0.78rem;color:var(--text-soft);margin-top:8px;min-height:20px;"></div>
         </div>
+        <div class="card">
+          <div class="card-title"><div class="dot"></div>📅 Importar calendario .ics</div>
+          <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px;line-height:1.6">Exportá el calendario desde Google Calendar, Airbnb o Booking como archivo <strong>.ics</strong> e importalo acá. Seleccioná la cabaña correspondiente antes de importar.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+            <div class="form-group"><label>Cabaña</label>
+              <select id="ics-depto">
+                <option value="C2">Cabaña 2</option>
+                <option value="C3">Cabaña 3</option>
+                <option value="C5">Cabaña 5</option>
+                <option value="C6">Cabaña 6</option>
+                <option value="C7">Cabaña 7</option>
+                <option value="C8">Cabaña 8</option>
+                <option value="C9">Cabaña 9</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Plataforma</label>
+              <select id="ics-plat">
+                <option value="Airbnb">Airbnb</option>
+                <option value="Booking">Booking</option>
+                <option value="Google Calendar">Google Calendar</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+          </div>
+          <label class="btn btn-gold" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;">📅 Seleccionar archivo .ics<input type="file" accept=".ics" style="display:none" onchange="importarICS(this)"></label>
+          <div id="ics-status" style="font-size:0.78rem;color:var(--text-soft);margin-top:10px;min-height:18px;"></div>
+        </div>
       </div>
 
     </div>
@@ -856,28 +883,56 @@ function openCalPopup(id){
   const r=reservas.find(x=>x.id===id);if(!r)return;
   const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
   const n=Math.max(0,Math.round((new Date(r.checkout)-new Date(r.checkin))/86400000));
-  const c=calc(r);
   const pop=document.getElementById('cal-popup');
+  const isAdm=cu==='admin'||cu==='gabi';
   document.getElementById('cal-popup-header').style.background=DC[r.depto];
-  document.getElementById('cal-popup-nombre').textContent=r.huesped+(r.nac?' · '+r.nac:'');
-  const sena=r.sena||0,saldo=r.saldo||0,pend=Math.max(0,c.sub-sena-saldo);
-  document.getElementById('cal-popup-body').innerHTML=`
-    <div class="cal-popup-field"><div class="cal-popup-label">Cabaña</div><div class="cal-popup-value"><span style="background:${DC[r.depto]};color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700">${DN[r.depto]}</span></div></div>
-    <div class="cal-popup-field"><div class="cal-popup-label">Estado</div><div class="cal-popup-value">${r.estado}</div></div>
-    <div class="cal-popup-field"><div class="cal-popup-label">Check-in</div><div class="cal-popup-value">${fmtD(r.checkin)}${r.early?' <span style="font-size:0.7rem;color:#c8a84b;font-weight:700">Early</span>':''}</div></div>
-    <div class="cal-popup-field"><div class="cal-popup-label">Check-out</div><div class="cal-popup-value">${fmtD(r.checkout)}${r.late?' <span style="font-size:0.7rem;color:#c8a84b;font-weight:700">Late</span>':''}</div></div>
-    <div class="cal-popup-field"><div class="cal-popup-label">Noches</div><div class="cal-popup-value" style="font-size:1.2rem;font-weight:700">${n}</div></div>
-    <div class="cal-popup-field"><div class="cal-popup-label">Plataforma</div><div class="cal-popup-value">${r.plataforma||'—'}</div></div>
-    <div class="cal-popup-field"><div class="cal-popup-label">Líquido</div><div class="cal-popup-value" style="color:var(--green);font-weight:700">${fmtP(c.liq)}</div></div>
-    <div class="cal-popup-field"><div class="cal-popup-label">Pendiente</div><div class="cal-popup-value" style="color:${pend>0?'var(--red)':'var(--green)'};font-weight:600">${pend>0?fmtP(pend):'✓ Saldado'}</div></div>
-    ${r.notas?`<div class="cal-popup-field" style="grid-column:1/-1"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.84rem;white-space:normal">${r.notas}</div></div>`:''}
-  `;
-  document.getElementById('cal-popup-footer').innerHTML=cu==='admin'
-    ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')">✏ Editar</button>`
-    :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
+
+  if(r.icalUid){
+    // ── Popup para bloqueos iCal ──
+    const plat=r.plataforma||'iCal';
+    const platColor=plat==='Booking'?'#003580':'#d68b3f';
+    document.getElementById('cal-popup-nombre').textContent=`🔒 Bloqueado · ${plat}`;
+    document.getElementById('cal-popup-body').innerHTML=`
+      <div class="cal-popup-field"><div class="cal-popup-label">Cabaña</div><div class="cal-popup-value"><span style="background:${DC[r.depto]};color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700">${DN[r.depto]}</span></div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Plataforma</div><div class="cal-popup-value"><span style="background:${platColor};color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700">${plat}</span></div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Desde</div><div class="cal-popup-value">${fmtD(r.checkin)}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Hasta</div><div class="cal-popup-value">${fmtD(r.checkout)}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Noches</div><div class="cal-popup-value" style="font-size:1.2rem;font-weight:700">${n}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.82rem">${r.notas||'—'}</div></div>
+    `;
+    document.getElementById('cal-popup-footer').innerHTML=isAdm
+      ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-danger btn-sm" onclick="closeCalPopup();eliminarBloqueo('${r.id}')">✕ Eliminar bloqueo</button>`
+      :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
+  } else {
+    // ── Popup para reservas normales ──
+    const c=calc(r);
+    const sena=r.sena||0,saldo=r.saldo||0,pend=Math.max(0,c.sub-sena-saldo);
+    document.getElementById('cal-popup-nombre').textContent=r.huesped+(r.nac?' · '+r.nac:'');
+    document.getElementById('cal-popup-body').innerHTML=`
+      <div class="cal-popup-field"><div class="cal-popup-label">Cabaña</div><div class="cal-popup-value"><span style="background:${DC[r.depto]};color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700">${DN[r.depto]}</span></div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Estado</div><div class="cal-popup-value">${r.estado}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Check-in</div><div class="cal-popup-value">${fmtD(r.checkin)}${r.early?' <span style="font-size:0.7rem;color:#c8a84b;font-weight:700">Early</span>':''}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Check-out</div><div class="cal-popup-value">${fmtD(r.checkout)}${r.late?' <span style="font-size:0.7rem;color:#c8a84b;font-weight:700">Late</span>':''}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Noches</div><div class="cal-popup-value" style="font-size:1.2rem;font-weight:700">${n}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Plataforma</div><div class="cal-popup-value">${r.plataforma||'—'}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Líquido</div><div class="cal-popup-value" style="color:var(--green);font-weight:700">${fmtP(c.liq)}</div></div>
+      <div class="cal-popup-field"><div class="cal-popup-label">Pendiente</div><div class="cal-popup-value" style="color:${pend>0?'var(--red)':'var(--green)'};font-weight:600">${pend>0?fmtP(pend):'✓ Saldado'}</div></div>
+      ${r.notas?`<div class="cal-popup-field" style="grid-column:1/-1"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.84rem;white-space:normal">${r.notas}</div></div>`:''}
+    `;
+    document.getElementById('cal-popup-footer').innerHTML=isAdm
+      ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')">✏ Editar</button>`
+      :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
+  }
   pop.classList.add('show');
 }
 function closeCalPopup(){document.getElementById('cal-popup').classList.remove('show');}
+function eliminarBloqueo(id){
+  if(!confirm('¿Eliminar este bloqueo iCal?'))return;
+  reservas=reservas.filter(r=>r.id!==id);
+  saveToSheets('reservas',reservas);
+  renderCalendario();
+  toast('Bloqueo eliminado ✓');
+}
 function exportOcupacion(){
   const mes=parseInt(document.getElementById('cal-mes').value),anio=parseInt(document.getElementById('cal-anio').value);
   const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -1218,6 +1273,48 @@ async function syncAllIcal(manual=false){
   const msg=`iCal: ${ok} cabaña${ok!==1?'s':''} sincronizada${ok!==1?'s':''}${fail>0?' · '+fail+' con error':''}`;
   if(statusEl)statusEl.textContent=msg+' · '+new Date().toLocaleTimeString('es-AR');
   if(manual)toast(msg,fail===0);
+  renderCalendario();
+}
+function importarICS(input){
+  const file=input.files[0];if(!file)return;
+  const code=document.getElementById('ics-depto').value;
+  const plat=document.getElementById('ics-plat').value;
+  const statusEl=document.getElementById('ics-status');
+  if(!code){statusEl.textContent='Seleccioná una cabaña primero.';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    const events=parseIcal(text);
+    if(!events.length){statusEl.textContent='No se encontraron eventos en el archivo.';input.value='';return;}
+    const today=new Date().toISOString().split('T')[0];
+    reservas=reservas.filter(r=>!(r.depto===code&&r.icalUid));
+    let added=0,skipped=0;
+    events.forEach(ev=>{
+      if(ev.co<today){skipped++;return;}
+      const exists=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&!r.icalUid&&!(ev.co<=r.checkin||ev.ci>=r.checkout));
+      if(!exists){
+        reservas.push({
+          id:'ical-'+code+'-'+ev.uid.replace(/[^a-z0-9]/gi,'-').substr(0,20),
+          icalUid:ev.uid,depto:code,
+          huesped:'\uD83D\uDD12 Bloqueado',
+          nac:'',checkin:ev.ci,checkout:ev.co,
+          precio:0,pax:0,plus:0,
+          plataforma:plat,
+          estado:'Confirmada',
+          notas:'Bloqueo iCal \u00B7 '+plat,
+          sena:0,saldo:0,creado:new Date().toISOString()
+        });
+        added++;
+      } else skipped++;
+    });
+    saveToSheets('reservas',reservas);
+    renderCalendario();
+    const msg='\u2713 '+added+' bloqueo'+(added!==1?'s':'')+' importado'+(added!==1?'s':'')+' para '+DN[code]+(skipped?' \u00B7 '+skipped+' omitido'+(skipped!==1?'s':''):'');
+    statusEl.textContent=msg;
+    toast(msg,true);
+    input.value='';
+  };
+  reader.readAsText(file,'UTF-8');
 }
 function tp(k){const i=document.getElementById('pi-'+k);i.type=i.type==='password'?'text':'password';}
 function guardarConfig(){
