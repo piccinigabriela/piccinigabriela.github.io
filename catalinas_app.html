@@ -1783,7 +1783,8 @@ function parseIcal(text,plat){
     }
     else if(inEvent){
       const propName=line.split(/[:;]/)[0];
-      const propVal=line.includes(':')?line.substring(line.indexOf(':')+1):'';
+      // Booking usa DTSTART;VALUE=DATE:20260725 — tomar solo lo que está después del último ':'
+      const propVal=line.includes(':')?line.substring(line.lastIndexOf(':')+1).trim():'';
       const propValDate=propVal.split('T')[0];
       if(propName==='DTSTART')dtstart=propValDate;
       else if(propName==='DTEND')dtend=propValDate;
