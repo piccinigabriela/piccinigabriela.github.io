@@ -27,6 +27,18 @@
   --shadow-1:0 1px 2px rgba(26,25,24,0.04);
   --shadow-2:0 8px 28px -12px rgba(26,25,24,0.12);
 }
+html.dark{
+  --ink:#e8e4dc;--ink-2:#d4cfc6;--muted:#8a8480;--muted-2:#6a6460;
+  --paper:#1a1917;--paper-2:#242320;--paper-3:#2e2c28;
+  --line:rgba(232,228,220,0.08);--line-2:rgba(232,228,220,0.14);
+  --accent:#d4a05a;--accent-2:#b8833d;--accent-soft:rgba(212,160,90,0.15);
+  --ok:#6a9a7a;--ok-bg:rgba(79,122,90,0.2);
+  --warn:#c88c4b;--warn-bg:rgba(168,108,43,0.2);
+  --err:#c86050;--err-bg:rgba(168,66,46,0.2);
+  --purple:#9a7daa;--purple-bg:rgba(122,93,138,0.2);
+  --shadow-1:0 1px 2px rgba(0,0,0,0.2);
+  --shadow-2:0 8px 28px -12px rgba(0,0,0,0.4);
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 body{font-family:'Figtree',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-weight:400;letter-spacing:-0.005em;}
@@ -151,6 +163,29 @@ tbody tr:hover{background:var(--paper-2);}
 tbody td{padding:12px 14px;color:var(--ink);white-space:nowrap;}
 tbody td:first-child{padding-left:22px;}
 tbody td:last-child{padding-right:22px;}
+/* Columnas sticky tabla reservas */
+.res-sticky-1,.res-sticky-2,.res-sticky-3{position:sticky;z-index:2;background:var(--paper);}
+.res-sticky-1{left:0;min-width:36px;}
+.res-sticky-2{left:36px;min-width:52px;}
+.res-sticky-3{left:88px;min-width:140px;border-right:1px solid var(--line-2);}
+tbody tr:hover .res-sticky-1,
+tbody tr:hover .res-sticky-2,
+tbody tr:hover .res-sticky-3{background:var(--paper-2);}
+.total-row .res-sticky-1,.total-row .res-sticky-2,.total-row .res-sticky-3{background:var(--ink)!important;}
+thead .res-sticky-1,thead .res-sticky-2,thead .res-sticky-3{background:var(--paper-2);z-index:3;}
+/* Modal celda calendario */
+.cal-popup{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;padding:20px;}
+.cal-popup.show{display:flex;}
+.cal-popup-backdrop{position:absolute;inset:0;background:rgba(26,25,24,0.45);backdrop-filter:blur(2px);}
+.cal-popup-box{position:relative;z-index:1;background:var(--paper);border-radius:var(--r-lg);width:100%;max-width:380px;overflow:hidden;box-shadow:0 20px 60px -10px rgba(26,25,24,0.3);}
+.cal-popup-header{padding:16px 20px;display:flex;align-items:center;gap:12px;}
+.cal-popup-header strong{font-size:1rem;font-weight:600;color:var(--paper);flex:1;}
+.cal-popup-body{padding:0 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cal-popup-field{display:flex;flex-direction:column;gap:3px;}
+.cal-popup-label{font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600;}
+.cal-popup-value{font-size:0.9rem;font-weight:500;color:var(--ink);}
+.cal-popup-footer{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;}
+.cal-popup-close{background:none;border:1px solid var(--line-2);border-radius:var(--r);padding:8px 16px;font-family:inherit;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;}
 .total-row td{background:var(--ink)!important;color:var(--paper)!important;font-weight:600;}
 
 .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:0.7rem;font-weight:600;letter-spacing:0.01em;}
@@ -172,6 +207,19 @@ tbody td:last-child{padding-right:22px;}
 .cal-cell{background:var(--paper-2);min-height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:600;text-align:center;padding:2px;color:var(--muted-2);}
 .cal-cell.occupied{color:white;padding:2px 4px;font-size:0.62rem;overflow:hidden;text-overflow:ellipsis;}
 .cal-cell.blocked{background:repeating-linear-gradient(45deg,#d68b3f,#d68b3f 4px,#e9a85d 4px,#e9a85d 8px);color:white;}
+/* Celdas partidas */
+.cal-cell.split{padding:0;overflow:hidden;position:relative;cursor:pointer;}
+.cal-cell.split .split-top{position:absolute;top:0;left:0;right:0;bottom:0;clip-path:polygon(0 0,100% 0,0 100%);display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 3px;font-size:0.55rem;font-weight:700;color:white;line-height:1;}
+.cal-cell.split .split-bot{position:absolute;top:0;left:0;right:0;bottom:0;clip-path:polygon(100% 0,100% 100%,0 100%);display:flex;align-items:flex-end;justify-content:flex-end;padding:2px 3px;font-size:0.55rem;font-weight:700;color:white;line-height:1;}
+.cal-cell.split .split-line{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom right,transparent calc(50% - 0.5px),rgba(255,255,255,0.6),transparent calc(50% + 0.5px));pointer-events:none;}
+/* Early/Late badge en celda normal */
+.cal-cell.early-ci::after{content:"▶";position:absolute;top:1px;left:2px;font-size:0.45rem;opacity:0.8;}
+.cal-cell.late-co::after{content:"◀";position:absolute;bottom:1px;right:2px;font-size:0.45rem;opacity:0.8;}
+.cal-cell.occupied{position:relative;}
+/* Checkbox early/late en formularios */
+.ci-co-group{display:flex;flex-direction:column;gap:5px;}
+.ci-co-check{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--muted);font-weight:500;cursor:pointer;margin-top:2px;}
+.ci-co-check input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;}
 .cal-legend{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;font-size:0.74rem;color:var(--muted);align-items:center;}
 .cal-legend-item{display:flex;align-items:center;gap:6px;}
 .cal-legend-item .sw{width:12px;height:12px;border-radius:3px;}
@@ -297,6 +345,17 @@ tbody td:last-child{padding-right:22px;}
   .wa-btns{margin-left:0;width:100%;}
   .wa-btns .btn{flex:1;justify-content:center;}
 }
+
+/* Dark mode overrides */
+html.dark .sidebar{background:var(--paper);}
+html.dark .topbar{background:var(--paper);border-bottom-color:var(--line);}
+html.dark .card{background:var(--paper-2);}
+html.dark .stat-card{background:var(--paper-2);}
+html.dark .cal-popup-box{background:var(--paper-2);}
+html.dark .cal-popup-value{color:var(--ink);}
+html.dark .modal-backdrop{background:rgba(0,0,0,0.6);}
+html.dark .modal{background:var(--paper-2);}
+html.dark .loading-overlay{background:rgba(0,0,0,0.7);}
 </style>
 </head>
 <body>
@@ -364,6 +423,7 @@ tbody td:last-child{padding-right:22px;}
     <div class="mobile-header-actions">
       <div class="mobile-user" id="mobile-user">—</div>
       <button class="icon-btn" id="mobile-config-btn" onclick="showScreen('config')" title="Configuración" aria-label="Configuración" style="display:none"><svg width="15" height="15"><use href="#i-settings"/></svg></button>
+      <button class="icon-btn" id="dark-toggle-mobile" onclick="toggleDark()" title="Modo oscuro" aria-label="Modo oscuro" style="font-size:0.9rem;line-height:1">🌙</button>
       <button class="icon-btn danger" onclick="logout()" aria-label="Cerrar sesión"><svg width="15" height="15"><use href="#i-power"/></svg></button>
     </div>
   </div>
@@ -371,7 +431,7 @@ tbody td:last-child{padding-right:22px;}
   <div class="main">
     <div class="topbar">
       <div class="topbar-title" id="topbar-title">—</div>
-      <div class="topbar-date" id="topbar-date"></div>
+      <div style="display:flex;align-items:center;gap:12px"><button id="dark-toggle" onclick="toggleDark()" style="background:none;border:1px solid var(--line-2);border-radius:var(--r);padding:5px 10px;cursor:pointer;font-size:0.82rem;color:var(--muted);line-height:1" title="Modo oscuro">🌙</button><div class="topbar-date" id="topbar-date"></div></div>
     </div>
     <div class="content">
 
@@ -400,10 +460,10 @@ tbody td:last-child{padding-right:22px;}
             <div class="form-group"><label>Huésped</label><input type="text" id="r-huesped" placeholder="Nombre completo"></div>
             <div class="form-group"><label>Nacionalidad</label><input type="text" id="r-nac" placeholder="Ej: Estadounidense"></div>
             <div class="form-group"><label>Estado</label>
-              <select id="r-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
+              <select id="r-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option><option value="Devolución">Devolución</option></select>
             </div>
-            <div class="form-group"><label>Check-in</label><input type="date" id="r-checkin"></div>
-            <div class="form-group"><label>Check-out</label><input type="date" id="r-checkout"></div>
+            <div class="form-group"><label>Check-in</label><div class="ci-co-group"><input type="date" id="r-checkin"><label class="ci-co-check"><input type="checkbox" id="r-early"> Early check-in</label></div></div>
+            <div class="form-group"><label>Check-out</label><div class="ci-co-group"><input type="date" id="r-checkout"><label class="ci-co-check"><input type="checkbox" id="r-late"> Late checkout</label></div></div>
             <div class="form-group"><label>USD / Noche</label><input type="number" id="r-precio" placeholder="120" step="0.01" min="0"></div>
             <div class="form-group"><label>Plataforma</label>
               <select id="r-plataforma"><option value="Airbnb">Airbnb</option><option value="Directo">Directo</option><option value="Booking">Booking</option><option value="Otro">Otro</option></select>
@@ -435,15 +495,17 @@ tbody td:last-child{padding-right:22px;}
           <label>Depto</label>
           <select id="fil-depto"><option value="">Todos</option><option value="D01">PB5</option><option value="D02">1A</option><option value="D03">2C</option><option value="D04">2D</option><option value="D05">PR1</option><option value="D06">PR2</option><option value="D07">1B</option></select>
           <label>Estado</label>
-          <select id="fil-estado"><option value="">Todos</option><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
+          <select id="fil-estado"><option value="">Todos</option><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option><option value="Devolución">Devolución</option></select>
+          <input type="text" id="fil-nombre" placeholder="🔍 Buscar huésped..." style="padding:6px 12px;border:1px solid var(--line);border-radius:var(--r);font-size:0.82rem;color:var(--text);background:var(--white);min-width:180px;" oninput="renderReservas()">
           <div class="export-group">
             <button class="btn btn-outline btn-sm" onclick="exportReservas()"><svg><use href="#i-download"/></svg>CSV</button>
             <button class="btn btn-accent btn-sm" onclick="exportReservasPDF()"><svg><use href="#i-pdf"/></svg>PDF</button>
+            <label class="btn btn-primary btn-sm" style="cursor:pointer" title="Importar CSV o Excel"><svg><use href="#i-upload"/></svg>Importar<input type="file" accept=".csv,.xlsx,.xls" style="display:none" onchange="importarCSV(this)"></label>
           </div>
         </div>
         <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap"><table>
-            <thead><tr><th>#</th><th>Depto</th><th>Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>USD/N</th><th>Subtotal</th><th>Airbnb</th><th>Neto</th><th>Gestión</th><th>Líquido</th><th>Estado</th><th>Destino</th><th>Seña</th><th>Saldo</th><th></th></tr></thead>
+            <thead><tr><th class="res-sticky-1">#</th><th class="res-sticky-2">Depto</th><th class="res-sticky-3">Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>USD/N</th><th>Subtotal</th><th>Airbnb</th><th>Neto</th><th>Gestión</th><th>Líquido</th><th>Estado</th><th>Destino</th><th>Seña</th><th>Saldo</th><th></th></tr></thead>
             <tbody id="tabla-reservas"></tbody>
           </table></div>
         </div>
@@ -577,10 +639,10 @@ tbody td:last-child{padding-right:22px;}
       <div class="form-group"><label>Huésped</label><input type="text" id="e-huesped"></div>
       <div class="form-group"><label>Nacionalidad</label><input type="text" id="e-nac"></div>
       <div class="form-group"><label>Estado</label>
-        <select id="e-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option></select>
+        <select id="e-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option><option value="Devolución">Devolución</option></select>
       </div>
-      <div class="form-group"><label>Check-in</label><input type="date" id="e-checkin"></div>
-      <div class="form-group"><label>Check-out</label><input type="date" id="e-checkout"></div>
+      <div class="form-group"><label>Check-in</label><div class="ci-co-group"><input type="date" id="e-checkin"><label class="ci-co-check"><input type="checkbox" id="e-early"> Early check-in</label></div></div>
+      <div class="form-group"><label>Check-out</label><div class="ci-co-group"><input type="date" id="e-checkout"><label class="ci-co-check"><input type="checkbox" id="e-late"> Late checkout</label></div></div>
       <div class="form-group"><label>USD / Noche</label><input type="number" id="e-precio" step="0.01"></div>
       <div class="form-group"><label>Plataforma</label>
         <select id="e-plataforma"><option value="Airbnb">Airbnb</option><option value="Directo">Directo</option><option value="Booking">Booking</option><option value="Otro">Otro</option></select>
@@ -589,6 +651,12 @@ tbody td:last-child{padding-right:22px;}
         <select id="e-destino"><option value="">— Sin especificar —</option><option value="Airbnb">Airbnb</option><option value="Booking">Booking</option><option value="Efectivo">Efectivo</option><option value="Payoneer">Payoneer</option><option value="Billetera virtual">Billetera virtual</option></select>
       </div>
       <div class="form-group full"><label>Notas</label><textarea id="e-notas"></textarea></div>
+      <div id="e-calc-resumen" style="background:var(--ink);border-radius:var(--r);padding:14px 18px;margin-top:4px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;font-size:0.78rem">
+        <div><div style="color:rgba(250,248,243,0.5);font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Noches</div><div id="e-resumen-noches" style="font-family:'Fraunces',serif;color:var(--paper);font-size:1.1rem;margin-top:4px">—</div></div>
+        <div><div style="color:rgba(250,248,243,0.5);font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Subtotal</div><div id="e-resumen-sub" style="font-family:'Fraunces',serif;color:var(--paper);font-size:1.1rem;margin-top:4px">—</div></div>
+        <div><div style="color:rgba(250,248,243,0.5);font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Gestión 12%</div><div id="e-resumen-ges" style="font-family:'Fraunces',serif;color:#f5c97a;font-size:1.1rem;margin-top:4px">—</div></div>
+        <div><div style="color:rgba(250,248,243,0.5);font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Líquido Prop.</div><div id="e-resumen-liq" style="font-family:'Fraunces',serif;color:#8fbda0;font-size:1.1rem;margin-top:4px">—</div></div>
+      </div>
       <div class="form-group full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:4px;">
         <label style="margin-bottom:10px;display:block">Pagos</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
@@ -615,6 +683,18 @@ tbody td:last-child{padding-right:22px;}
       <button class="btn btn-primary" onclick="smartPasteDetect()">Detectar Datos</button>
     </div>
     <div id="sp-detected"></div>
+  </div>
+</div>
+
+<div class="cal-popup" id="cal-popup">
+  <div class="cal-popup-backdrop" onclick="closeCalPopup()"></div>
+  <div class="cal-popup-box">
+    <div class="cal-popup-header" id="cal-popup-header">
+      <strong id="cal-popup-nombre"></strong>
+      <button class="cal-popup-close" onclick="closeCalPopup()" style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:6px;padding:4px 10px;font-size:0.8rem;cursor:pointer">✕</button>
+    </div>
+    <div class="cal-popup-body" id="cal-popup-body"></div>
+    <div class="cal-popup-footer" id="cal-popup-footer"></div>
   </div>
 </div>
 
@@ -726,7 +806,7 @@ function pinClear(){pb=pb.slice(0,-1);ud();}
 function pinEnter(){
   pins=lo('cn_p',{...DEFAULT_PINS});
   const m=Object.entries(pins).find(([,p])=>p===pb);
-  if(m){cu=m[0];$('login-error').textContent='';loginOk();}
+  if(m){cu=m[0];$('login-error').textContent='';sessionStorage.setItem('cn_cu',cu);loginOk();}
   else{$('login-error').textContent='PIN incorrecto';pb='';ud();setTimeout(()=>$('login-error').textContent='',2000);}
 }
 async function loginOk(){
@@ -750,7 +830,7 @@ async function loginOk(){
   if(cu==='admin'){setTimeout(()=>sincronizarIcal(),2000);}
   checkBackupReminder();
 }
-function logout(){cu=null;pb='';$('app').style.display='none';$('login-screen').style.display='flex';ud();}
+function logout(){cu=null;pb='';sessionStorage.removeItem('cn_cu');$('app').style.display='none';$('login-screen').style.display='flex';ud();}
 
 // ── NAV ──
 function buildNav(){
@@ -806,7 +886,17 @@ const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p
 const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function calc(r){const n=nights(r.checkin,r.checkout);const sub=n*r.precio;const air=r.plataforma==='Airbnb'?sub*0.03:0;const net=sub-air;const ges=net*0.12;return{n,sub,air,net,ges,liq:net-ges};}
+function calc(r){
+  const n=nights(r.checkin,r.checkout);
+  const sub=n*r.precio;
+  const air=r.plataforma==='Airbnb'?sub*0.03:0;
+  const net=sub-air;
+  const ges=net*0.12;
+  const liq=net-ges;
+  // Comisión Booking: 15% sobre líquido, solo si estado=Shown
+  const bkCom=r.plataforma==='Booking'&&r.estado==='Shown'?liq*0.15:0;
+  return{n,sub,air,net,ges,liq,bkCom};
+}
 function toast(msg,ok=true){const t=$('toast');$('toast-msg').textContent=msg;$('toast-icon').firstElementChild.setAttribute('href',ok?'#i-check':'#i-alert');t.classList.toggle('err',!ok);t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 function csvDown(rows,filename){
   const content='sep=;\n'+rows.join('\n');
@@ -871,23 +961,32 @@ function guardarReserva(){
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
   const conf=reservas.find(r=>r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
   if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast(`Superposición con ${conf.huesped} en ${DN[dep]}`,false);return;}
-  reservas.push({id:uid(),depto:dep,huesped:hue,nac:$('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:$('r-plataforma').value,destino:$('r-destino').value,estado:$('r-estado').value,notas:$('r-notas').value.trim(),creado:new Date().toISOString()});
+  reservas.push({id:uid(),depto:dep,huesped:hue,nac:$('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:$('r-plataforma').value,destino:$('r-destino').value,estado:$('r-estado').value,notas:$('r-notas').value.trim(),early:$('r-early').checked,late:$('r-late').checked,creado:new Date().toISOString()});
   saveToSheets('reservas',reservas);clearReservaForm();toast('Reserva guardada');
 }
-function clearReservaForm(){['r-depto','r-huesped','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=$(id);if(e)e.value='';});['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-gestion','cp-liquido'].forEach(id=>$(id).textContent='—');}
+function clearReservaForm(){['r-depto','r-huesped','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=$(id);if(e)e.value='';});['r-early','r-late'].forEach(id=>{const e=$(id);if(e)e.checked=false;});['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-gestion','cp-liquido'].forEach(id=>$(id).textContent='—');}
 
 // ── RESERVAS ──
-function badgeClass(estado){return estado==='Confirmada'?'badge-ok':estado==='Pendiente'?'badge-warn':estado==='Cortesía'?'badge-purple':'badge-err';}
+function badgeClass(estado){
+  return estado==='Confirmada'?'badge-ok':
+    estado==='Pendiente'?'badge-warn':
+    estado==='Stand by'?'badge-warn':
+    estado==='Shown'?'badge-ok':
+    estado==='Non show'?'badge-err':
+    estado==='Cortesía'?'badge-purple':
+    estado==='Devolución'?'badge-err':'badge-err';
+}
 function renderReservas(){
   const ia=cu==='admin',fd=$('fil-depto').value,fe=$('fil-estado').value;
-  const data=reservas.filter(r=>(!fd||r.depto===fd)&&(!fe||r.estado===fe)).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
+  const fn=($('fil-nombre')?.value||'').toLowerCase().trim();
+  const data=reservas.filter(r=>(!fd||r.depto===fd)&&(!fe||r.estado===fe)&&(!fn||r.huesped.toLowerCase().includes(fn))).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
   const tb=$('tabla-reservas');
   if(!data.length){tb.innerHTML=`<tr><td colspan="16" style="text-align:center;padding:40px;color:var(--muted)">Sin reservas</td></tr>`;return;}
   tb.innerHTML=data.map((r,i)=>{const c=calc(r);const senia=r.senia||0,saldo=r.saldo||0,pend=Math.max(0,c.sub-senia-saldo);
     return`<tr>
-      <td style="color:var(--muted);font-weight:600">${i+1}</td>
-      <td><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span></td>
-      <td style="font-weight:500">${esc(r.huesped)}</td>
+      <td class="res-sticky-1" style="color:var(--muted);font-weight:600">${i+1}</td>
+      <td class="res-sticky-2"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span></td>
+      <td class="res-sticky-3" style="font-weight:500">${esc(r.huesped)}</td>
       <td>${fmtD(r.checkin)}</td><td>${fmtD(r.checkout)}</td>
       <td style="text-align:center;font-weight:600">${c.n}</td>
       <td>${fmt(r.precio)}</td><td>${fmt(c.sub)}</td>
@@ -939,25 +1038,188 @@ function exportReservasPDF(){
 }
 
 // ── OCUPACIÓN ──
+function importarCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    const sep=text.indexOf(';')>text.indexOf(',')&&text.indexOf(';')!==-1?';':',';
+    const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim()&&!l.startsWith('sep='));
+    if(lines.length<2){toast('El archivo no tiene datos',false);return;}
+    const headers=lines[0].split(sep).map(h=>h.replace(/"/g,'').trim().toLowerCase());
+    const col=(names)=>{for(const n of names){const i=headers.findIndex(h=>h.includes(n));if(i>=0)return i;}return -1;};
+    const iDepto=col(['depto','departamento','apt','unidad']);
+    const iHuesped=col(['huesped','huésped','nombre','guest','pasajero']);
+    const iCheckin=col(['checkin','check-in','entrada','llegada','from']);
+    const iCheckout=col(['checkout','check-out','salida','hasta','to']);
+    const iPrecio=col(['precio','price','tarifa','rate','usd/n','$/n']);
+    const iEstado=col(['estado','status']);
+    const iPlat=col(['plataforma','platform','canal']);
+    const iNotas=col(['notas','notes','comentario']);
+    if(iHuesped<0||iCheckin<0||iCheckout<0){toast('Necesitás columnas: Huésped, Check-in, Check-out',false);input.value='';return;}
+    const parseDate=(s)=>{
+      if(!s)return'';s=s.replace(/"/g,'').trim();
+      if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){const[d,m,y]=s.split('/');return`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+      if(/^\d{1,2}-\d{1,2}-\d{4}$/.test(s)){const[d,m,y]=s.split('-');return`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+      return s.substring(0,10);
+    };
+    const deptoMap={};
+    Object.entries(DN).forEach(([k,v])=>{deptoMap[v.toLowerCase()]=k;deptoMap[k.toLowerCase()]=k;});
+    const nuevas=[];const errores=[];
+    for(let i=1;i<lines.length;i++){
+      const cells=lines[i].split(sep).map(c=>c.replace(/^"|"$/g,'').trim());
+      const huesped=iHuesped>=0?cells[iHuesped]||'':'';
+      const ci=parseDate(iCheckin>=0?cells[iCheckin]:'');
+      const co=parseDate(iCheckout>=0?cells[iCheckout]:'');
+      if(!huesped||!ci||!co){errores.push(i+1);continue;}
+      const deptoRaw=iDepto>=0?cells[iDepto]||'':'';
+      const depto=deptoMap[deptoRaw.toLowerCase()]||DEPTOS[0];
+      nuevas.push({id:uid(),depto,huesped,nac:'',checkin:ci,checkout:co,
+        precio:iPrecio>=0?parseFloat(cells[iPrecio])||0:0,
+        estado:iEstado>=0?cells[iEstado]||'Confirmada':'Confirmada',
+        plataforma:iPlat>=0?cells[iPlat]||'Importado':'Importado',
+        notas:iNotas>=0?cells[iNotas]||'':'',
+        early:false,late:false,senia:0,saldo:0,creado:new Date().toISOString()});
+    }
+    if(!nuevas.length){toast('Sin reservas válidas en el archivo',false);input.value='';return;}
+    const msg=`Importar ${nuevas.length} reservas${errores.length?` (${errores.length} filas ignoradas)`:''}?\n\n¿Agregar a las existentes?`;
+    if(confirm(msg)){reservas=[...reservas,...nuevas];saveToSheets('reservas',reservas);renderReservas();toast(`${nuevas.length} reservas importadas ✓`);}
+    input.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
 function renderCalendario(){
   const mes=parseInt($('cal-mes').value),anio=parseInt($('cal-anio').value);
   const dim=new Date(anio,mes+1,0).getDate();
   const parts=[`<div class="cal-grid" style="grid-template-columns:70px repeat(${dim},1fr)">`,`<div class="cal-header cal-header-depto">Depto</div>`];
   for(let d=1;d<=dim;d++){const dow=new Date(anio,mes,d).getDay();parts.push(`<div class="cal-header${dow===0||dow===6?' weekend':''}">${d}</div>`);}
   const byDep={};DEPTOS.forEach(c=>byDep[c]={});
-  reservas.forEach(r=>{if(r.estado==='Cancelada'||!byDep[r.depto])return;const s=new Date(r.checkin),e=new Date(r.checkout);for(let d=new Date(s);d<e;d.setDate(d.getDate()+1)){const k=d.toISOString().split('T')[0];byDep[r.depto][k]=r;}});
+  // Mapear reservas por depto/día — para same-day también necesitamos checkouts
+  const byDepCO={};DEPTOS.forEach(c=>byDepCO[c]={});
+  reservas.forEach(r=>{
+    if(r.estado==='Cancelada'||!byDep[r.depto])return;
+    const s=new Date(r.checkin),e=new Date(r.checkout);
+    for(let d=new Date(s);d<e;d.setDate(d.getDate()+1)){
+      const k=d.toISOString().split('T')[0];
+      byDep[r.depto][k]=r;
+    }
+    // Registrar también el día de checkout para detectar same-day
+    byDepCO[r.depto][r.checkout]=r;
+  });
   DEPTOS.forEach(code=>{
     parts.push(`<div class="cal-depto" style="background:${DC[code]}">${DN[code]}</div>`);
     for(let d=1;d<=dim;d++){
       const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const res=byDep[code][ds];
-      const bloq=!res&&isBlocked(code,ds);
-      parts.push(res?`<div class="cal-cell occupied" style="background:${DC[code]}" title="${esc(res.huesped)}">${esc(res.huesped.split(' ')[0].substr(0,4))}</div>`:bloq?`<div class="cal-cell blocked" title="Bloqueado Airbnb">Air</div>`:`<div class="cal-cell"></div>`);
+      const res=byDep[code][ds];       // reserva que ocupa este día (CI..CO-1)
+      const resOut=byDepCO[code][ds];  // reserva que hace checkout este día
+      const bloqInfo=!res&&getBloqueo(code,ds);
+      const bloqLabel=bloqInfo?bloqInfo.plat==='Bk'?'Bk':'Air':null;
+      const bloqStyle=bloqInfo?bloqInfo.plat==='Bk'?'background:repeating-linear-gradient(45deg,#003580,#003580 4px,#0057b8 4px,#0057b8 8px)':'background:repeating-linear-gradient(45deg,#d68b3f,#d68b3f 4px,#e9a85d 4px,#e9a85d 8px)':null;
+
+      if(res&&resOut&&res.id!==resOut.id){
+        // Same-day: checkout de resOut + checkin de res en el mismo día
+        // Triángulo superior-izq = quien sale, inferior-der = quien entra
+        const nmOut=resOut.huesped.split(' ')[0].substr(0,3);
+        const nmIn=res.huesped.split(' ')[0].substr(0,3);
+        const popOut=`openCalPopup('${resOut.id}')`;
+        const popIn=`openCalPopup('${res.id}')`;
+        parts.push(`<div class="cal-cell split" title="${esc(resOut.huesped)} → ${esc(res.huesped)}">
+          <div class="split-top" style="background:${DC[code]}" onclick="${popOut}">${esc(nmOut)}</div>
+          <div class="split-bot" style="background:${DC[code]}" onclick="${popIn}">${esc(nmIn)}</div>
+          <div class="split-line"></div>
+        </div>`);
+      } else if(res){
+        // Día normal ocupado — verificar si es el día de CI con early, o el día anterior al CO con late
+        const isEarlyDay=res.early&&ds===res.checkin;
+        const isLateDay=res.late&&ds===res.checkout;// no puede pasar (CO excluido del loop), pero por si acaso
+        // Late checkout: el día del checkout no está en byDep, lo mostramos como semi-ocupado
+        const extraClass=(isEarlyDay?' early-ci':'');
+        parts.push(`<div class="cal-cell occupied${extraClass}" style="background:${DC[code]};cursor:pointer" onclick="openCalPopup('${res.id}')" title="${esc(res.huesped)}">${esc(res.huesped.split(' ')[0].substr(0,4))}</div>`);
+      } else if(resOut&&resOut.late){
+        // El día de checkout pero la reserva tiene late checkout → mostrar semi-ocupado
+        parts.push(`<div class="cal-cell occupied late-co" style="background:${DC[code]};cursor:pointer;opacity:0.6" onclick="openCalPopup('${resOut.id}')" title="${esc(resOut.huesped)} (late CO)">${esc(resOut.huesped.split(' ')[0].substr(0,4))}</div>`);
+      } else if(bloqInfo){
+        const platLabel=bloqInfo.plat==='Bk'?'Booking':'Airbnb';
+        parts.push(`<div class="cal-cell blocked" style="${bloqStyle};cursor:pointer" onclick="openBloqPopup('${code}','${ds}')" title="Bloqueado ${platLabel}">${bloqLabel}</div>`);
+      } else {
+        parts.push(`<div class="cal-cell"></div>`);
+      }
     }
   });
   parts.push('</div>');
   $('calendario-grid').innerHTML=parts.join('');
-  $('cal-legend').innerHTML=DEPTOS.map(c=>`<span class="cal-legend-item"><span class="sw" style="background:${DC[c]}"></span>${DN[c]}</span>`).join('')+`<span class="cal-legend-item"><span class="sw" style="background:repeating-linear-gradient(45deg,#d68b3f,#d68b3f 4px,#e9a85d 4px,#e9a85d 8px)"></span>Bloqueado Airbnb</span><span class="cal-legend-item"><span class="sw" style="background:var(--paper-2);border:1px solid var(--line-2)"></span>Libre</span>`;
+  $('cal-legend').innerHTML=DEPTOS.map(c=>`<span class="cal-legend-item"><span class="sw" style="background:${DC[c]}"></span>${DN[c]}</span>`).join('')
+    +`<span class="cal-legend-item"><span class="sw" style="background:repeating-linear-gradient(45deg,#d68b3f,#d68b3f 4px,#e9a85d 4px,#e9a85d 8px)"></span>Airbnb</span>`
+    +`<span class="cal-legend-item"><span class="sw" style="background:repeating-linear-gradient(45deg,#003580,#003580 4px,#0057b8 4px,#0057b8 8px)"></span>Booking</span>`
+    +`<span class="cal-legend-item"><span class="sw" style="background:linear-gradient(to bottom right,var(--paper-2) 50%,#7a9a6a 50%);border:1px solid var(--line-2)"></span>Día compartido</span>`
+    +`<span class="cal-legend-item"><span class="sw" style="background:var(--paper-2);border:1px solid var(--line-2)"></span>Libre</span>`;
+}
+function openCalPopup(id){
+  const r=reservas.find(x=>x.id===id);if(!r)return;
+  const c=calc(r);
+  const pop=$('cal-popup');
+  $('cal-popup-header').style.background=DC[r.depto];
+  $('cal-popup-nombre').textContent=r.huesped+(r.nac?' · '+r.nac:'');
+  const senia=r.senia||0,saldo=r.saldo||0,pend=Math.max(0,c.sub-senia-saldo);
+  $('cal-popup-body').innerHTML=`
+    <div class="cal-popup-field"><div class="cal-popup-label">Depto</div><div class="cal-popup-value"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Estado</div><div class="cal-popup-value"><span class="badge ${badgeClass(r.estado)}">${r.estado}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Check-in</div><div class="cal-popup-value">${fmtD(r.checkin)}${r.early?' <span style="font-size:0.7rem;color:var(--accent);font-weight:700">Early</span>':''}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Check-out</div><div class="cal-popup-value">${fmtD(r.checkout)}${r.late?' <span style="font-size:0.7rem;color:var(--accent);font-weight:700">Late</span>':''}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Noches</div><div class="cal-popup-value" style="font-family:'Fraunces',serif;font-size:1.2rem">${c.n}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Plataforma</div><div class="cal-popup-value">${esc(r.plataforma)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Líquido Prop.</div><div class="cal-popup-value" style="color:var(--ok);font-weight:700">${fmt(c.liq)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Pendiente</div><div class="cal-popup-value" style="color:${pend>0?'var(--err)':'var(--ok)'};font-weight:600">${pend>0?fmt(pend):'✓ Saldado'}</div></div>
+    ${r.notas?`<div class="cal-popup-field" style="grid-column:1/-1"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.84rem;white-space:normal">${esc(r.notas)}</div></div>`:''}
+  `;
+  $('cal-popup-footer').innerHTML=cu==='admin'
+    ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')"><svg><use href="#i-edit"/></svg>Editar</button>`
+    :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
+  pop.classList.add('show');
+}
+function closeCalPopup(){$('cal-popup').classList.remove('show');}
+function openBloqPopup(code,ds){
+  const b=getBloqueo(code,ds);if(!b)return;
+  const platLabel=b.plat==='Bk'?'Booking':'Airbnb';
+  const platColor=b.plat==='Bk'?'#003580':'#d68b3f';
+  const n=Math.max(0,Math.round((new Date(b.end)-new Date(b.start))/86400000));
+  $('cal-popup-header').style.background=platColor;
+  $('cal-popup-nombre').textContent='Bloqueado · '+platLabel;
+  $('cal-popup-body').innerHTML=`
+    <div class="cal-popup-field"><div class="cal-popup-label">Depto</div><div class="cal-popup-value"><span class="depto-tag" style="background:${DC[code]}">${DN[code]}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Plataforma</div><div class="cal-popup-value"><span style="background:${platColor};color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700">${platLabel}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Desde</div><div class="cal-popup-value">${fmtD(b.start)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Hasta</div><div class="cal-popup-value">${fmtD(b.end)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Noches</div><div class="cal-popup-value" style="font-family:'Fraunces',serif;font-size:1.2rem">${n}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Descripción</div><div class="cal-popup-value" style="font-size:0.82rem">${esc(b.summary||'—')}</div></div>
+  `;
+  $('cal-popup-footer').innerHTML=cu==='admin'
+    ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();convertirBloqueo('${code}','${b.start}','${b.end}')"><svg><use href="#i-edit"/></svg>Convertir en reserva</button><button class="btn btn-outline btn-sm" onclick="closeCalPopup();eliminarBloqueo('${code}','${b.plat}')" style="color:var(--err);border-color:var(--err)">✕ Eliminar</button>`
+    :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
+  $('cal-popup').classList.add('show');
+}
+function eliminarBloqueo(code,plat){
+  if(!confirm('¿Eliminar todos los bloqueos de '+(plat==='Bk'?'Booking':'Airbnb')+' para '+DN[code]+'?'))return;
+  const bloqueos=lo('cn_bloqueos',{});
+  bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat);
+  saveBloqueos(bloqueos);
+  renderCalendario();
+  toast('Bloqueos eliminados ✓');
+}
+function convertirBloqueo(code,ci,co){
+  // Navegar a nueva reserva con datos precargados
+  showScreen('nueva-reserva');
+  setTimeout(()=>{
+    $('r-depto').value=code;
+    $('r-checkin').value=ci;
+    $('r-checkout').value=co;
+    // Trigger calcNights para que se actualice el preview
+    calcNights();
+    // Scroll al top del form
+    $('screen-nueva-reserva').scrollTop=0;
+    toast('Fechas precargadas — completá los datos del huésped');
+  },80);
 }
 function exportOcupacion(){
   const mes=parseInt($('cal-mes').value),anio=parseInt($('cal-anio').value);
@@ -1076,7 +1338,8 @@ function exportGastosPDF(){
 function renderRendimiento(){
   const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
-  const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const EXCLUIR_R=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const fil=reservas.filter(r=>{if(EXCLUIR_R.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
   let ts=0,ta=0,tn=0,tg=0,tl=0,tno=0;
   const rows=DEPTOS.map(code=>{
     const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
@@ -1107,6 +1370,12 @@ function renderRendimiento(){
     <div class="totals-item"><div class="tl">Reservas</div><div class="tv">${fil.length}</div></div>
     <div class="totals-item highlight"><div class="tl">Resultado Neto</div><div class="tv">${fmt(tl-tgas)}</div></div>
     ${(()=>{
+      const bkShown=fil.filter(r=>r.plataforma==='Booking'&&r.estado==='Shown');
+      const bkDeuda=bkShown.reduce((s,r)=>s+calc(r).bkCom,0);
+      if(!bkDeuda)return'';
+      return`<div class="totals-item" style="border-left:3px solid #f59e0b;padding-left:12px;margin-top:8px"><div class="tl">⚠️ Deuda Booking (15%)</div><div class="tv" style="color:#f59e0b">${fmt(bkDeuda)}</div></div><div style="font-size:0.72rem;color:var(--muted);margin-top:4px">${bkShown.length} reserva${bkShown.length>1?'s':''} con estado Shown</div>`;
+    })()}
+    ${(()=>{
       const destinos={};
       fil.forEach(r=>{const d=r.destino||'Sin especificar';if(!destinos[d])destinos[d]=0;destinos[d]+=calc(r).liq;});
       const keys=Object.keys(destinos);
@@ -1118,7 +1387,8 @@ function renderRendimiento(){
 function exportRendimiento(){
   const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
-  const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const EXCLUIR_X=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const fil=reservas.filter(r=>{if(EXCLUIR_X.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
   const h=['Depto','Reservas','Noches','Subtotal','Com.Airbnb','Neto','Com.Gestión','Líquido','Ticket Prom.'];
   const rows=DEPTOS.map(code=>{
     const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
@@ -1131,7 +1401,8 @@ function exportRendimientoPDF(){
   const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
   const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const fil=reservas.filter(r=>{if(r.estado==='Cancelada'||r.estado==='Cortesía')return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const EXCLUIR_P=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const fil=reservas.filter(r=>{if(EXCLUIR_P.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
   if(!fil.length){toast('No hay reservas en el período',false);return;}
   let ts=0,ta=0,tn=0,tg=0,tl=0,tno=0;
   const body=DEPTOS.map(code=>{
@@ -1238,7 +1509,8 @@ function renderHoy(){
   const today=new Date().toISOString().split('T')[0];
   const act=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
   const m=new Date().getMonth(),y=new Date().getFullYear();
-  const em=reservas.filter(r=>{const d=new Date(r.checkin);return r.estado!=='Cancelada'&&r.estado!=='Cortesía'&&d.getMonth()===m&&d.getFullYear()===y;});
+  const EXCLUIR_REND=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const em=reservas.filter(r=>{const d=new Date(r.checkin);return !EXCLUIR_REND.includes(r.estado)&&d.getMonth()===m&&d.getFullYear()===y;});
   const ing=em.reduce((s,r)=>s+calc(r).liq,0);
   const nochesM=em.reduce((s,r)=>s+calc(r).n,0);
   const promNoches=em.length?Math.round(nochesM/em.length*10)/10:0;
@@ -1468,7 +1740,7 @@ async function sincronizarIcal(){
           bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat);
           ok++;exito=true;break;
         }
-        const eventos=parseIcal(text).map(e=>({...e,plat}));
+        const eventos=parseIcal(text,plat).map(e=>({...e,plat}));
         bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat).concat(eventos);
         console.log('iCal '+code+' ('+plat+'): '+eventos.length+' eventos');
         ok++;exito=true;break;
@@ -1481,38 +1753,50 @@ async function sincronizarIcal(){
   if(status)status.textContent=`Última sincronización: ${new Date().toLocaleString('es-AR')} · ${ok} OK${err?' · '+err+' error(es)':''}`;
   toast(ok>0?'Calendarios sincronizados ✓':'Error al sincronizar',ok>0);
 }
-function parseIcal(text){
+function parseIcal(text,plat){
   const events=[];
   if(!text||!text.includes('BEGIN:VCALENDAR'))return events;
   const unfolded=text.replace(/\r\n[ \t]/g,'').replace(/\r/g,'');
   const lines=unfolded.split('\n');
-  let inEvent=false,dtstart='',dtend='',summary='';
+  let inEvent=false,dtstart='',dtend='',summary='',status='',uid='';
   for(const line of lines){
-    if(line==='BEGIN:VEVENT'){inEvent=true;dtstart='';dtend='';summary='';}
+    if(line==='BEGIN:VEVENT'){inEvent=true;dtstart='';dtend='';summary='';status='';uid='';}
     else if(line==='END:VEVENT'){
       if(dtstart&&dtend){
         const s=icalDate(dtstart),e=icalDate(dtend);
         const hoy=new Date().toISOString().split('T')[0];
-        // Filtrar eventos pasados, bloqueos automáticos y eventos de un solo día
-        const esBloqueoAuto=summary.toLowerCase().includes('not available')||summary.toLowerCase().includes('no disponible')||summary.toLowerCase().includes('bloqueado');
-        const esUnDia=s===e||(new Date(e)-new Date(s))<=86400000;
-        const esPasado=s<=hoy;
-        if(!esBloqueoAuto&&!esUnDia&&!esPasado)events.push({start:s,end:e,summary});
+        // Ignorar eventos cancelados
+        if(status==='CANCELLED'){inEvent=false;continue;}
+        if(plat==='Air'){
+          // Airbnb: filtrar bloqueos automáticos, eventos de un día y pasados
+          const esBloqueoAuto=summary.toLowerCase().includes('not available')||summary.toLowerCase().includes('no disponible')||summary.toLowerCase().includes('bloqueado');
+          const esUnDia=s===e||(new Date(e)-new Date(s))<=86400000;
+          const esPasado=e<=hoy;
+          if(esBloqueoAuto||esUnDia||esPasado){inEvent=false;continue;}
+        } else {
+          // Booking y otros: solo filtrar completamente pasados
+          if(e<=hoy){inEvent=false;continue;}
+        }
+        events.push({start:s,end:e,summary,uid});
       }
       inEvent=false;
     }
     else if(inEvent){
       const propName=line.split(/[:;]/)[0];
-      const propVal=line.includes(':')?line.substring(line.indexOf(':')+1).split('T')[0]:'';
-      if(propName==='DTSTART')dtstart=propVal;
-      else if(propName==='DTEND')dtend=propVal;
-      else if(propName==='SUMMARY')summary=line.substring(line.indexOf(':')+1);
+      const propVal=line.includes(':')?line.substring(line.indexOf(':')+1):'';
+      const propValDate=propVal.split('T')[0];
+      if(propName==='DTSTART')dtstart=propValDate;
+      else if(propName==='DTEND')dtend=propValDate;
+      else if(propName==='SUMMARY')summary=propVal.trim();
+      else if(propName==='STATUS')status=propVal.trim().toUpperCase();
+      else if(propName==='UID')uid=propVal.trim();
     }
   }
   return events;
 }
 function icalDate(s){if(s.length===8)return s.substring(0,4)+'-'+s.substring(4,6)+'-'+s.substring(6,8);return s;}
-function isBlocked(code,dateStr){const bloqueos=lo('cn_bloqueos',{});const events=bloqueos[code]||[];return events.some(e=>e.start<=dateStr&&e.end>dateStr);}
+function isBlocked(code,dateStr){return!!getBloqueo(code,dateStr);}
+function getBloqueo(code,dateStr){const bloqueos=lo('cn_bloqueos',{});const events=bloqueos[code]||[];return events.find(e=>e.start<=dateStr&&e.end>dateStr)||null;}
 
 function renderConfig(){
   pins=lo('cn_p',{...DEFAULT_PINS});
@@ -1577,13 +1861,26 @@ function editRes(id){
   $('e-estado').value=r.estado;$('e-checkin').value=r.checkin;$('e-checkout').value=r.checkout;
   $('e-precio').value=r.precio;$('e-plataforma').value=r.plataforma;$('e-notas').value=r.notas||'';
   if($('e-destino'))$('e-destino').value=r.destino||'';
+  if($('e-early'))$('e-early').checked=r.early||false;
+  if($('e-late'))$('e-late').checked=r.late||false;
   $('e-senia').value=r.senia||'';$('e-saldo').value=r.saldo||'';
-  const upd=()=>{
-    const c=calc(r);const senia=parseFloat($('e-senia').value)||0;const saldo=parseFloat($('e-saldo').value)||0;
-    const total=c.sub;const pend=Math.max(0,total-senia-saldo);
-    $('e-pago-resumen').innerHTML=`Total: <b>${fmt(total)}</b> · Seña: <b>${fmt(senia)}</b> · Saldo abonado: <b>${fmt(saldo)}</b> · <span style="color:${pend>0?'var(--err)':'var(--ok)'}">Pendiente: <b>${fmt(pend)}</b></span>`;
+  const updCalc=()=>{
+    const ci=$('e-checkin').value,co=$('e-checkout').value,pre=parseFloat($('e-precio').value)||0,pl=$('e-plataforma').value;
+    if(ci&&co&&pre&&new Date(co)>new Date(ci)){
+      const c=calc({checkin:ci,checkout:co,precio:pre,plataforma:pl,estado:$('e-estado').value});
+      $('e-resumen-noches').textContent=c.n;
+      $('e-resumen-sub').textContent=fmt(c.sub);
+      $('e-resumen-ges').textContent=fmt(c.ges);
+      $('e-resumen-liq').textContent=fmt(c.liq);
+      const senia=parseFloat($('e-senia').value)||0,saldo=parseFloat($('e-saldo').value)||0;
+      const pend=Math.max(0,c.sub-senia-saldo);
+      $('e-pago-resumen').innerHTML=`Total: <b>${fmt(c.sub)}</b> · Seña: <b>${fmt(senia)}</b> · Saldo: <b>${fmt(saldo)}</b> · <span style="color:${pend>0?'var(--err)':'var(--ok)'}">Pendiente: <b>${fmt(pend)}</b></span>`;
+    } else {
+      ['e-resumen-noches','e-resumen-sub','e-resumen-ges','e-resumen-liq'].forEach(i=>$(i).textContent='—');
+    }
   };
-  $('e-senia').oninput=upd;$('e-saldo').oninput=upd;upd();
+  ['e-checkin','e-checkout','e-precio','e-plataforma','e-estado','e-senia','e-saldo'].forEach(id=>{const el=$(id);if(el)el.oninput=updCalc;});
+  updCalc();
   $('edit-modal').classList.add('show');
 }
 function closeEdit(){$('edit-modal').classList.remove('show');editingId=null;}
@@ -1596,13 +1893,35 @@ function saveEdit(){
   if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' en '+DN[dep],false);return;}
   reservas=reservas.map(r=>{
     if(r.id!==editingId)return r;
-    return{...r,depto:dep,huesped:hue,nac:$('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:$('e-plataforma').value,destino:$('e-destino')?$('e-destino').value:'',estado:$('e-estado').value,notas:$('e-notas').value.trim(),senia:parseFloat($('e-senia').value)||0,saldo:parseFloat($('e-saldo').value)||0};
+    return{...r,depto:dep,huesped:hue,nac:$('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,plataforma:$('e-plataforma').value,destino:$('e-destino')?$('e-destino').value:'',estado:$('e-estado').value,notas:$('e-notas').value.trim(),early:$('e-early')?$('e-early').checked:r.early||false,late:$('e-late')?$('e-late').checked:r.late||false,senia:parseFloat($('e-senia').value)||0,saldo:parseFloat($('e-saldo').value)||0};
   });
   saveToSheets('reservas',reservas);closeEdit();renderReservas();toast('Reserva actualizada');
 }
 
 // ── EVENT LISTENERS ──
+// ── DARK MODE ──
+function toggleDark(){
+  const isDark=document.documentElement.classList.toggle('dark');
+  localStorage.setItem('cn_dark',isDark?'1':'0');
+  const icon=isDark?'☀️':'🌙';
+  const btn=document.getElementById('dark-toggle');if(btn)btn.textContent=icon;
+  const btnM=document.getElementById('dark-toggle-mobile');if(btnM)btnM.textContent=icon;
+}
+(function(){
+  const saved=localStorage.getItem('cn_dark');
+  const prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if(saved==='1'||(saved===null&&prefersDark)){
+    document.documentElement.classList.add('dark');
+    document.addEventListener('DOMContentLoaded',()=>{
+      const b=document.getElementById('dark-toggle');if(b)b.textContent='☀️';
+      const bm=document.getElementById('dark-toggle-mobile');if(bm)bm.textContent='☀️';
+    });
+  }
+})();
 document.addEventListener('DOMContentLoaded',()=>{
+  // Sesión persistente: si hay usuario en sessionStorage, re-login sin PIN
+  const savedCu=sessionStorage.getItem('cn_cu');
+  if(savedCu&&USER_META[savedCu]){cu=savedCu;loginOk();}
   document.querySelector('.pin-pad').addEventListener('click',e=>{
     const b=e.target.closest('.pin-btn');if(!b)return;
     const v=b.dataset.pin;
