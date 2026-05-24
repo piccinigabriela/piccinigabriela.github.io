@@ -1511,7 +1511,7 @@ ${reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkout>=today).slice(0,20).ma
 Respondé la pregunta del usuario basándote en estos datos reales.`;
 
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch('https://xenia-proxy.huuventa.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
