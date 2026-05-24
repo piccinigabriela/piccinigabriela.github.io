@@ -1193,17 +1193,28 @@ async function syncIcalNow(){
   if(st)st.innerHTML=`✓ Sincronización completa (demo). ${added} bloqueo${added!==1?'s':''} importado${added!==1?'s':''}. <span style="color:var(--text-soft);font-size:0.75rem">Proxy: icalproxy.huuventa.workers.dev</span>`;
   toast('iCal sincronizado ✓');
 }
-function parseIcal(text){
+function parseIcal(text,plat){
   const blocks=text.split('BEGIN:VEVENT'),events=[];
+  const today=new Date().toISOString().split('T')[0];
   for(let i=1;i<blocks.length;i++){
     const b=blocks[i];
     const gv=key=>{const m=b.match(new RegExp(key+'(?:;[^:]*)?:([^\r\n]+)'));return m?m[1].trim():null;};
+    const status=gv('STATUS');if(status&&status.toUpperCase()==='CANCELLED')continue;
     const dtstart=gv('DTSTART'),dtend=gv('DTEND');
     const uid=gv('UID')||('ical-'+Math.random().toString(36).substr(2,6));
+    const summary=gv('SUMMARY')||'';
     if(!dtstart||!dtend)continue;
-    const pd=s=>{if(!s)return null;const c=s.replace(/T\d{6}Z?$/,'');return(/^\d{8}$/.test(c))?c.substr(0,4)+'-'+c.substr(4,2)+'-'+c.substr(6,2):c;};
+    const pd=s=>{if(!s)return null;const c=s.split(':').pop().replace(/T\d{6}Z?$/,'');return(/^\d{8}$/.test(c))?c.substr(0,4)+'-'+c.substr(4,2)+'-'+c.substr(6,2):c;};
     const ci=pd(dtstart),co=pd(dtend);
-    if(ci&&co)events.push({ci,co,uid});
+    if(!ci||!co)continue;
+    if(plat==='airbnb'||plat==='Airbnb'){
+      const esAuto=summary.toLowerCase().includes('not available')||summary.toLowerCase().includes('no disponible')||summary.toLowerCase().includes('bloqueado');
+      const esUnDia=ci===co||(new Date(co)-new Date(ci))<=86400000;
+      if(esAuto||esUnDia||co<=today)continue;
+    } else {
+      if(co<=today)continue;
+    }
+    events.push({ci,co,uid,summary});
   }
   return events;
 }
@@ -1214,7 +1225,7 @@ function importarICS(input){
   const statusEl=document.getElementById('ics-status');
   const reader=new FileReader();
   reader.onload=function(e){
-    const events=parseIcal(e.target.result);
+    const events=parseIcal(e.target.result,plat);
     if(!events.length){statusEl.textContent='Sin eventos en el archivo.';input.value='';return;}
     const today=new Date().toISOString().split('T')[0];
     reservas=reservas.filter(function(r){return !(r.depto===code&&(r.icalUid||r.huesped.startsWith('[Airbnb]')));});
