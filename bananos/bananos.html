@@ -1266,15 +1266,18 @@ function guardarIcal(){
   toast('URLs iCal guardadas ✓');
 }
 
-function parseIcal(text){
+function parseIcal(text,plat){
   const blocks=text.split('BEGIN:VEVENT');
   const events=[];
+  const today=new Date().toISOString().split('T')[0];
   for(let i=1;i<blocks.length;i++){
     const b=blocks[i];
     const getVal=key=>{
       const m=b.match(new RegExp(key+'(?:;[^:]*)?:([^\r\n]+)'));
       return m?m[1].trim():null;
     };
+    const status=getVal('STATUS');
+    if(status&&status.toUpperCase()==='CANCELLED')continue;
     const dtstart=getVal('DTSTART');
     const dtend=getVal('DTEND');
     const summary=getVal('SUMMARY')||'Bloqueado';
@@ -1282,12 +1285,19 @@ function parseIcal(text){
     if(!dtstart||!dtend)continue;
     const parseDate=s=>{
       if(!s)return null;
-      const clean=s.replace(/T\d{6}Z?$/,'');
+      const clean=s.split(':').pop().replace(/T\d{6}Z?$/,'');
       if(/^\d{8}$/.test(clean))return`${clean.substr(0,4)}-${clean.substr(4,2)}-${clean.substr(6,2)}`;
       return clean;
     };
     const ci=parseDate(dtstart),co=parseDate(dtend);
     if(!ci||!co)continue;
+    if(plat==='airbnb'){
+      const esAuto=summary.toLowerCase().includes('not available')||summary.toLowerCase().includes('no disponible')||summary.toLowerCase().includes('bloqueado');
+      const esUnDia=ci===co||(new Date(co)-new Date(ci))<=86400000;
+      if(esAuto||esUnDia||co<=today)continue;
+    } else {
+      if(co<=today)continue;
+    }
     events.push({ci,co,summary,uid});
   }
   return events;
@@ -1299,7 +1309,7 @@ async function syncIcalCabin(code,url,src){
     const res=await fetch(PROXY+encodeURIComponent(url));
     if(!res.ok)throw new Error('HTTP '+res.status);
     const text=await res.text();
-    const events=parseIcal(text);
+    const events=parseIcal(text,src);
     // Remove old ical blocks for this cabin, keep manual reservations
     reservas=reservas.filter(r=>!(r.depto===code&&r.icalUid));
     const today=new Date().toISOString().split('T')[0];
@@ -1362,7 +1372,7 @@ function importarICS(input){
   const reader=new FileReader();
   reader.onload=e=>{
     const text=e.target.result;
-    const events=parseIcal(text);
+    const events=parseIcal(text,plat.toLowerCase());
     if(!events.length){statusEl.textContent='No se encontraron eventos en el archivo.';input.value='';return;}
     const today=new Date().toISOString().split('T')[0];
     reservas=reservas.filter(r=>!(r.depto===code&&r.icalUid));
