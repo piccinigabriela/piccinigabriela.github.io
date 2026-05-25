@@ -1560,6 +1560,11 @@ function toggleDark(){
 // ── XENIA ──
 let xeniaOpen=false;
 let xeniaHistory=[];
+// Fix Enter en mobile
+document.addEventListener('DOMContentLoaded',function(){
+  const xi=document.getElementById('xenia-input');
+  if(xi)xi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();xeniaSend();}});
+});
 const gid=id=>document.getElementById(id);
 
 function toggleXenia(){
@@ -1567,7 +1572,13 @@ function toggleXenia(){
   gid('xenia-panel').classList.toggle('open',xeniaOpen);
   if(xeniaOpen&&!xeniaHistory.length){
     const today=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
-    xeniaAddMsg('bot','¡Hola! Soy Xenia, tu asistente de hospitalidad 🌿\nHoy es '+today+'. ¿En qué te puedo ayudar?');
+    if(!cu){
+      xeniaAddMsg('bot','¡Hola! Soy Xenia 🌿\nPara poder ayudarte con los datos de tu propiedad, primero ingresá tu PIN. ¡Te espero!');
+    } else if(!reservas||!reservas.length){
+      xeniaAddMsg('bot','¡Hola! Soy Xenia 🌿\nHoy es '+today+'. Estoy cargando los datos de Cabañas de Los Bananos, Puerto Iguazú... Dame un segundo y preguntame lo que necesitás 😊');
+    } else {
+      xeniaAddMsg('bot','¡Hola! Soy Xenia, tu asistente de hospitalidad 🌿\nHoy es '+today+'. ¿En qué te puedo ayudar?');
+    }
   }
 }
 
@@ -1599,6 +1610,7 @@ function xeniaAsk(q){gid('xenia-input').value=q;xeniaSend();}
 async function xeniaSend(){
   const input=gid('xenia-input');
   const q=input.value.trim();if(!q)return;
+  if(!cu){xeniaAddMsg('bot','Primero ingresá tu PIN para que pueda ayudarte 🔐');return;}
   input.value='';
   gid('xenia-sugs').style.display='none';
   xeniaAddMsg('user',q);
