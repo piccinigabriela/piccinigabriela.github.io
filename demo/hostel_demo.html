@@ -345,10 +345,13 @@ html.dark .bottom-nav{background:#0e0c0a;}
               <div class="form-group"><label>Reserva / Huésped</label>
                 <select id="c-reserva" onchange="setConsumoCama()"><option value="">— Seleccioná —</option></select></div>
               <div class="form-group"><label>Cama</label><input type="text" id="c-cama" readonly style="opacity:0.6"></div>
+              <div class="form-group"><label>Ítem del menú</label>
+                <select id="c-item" onchange="setConsumoItem()"><option value="">— Elegir del menú —</option></select>
+              </div>
               <div class="form-group"><label>Categoría</label>
                 <select id="c-cat"><option>Bar / Cafetería</option><option>Locker</option><option>Toallas</option><option>Tour / Excursión</option><option>Lavandería</option><option>Otro</option></select></div>
               <div class="form-group"><label>Descripción</label><input type="text" id="c-desc" placeholder="Ej: 2 cervezas"></div>
-              <div class="form-group"><label>Monto (USD)</label><input type="number" id="c-monto" placeholder="0" step="0.5"></div>
+              <div class="form-group"><label>Monto</label><input type="number" id="c-monto" placeholder="0" step="0.5"></div>
             </div>
             <div class="btn-row"><button class="btn btn-primary" onclick="guardarConsumo()">Registrar consumo</button></div>
           </div>
@@ -356,6 +359,17 @@ html.dark .bottom-nav{background:#0e0c0a;}
             <div class="card-title"><div class="dot"></div>Consumos del día</div>
             <div id="consumos-hoy"></div>
           </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="dot"></div>Menú de precios</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:16px">
+            <div class="form-group" style="margin:0"><label>Ítem</label><input type="text" id="m-nombre" placeholder="Ej: Cerveza Brahma"></div>
+            <div class="form-group" style="margin:0"><label>Categoría</label>
+              <select id="m-cat"><option>Bar / Cafetería</option><option>Locker</option><option>Toallas</option><option>Tour / Excursión</option><option>Lavandería</option><option>Otro</option></select></div>
+            <div class="form-group" style="margin:0"><label>Precio</label><input type="number" id="m-precio" placeholder="0" step="0.5"></div>
+            <button class="btn btn-primary" onclick="agregarMenuItem()" style="align-self:flex-end">+ Agregar</button>
+          </div>
+          <div id="menu-list"></div>
         </div>
       </div>
 
@@ -493,7 +507,7 @@ function showScreen(id){
   if(id==='dashboard')renderDashboard();
   if(id==='avisos')renderAvisos();
   if(id==='rendimiento')renderRend();
-  if(id==='consumos'){renderConsumosHoy();renderConsReservaSelect();}
+  if(id==='consumos'){renderConsumosHoy();renderConsReservaSelect();renderMenuList();renderItemSelect();}
   if(id==='nueva-reserva'){renderDormStatus();renderCamasGrid();}
 }
 
@@ -543,7 +557,7 @@ function renderCamasGrid(){
       let cls='cama-btn';
       let disabled='';
       if(!libre){cls+=' ocupada';disabled='disabled';}
-      else if(selectedGenero&&dg&&dg!=='MX'&&selectedGenero!=='MX'&&selectedGenero!==dg){cls+=' incompat';disabled='disabled';}
+      else if(selectedGenero&&dg&&dg!=='MX'&&selectedGenero!==dg){cls+=' incompat';disabled='disabled';}
       else{cls+=' libre';}
       if(selectedCama===cama)cls='cama-btn selected';
       return`<button class="${cls}" ${disabled} onclick="selCama('${cama}','${dorm}','${dg||''}')">${cama}</button>`;
@@ -558,7 +572,7 @@ function selCama(cama,dorm,dormG){
   const ci=$('r-checkin').value,co=$('r-checkout').value;
   const warn=$('genero-warn');
   // Advertencia si el dorm tiene género distinto
-  if(selectedGenero&&dormG&&dormG!=='MX'&&selectedGenero!=='MX'&&selectedGenero!==dormG){
+  if(selectedGenero&&dormG&&dormG!=='MX'&&selectedGenero!==dormG){
     warn.style.display='block';
     warn.textContent=`⚠️ El Dorm ${dorm} está ocupado por ${GL[dormG]}. Al confirmar, el dorm se convierte en MX (mixto).`;
     // Igual permitir la selección con advertencia
@@ -792,7 +806,66 @@ function renderDashboard(){
     </div>`;
 }
 
-// ── POPUP CALENDARIO ──
+// ── MENÚ DE PRECIOS ──
+let menuItems = JSON.parse(localStorage.getItem('hd_menu') || '[]');
+const saveMenu = () => localStorage.setItem('hd_menu', JSON.stringify(menuItems));
+
+function agregarMenuItem(){
+  const nombre = $('m-nombre').value.trim();
+  const precio = parseFloat($('m-precio').value) || 0;
+  if(!nombre || !precio){toast('Completá nombre y precio');return;}
+  menuItems.push({id:uid(), nombre, categoria:$('m-cat').value, precio});
+  saveMenu();
+  $('m-nombre').value=''; $('m-precio').value='';
+  renderMenuList();
+  renderItemSelect();
+  toast('Ítem agregado ✓');
+}
+
+function eliminarMenuItem(id){
+  menuItems = menuItems.filter(m=>m.id!==id);
+  saveMenu();
+  renderMenuList();
+  renderItemSelect();
+}
+
+function renderMenuList(){
+  const div = $('menu-list');
+  if(!div) return;
+  if(!menuItems.length){div.innerHTML='<p style="color:var(--muted);font-size:0.84rem;text-align:center;padding:16px">Sin ítems en el menú. Agregá uno arriba.</p>';return;}
+  const byCat = {};
+  menuItems.forEach(m=>{if(!byCat[m.categoria])byCat[m.categoria]=[];byCat[m.categoria].push(m);});
+  div.innerHTML = Object.entries(byCat).map(([cat,items])=>`
+    <div style="margin-bottom:16px">
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">${cat}</div>
+      ${items.map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
+        <span style="font-weight:500">${m.nombre}</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-weight:700;color:var(--orange)">${fmt(m.precio)}</span>
+          <button onclick="eliminarMenuItem('${m.id}')" style="background:none;border:none;cursor:pointer;color:var(--err);font-size:0.9rem;padding:2px">✕</button>
+        </div>
+      </div>`).join('')}
+    </div>`).join('');
+}
+
+function renderItemSelect(){
+  const sel = $('c-item');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Elegir del menú —</option>' +
+    menuItems.map(m=>`<option value="${m.id}">${m.nombre} · ${fmt(m.precio)}</option>`).join('');
+}
+
+function setConsumoItem(){
+  const id = $('c-item').value;
+  if(!id) return;
+  const m = menuItems.find(x=>x.id===id);
+  if(!m) return;
+  $('c-cat').value = m.categoria;
+  $('c-desc').value = m.nombre;
+  $('c-monto').value = m.precio;
+}
+
+// ── MENÚ DE PRECIOS ──
 function openResPopup(id){
   const r=reservas.find(x=>x.id===id);if(!r)return;
   const ct=consTotal(r.id);
@@ -846,20 +919,18 @@ function renderAvisos(){
   list.innerHTML=prox.map(r=>{
     const diff=Math.round((new Date(r.checkin)-new Date())/86400000);
     const col=diff<=0?'var(--err)':diff<=2?'var(--warn)':'var(--orange)';
-    const ct=consTotal(r.id);
     return`<div class="aviso-card">
-      <div class="aviso-header" style="background:${col}">
-        <div><strong style="color:white">${r.huesped}</strong><span style="margin-left:10px;font-size:0.8rem;opacity:0.8;color:white">${r.cama} · Dorm ${r.dorm}</span></div>
-        <div style="text-align:right;color:white"><div style="font-weight:700">${fmtD(r.checkin)}</div><div style="font-size:0.76rem;opacity:0.8">${diff<=0?'¡HOY!':diff===1?'Mañana':'En '+diff+' días'}</div></div>
+      <div class="aviso-header" style="background:${col};display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong style="color:white;font-size:1rem">${r.huesped}</strong>
+          <span style="margin-left:12px;color:rgba(255,255,255,0.85);font-size:0.88rem">Dorm ${r.dorm} · ${r.cama}</span>
+        </div>
+        <div style="text-align:right;color:white">
+          <div style="font-weight:700;font-size:1rem">${fmtD(r.checkin)}</div>
+          <div style="font-size:0.76rem;opacity:0.85">${diff<=0?'¡HOY!':diff===1?'Mañana':'En '+diff+' días'}</div>
+        </div>
       </div>
-      <div class="aviso-body">
-        <div><div class="af-label">Género</div><div class="af-value"><span class="eb ${GB[r.genero]||''}">${GL[r.genero]||r.genero}</span></div></div>
-        <div><div class="af-label">Nacionalidad</div><div class="af-value">${r.nac||'—'}</div></div>
-        <div><div class="af-label">Check-out</div><div class="af-value">${fmtD(r.checkout)}</div></div>
-        <div><div class="af-label">Noches</div><div class="af-value">${r.noches}</div></div>
-        <div><div class="af-label">Plataforma</div><div class="af-value">${r.plataforma}</div></div>
-        <div><div class="af-label">Total + consumos</div><div class="af-value" style="font-weight:700;color:var(--orange)">${fmt(r.subtotal+ct)}</div></div>
-      </div>
+      ${r.notas?`<div style="padding:10px 18px;font-size:0.84rem;color:var(--muted);border-top:1px solid var(--line)">📝 ${r.notas}</div>`:''}
     </div>`;
   }).join('');
 }
