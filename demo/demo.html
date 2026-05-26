@@ -720,29 +720,21 @@ const CABANAS=['C1','C2','C3','C4','C5','C6','C7','C8'];
 const DC={C1:'#2d5a1b',C2:'#3d7a25',C3:'#c55a11',C4:'#7030a0',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276'};
 const DN={C1:'Cabaña 1',C2:'Cabaña 2',C3:'Cabaña 3',C4:'Cabaña 4',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8'};
 
-// JSONBin — el cliente debe configurar sus propios bins
-const BIN_R='69a99501ae596e708f62460c';
-const BIN_G='69a994eb43b1c97be9b67ac0';
-const JKEY='$2a$10$PDORfAHzOpsMgSJC0Ka9eO.lfBYtUfz8I91vNnUK7mQf9qxKKrC22';
-const JURL='https://jsonbin-proxy.huuventa.workers.dev/v3/b/';
-
+// Demo: datos solo en localStorage, sin base de datos externa
 const lo=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d;}catch{return d;}};
 const sl=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const sd=(k,v)=>sl(k,v);
 let reservas=[],gastos=[],pins=lo('mc_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 async function loadFromBins(){
-  // Demo: usa solo storage local, sin JSONBin
   reservas=lo('mc_r',[]);
   gastos=lo('mc_g',[]);
 }
 async function saveToBin(binId,data){
-  const key=binId===BIN_R?'r':'g';
+  const key=binId==='gastos'?'g':'r';
   sl('mc_'+key,data);
-  if(BIN_R==='PENDIENTE_R')return;
-  try{await fetch(JURL+binId,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JKEY},body:JSON.stringify({data:data})});}catch(e){}
 }
-function saveToSheets(sheet,data){saveToBin(sheet==='reservas'?BIN_R:BIN_G,data);}
+function saveToSheets(sheet,data){saveToBin(sheet==='reservas'?'reservas':'gastos',data);}
 
 const ud=()=>{for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.toggle('filled',i<pb.length);};
 function pinPress(n){if(pb.length>=4)return;pb+=n;ud();if(pb.length===4)setTimeout(pinEnter,200);}
