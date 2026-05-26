@@ -762,11 +762,11 @@ const CABANAS=['C2','C3','C5','C6','C7','C8','C9'];
 const DC={C2:'#3d7a25',C3:'#c55a11',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276',C9:'#7030a0'};
 const DN={C2:'Cabaña 2',C3:'Cabaña 3',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8',C9:'Cabaña 9'};
 
-// JSONBin — tu hermano necesita crear sus propios bins
-const BIN_R='69a99501ae596e708f62460c';
-const BIN_G='69a994eb43b1c97be9b67ac0';
-const JKEY='$2a$10$PDORfAHzOpsMgSJC0Ka9eO.lfBYtUfz8I91vNnUK7mQf9qxKKrC22';
-const JURL='https://jsonbin-proxy.huuventa.workers.dev/v3/b/';
+// ── SUPABASE ──
+const SB_URL='https://vnfgitgadadjjjciftsa.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuZmdpdGdhZGFkampqY2lmdHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NjI5MzgsImV4cCI6MjA5NTMzODkzOH0.g018Do3-8UvyWATZg-EesrXH8T5L65YXomK1mjsSnHQ';
+const SB_HDR={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+const SB_TABLE='reservas_bananos';
 
 const lo=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d;}catch{return d;}};
 const sl=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
@@ -774,28 +774,49 @@ const sd=(k,v)=>sl(k,v);
 let reservas=[],gastos=[],pins=lo('bn_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 async function loadFromBins(){
-  if(BIN_R==='PENDIENTE_R'){reservas=lo('bn_r',[]).filter(r=>!r.icalUid);gastos=lo('bn_g',[]);return;}
   try{
-    const [rRes,gRes]=await Promise.all([
-      fetch(JURL+BIN_R+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'}}),
-      fetch(JURL+BIN_G+'/latest',{headers:{'X-Master-Key':JKEY,'X-Bin-Meta':'false'}})
-    ]);
-    const rData=await rRes.json();const gData=await gRes.json();
-    // Filtrar bloqueos iCal — se regeneran con syncAllIcal
-    const all=Array.isArray(rData.data)?rData.data:(Array.isArray(rData)?rData:[]);
-    reservas=all.filter(r=>!r.icalUid);
-    gastos=Array.isArray(gData.data)?gData.data:(Array.isArray(gData)?gData:[]);
-  }catch(err){reservas=lo('bn_r',[]).filter(r=>!r.icalUid);gastos=lo('bn_g',[]);}
+    const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?select=*&order=creado.asc',{headers:SB_HDR});
+    if(res.ok){
+      const all=await res.json();
+      reservas=all.filter(r=>!r.icalUid);
+      sl('bn_r',reservas);
+      console.log('Supabase: '+reservas.length+' reservas cargadas');
+    } else {
+      reservas=lo('bn_r',[]).filter(r=>!r.icalUid);
+    }
+  }catch(e){
+    console.log('Supabase no disponible, usando localStorage');
+    reservas=lo('bn_r',[]).filter(r=>!r.icalUid);
+  }
+  gastos=lo('bn_g',[]);
 }
+
 async function saveToBin(binId,data){
-  const key=binId===BIN_R?'r':'g';
-  sl('bn_'+key,data);
-  if(BIN_R==='PENDIENTE_R')return;
-  try{await fetch(JURL+binId,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JKEY},body:JSON.stringify({data:data})});}catch(e){}
+  if(binId==='reservas'||binId===BIN_R||binId===undefined){
+    const toSave=Array.isArray(data)?data.filter(r=>!r.icalUid):[];
+    if(!toSave||toSave.length===0){console.log('saveToBin bananos: array vacío, ignorando');return;}
+    sl('bn_r',toSave);reservas=toSave;
+    try{
+      await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?id=neq.NONE',{method:'DELETE',headers:SB_HDR});
+      const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE,{
+        method:'POST',
+        headers:{...SB_HDR,'Prefer':'return=minimal'},
+        body:JSON.stringify(toSave)
+      });
+      if(!res.ok){const t=await res.text();console.log('Supabase bananos error:',t);}
+    }catch(e){console.log('Supabase bananos save error:',e);}
+  } else {
+    sl('bn_g',data);gastos=data;
+  }
 }
+
+// Constante legacy para compatibilidad con código existente
+const BIN_R='SUPABASE';
+const BIN_G='GASTOS';
+
 function saveToSheets(sheet,data){
   const toSave=sheet==='reservas'?data.filter(r=>!r.icalUid):data;
-  saveToBin(sheet==='reservas'?BIN_R:BIN_G,toSave);
+  saveToBin(sheet==='reservas'?'reservas':'gastos',toSave);
 }
 
 const ud=()=>{for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.toggle('filled',i<pb.length);};
