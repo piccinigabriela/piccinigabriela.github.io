@@ -99,12 +99,12 @@ html.dark .cal-h-dorm,html.dark .cal-h-cama{background:#0e0c0a;}
 .cal-h-day{background:var(--ink-2);color:rgba(255,255,255,0.7);font-size:0.72rem;font-weight:600;padding:10px 6px;text-align:center;min-width:36px;}
 html.dark .cal-h-day{background:#0e0c0a;}
 .cal-h-day.weekend{color:var(--orange);}
-.cal-dorm-label{background:var(--orange);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;padding:0 12px;display:flex;align-items:center;justify-content:center;position:sticky;left:0;z-index:2;border-right:1px solid rgba(255,255,255,0.2);writing-mode:vertical-lr;}
+.cal-dorm-label{background:var(--orange);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;padding:0 8px;display:flex;align-items:center;justify-content:center;position:sticky;left:0;z-index:2;border-right:1px solid rgba(255,255,255,0.2);writing-mode:vertical-lr;text-orientation:upright;letter-spacing:2px;}
 .cal-cama-label{background:var(--paper-2);color:var(--muted);font-size:0.72rem;font-weight:600;padding:0 10px;display:flex;align-items:center;justify-content:center;position:sticky;left:50px;z-index:2;border-right:1px solid var(--line);min-height:34px;}
 .cal-cell{min-height:34px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:600;background:var(--paper);}
-.cal-cell.occ-v{background:var(--male-bg);color:var(--male);cursor:pointer;}
-.cal-cell.occ-f{background:var(--female-bg);color:var(--female);cursor:pointer;}
-.cal-cell.occ-mx{background:var(--mixed-bg);color:var(--mixed);cursor:pointer;}
+.cal-cell.occ-v{background:#2563ab;color:white;cursor:pointer;font-weight:700;}
+.cal-cell.occ-f{background:#7c3d9e;color:white;cursor:pointer;font-weight:700;}
+.cal-cell.occ-mx{background:#e8610a;color:white;cursor:pointer;font-weight:700;}
 .dorm-sep{border-top:2px solid var(--line-2)!important;}
 
 /* DORM STATUS */
@@ -257,7 +257,7 @@ html.dark .bottom-nav{background:#0e0c0a;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Avisos</button>
     <div class="sidebar-footer">
       v1.0 · Hostel Demo
-      <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" style="margin-top:8px;width:100%;justify-content:center;">🌙 Modo oscuro</button>
+      <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" style="margin-top:8px;width:100%;justify-content:center;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);border-radius:6px;padding:8px;cursor:pointer;font-family:inherit;font-size:0.82rem;">🌙 Modo oscuro</button>
       <button class="logout-btn" onclick="logout()">⏻ Cerrar sesión</button>
     </div>
   </div>
