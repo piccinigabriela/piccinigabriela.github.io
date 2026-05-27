@@ -82,7 +82,7 @@ html.dark .sidebar{background:#0e0c0a;}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
 .stat-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;}
 .stat-label{font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.stat-value{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;line-height:1;}
+.stat-value{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;line-height:1;letter-spacing:-0.02em;}
 .stat-sub{font-size:0.76rem;color:var(--muted);margin-top:4px;}
 
 /* GENERO BADGES */
@@ -162,7 +162,7 @@ html.dark .cama-tag{background:rgba(232,97,10,0.15);}
 .calc-preview{background:var(--ink-2);border-radius:var(--r);padding:16px 18px;margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
 html.dark .calc-preview{background:#0e0c0a;}
 .cp-label{font-size:0.62rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:4px;}
-.cp-val{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:white;}
+.cp-val{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:white;letter-spacing:-0.01em;}
 
 /* AVISOS */
 .aviso-card{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;}
@@ -450,7 +450,7 @@ let consumos=JSON.parse(localStorage.getItem('hd_c')||'[]');
 let selectedGenero=null,selectedCama=null;
 
 const $=id=>document.getElementById(id);
-const fmt=n=>n?'USD '+parseFloat(n).toFixed(2):'—';
+const fmt=n=>n?'USD '+parseFloat(n).toFixed(0):'—';
 const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
 const uid=()=>Math.random().toString(36).substr(2,9);
 const saveR=()=>localStorage.setItem('hd_r',JSON.stringify(reservas));
