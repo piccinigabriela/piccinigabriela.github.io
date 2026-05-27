@@ -406,6 +406,18 @@ html.dark .bottom-nav{background:#0e0c0a;}
           <div class="card"><div class="card-title"><div class="dot"></div>Por nacionalidad (Top 5)</div><div id="rend-nac"></div></div>
           <div class="card"><div class="card-title"><div class="dot"></div>Consumos por categoría</div><div id="rend-cons"></div></div>
         </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="card-title" style="margin:0"><div class="dot"></div>Detalle de reservas</div>
+            <button class="btn btn-outline btn-sm" onclick="exportRendCSV()">↓ CSV</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="res-table" id="rend-tabla">
+              <thead><tr><th>Huésped</th><th>Nacionalidad</th><th>Cama</th><th>Dorm</th><th>Género</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Plataforma</th><th>Subtotal</th><th>Consumos</th><th>Total</th></tr></thead>
+              <tbody id="rend-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- AVISOS -->
@@ -770,6 +782,47 @@ function renderRend(){
   const byCat={};cfil.forEach(c=>{byCat[c.categoria]=(byCat[c.categoria]||0)+c.monto;});
   const maxC=Math.max(...Object.values(byCat),1);
   $('rend-cons').innerHTML=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,v])=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:0.84rem"><span>${cat}</span><strong>${fmt(v)}</strong></div>${bar(v,maxC)}</div>`).join('')||'<p style="color:var(--muted);font-size:0.84rem">Sin consumos</p>';
+  // Tabla detalle
+  const tbody=$('rend-tbody');
+  if(tbody){
+    tbody.innerHTML=fil.length?fil.map(r=>{
+      const ct=consumos.filter(c=>c.reservaId===r.id).reduce((s,c)=>s+c.monto,0);
+      return`<tr>
+        <td style="font-weight:500">${r.huesped}</td>
+        <td style="color:var(--muted)">${r.nac||'—'}</td>
+        <td><span class="cama-tag">${r.cama}</span></td>
+        <td style="font-weight:600">${r.dorm}</td>
+        <td><span class="eb ${GB[r.genero]||''}">${GL[r.genero]||r.genero}</span></td>
+        <td>${fmtD(r.checkin)}</td>
+        <td>${fmtD(r.checkout)}</td>
+        <td>${r.noches}</td>
+        <td>${r.plataforma}</td>
+        <td>${fmt(r.subtotal)}</td>
+        <td style="color:${ct>0?'var(--orange)':'var(--muted)'}">${ct>0?fmt(ct):'—'}</td>
+        <td style="font-weight:700">${fmt(r.subtotal+ct)}</td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="12" style="text-align:center;padding:20px;color:var(--muted)">Sin reservas en el período</td></tr>';
+  }
+}
+
+function exportRendCSV(){
+  const mes=parseInt($('r-mes').value)||new Date().getMonth();
+  const anio=parseInt($('r-anio').value)||new Date().getFullYear();
+  const EXCL=['Cancelada'];
+  const fil=reservas.filter(r=>{
+    if(EXCL.includes(r.estado))return false;
+    const d=new Date(r.checkin);
+    return d.getFullYear()===anio;
+  });
+  const cols=['huesped','nac','cama','dorm','genero','checkin','checkout','noches','plataforma','estado','subtotal'];
+  const bom='\uFEFF';
+  const csv=bom+cols.join(';')+'\n'+fil.map(r=>cols.map(c=>{
+    const v=r[c]??'';return'"'+String(v).replace(/"/g,'""')+'"';
+  }).join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='hostel_reservas_'+anio+'.csv';
+  a.click();
 }
 
 // ── DASHBOARD ──
