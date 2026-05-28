@@ -504,7 +504,7 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
         </div>
         <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap"><table>
-            <thead><tr><th class="res-sticky-1">#</th><th class="res-sticky-2">Cabaña</th><th class="res-sticky-3">Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Pax</th><th>$/N</th><th>Subtotal</th><th>Plus</th><th>Com.</th><th>Líquido</th><th>Seña</th><th>Saldo</th><th>Estado</th><th>Plat.</th><th>Destino</th><th></th></tr></thead>
+            <thead><tr><th class="res-sticky-1">#</th><th class="res-sticky-2">Cabaña</th><th class="res-sticky-3">Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Pax</th><th>$/N</th><th>Subtotal</th><th>Plus</th><th>Com.</th><th>Líquido</th><th>Seña</th><th>Saldo</th><th>Temp.</th><th>Estado</th><th>Plat.</th><th>Destino</th><th></th></tr></thead>
             <tbody id="tabla-reservas"></tbody>
           </table></div>
         </div>
@@ -887,6 +887,36 @@ const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p
 const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
 function getComisiones(){return lo('bn_com',{airbnb:3,booking:15});}
+
+// Temporadas: devuelve 'Alta' o 'Baja' para una fecha (YYYY-MM-DD)
+function getTemporada(fecha){
+  if(!fecha)return'Baja';
+  const ranges=lo('bn_temp',[]);
+  const [y,m,d]=fecha.split('-').map(Number);
+  const mes=m-1; // 0-based
+  for(const r of ranges){
+    if(r.tipo==='mes'){
+      if(mes===parseInt(r.mes))return'Alta';
+    } else if(r.tipo==='rango'){
+      // Comparar ignorando año: convertir a día-del-año aprox
+      const dInicio=new Date(y,parseInt(r.mesDesde)-1,parseInt(r.diaDesde));
+      const dFin=new Date(y,parseInt(r.mesHasta)-1,parseInt(r.diaHasta));
+      const dFecha=new Date(y,m-1,d);
+      if(dFin>=dInicio){
+        // Rango en el mismo año
+        if(dFecha>=dInicio&&dFecha<=dFin)return'Alta';
+      } else {
+        // Rango cruza año (ej: 15/12 - 28/02)
+        const dFinNext=new Date(y+1,parseInt(r.mesHasta)-1,parseInt(r.diaHasta));
+        const dInicioLast=new Date(y-1,parseInt(r.mesDesde)-1,parseInt(r.diaDesde));
+        if(dFecha>=dInicio||dFecha<=dFin||
+           (dFecha>=dInicioLast&&dFecha<=dFin)||
+           (dFecha>=dInicio&&dFecha<=dFinNext))return'Alta';
+      }
+    }
+  }
+  return'Baja';
+}
 function calc(r){
   const n=nights(r.checkin,r.checkout);
   const extraPax=Math.max(0,(r.pax||2)-2);
@@ -945,6 +975,7 @@ function renderReservas(){
     <td style="color:var(--red)">${fmtP(c.com)}</td><td style="font-weight:700;color:var(--green)">${fmtP(c.liq)}</td>
     <td style="color:var(--text-soft)">${r.sena?fmtP(r.sena):'—'}</td>
     <td style="${(r.saldo||0)>0&&((r.sena||0)+(r.saldo||0))>=c.liq?'color:var(--green);font-weight:700':'color:var(--red)'}">${(r.saldo||0)>0?fmtP(r.saldo)+(((r.sena||0)+(r.saldo||0))>=c.liq?' ✓':''):'—'}</td>
+    <td>${(()=>{const t=getTemporada(r.checkin);return t==='Alta'?'<span style="color:#c00000;font-weight:700;font-size:0.78rem">🔴 Alta</span>':'<span style="color:#1f4e79;font-size:0.78rem">🔵 Baja</span>';})()}</td>
     <td><span class="badge ${b}">${r.estado}</span></td><td style="font-size:0.78rem">${r.plataforma}</td>
     <td style="font-size:0.78rem;color:var(--soft)">${r.destino||'—'}</td>
     <td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editRes('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delRes('${r.id}')">✕</button></div></td></tr>`;
@@ -1349,7 +1380,8 @@ function renderConfig(){
         <div class="pin-user-card"><h4 style="color:#ff5a5f">Airbnb</h4><p>% sobre subtotal</p><div class="pin-input-row"><input type="number" id="com-airbnb" value="${com.airbnb}" min="0" max="100" step="0.1" style="width:100px;text-align:center;font-size:1rem"> <span style="color:var(--text-soft);font-size:0.9rem">%</span></div></div>
         <div class="pin-user-card"><h4 style="color:#003580">Booking</h4><p>% sobre subtotal (solo estado Shown)</p><div class="pin-input-row"><input type="number" id="com-booking" value="${com.booking}" min="0" max="100" step="0.1" style="width:100px;text-align:center;font-size:1rem"> <span style="color:var(--text-soft);font-size:0.9rem">%</span></div></div>
       </div>
-    </div>`;}
+    </div>`;
+  renderTemporadasConfig();}
 
 
 function renderIcalConfig(){
@@ -1527,6 +1559,70 @@ function importarICS(input){
   reader.readAsText(file,'UTF-8');
 }
 function tp(k){const i=document.getElementById('pi-'+k);i.type=i.type==='password'?'text':'password';}
+
+const MESES_CORTOS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function renderTemporadasConfig(){
+  let sec=document.getElementById('temp-config-section');
+  if(!sec){
+    sec=document.createElement('div');sec.id='temp-config-section';
+    document.getElementById('com-config-section').after(sec);
+  }
+  const ranges=lo('bn_temp',[]);
+  sec.innerHTML=`
+    <div style="margin-top:28px;border-top:2px solid var(--cream2);padding-top:24px;">
+      <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--green-dark);margin-bottom:6px;">🔴 Períodos de Alta Temporada</div>
+      <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px;">Todo lo que no esté acá se considera Baja temporada.</div>
+      <div id="temp-ranges-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        ${ranges.length?ranges.map((r,i)=>renderTempRow(r,i)).join(''):'<div style="font-size:0.82rem;color:var(--text-soft);padding:8px 0">Sin períodos definidos — todo es Baja temporada.</div>'}
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="addTempRange('mes')">+ Mes completo</button>
+        <button class="btn btn-outline btn-sm" onclick="addTempRange('rango')">+ Rango de fechas</button>
+      </div>
+    </div>`;
+}
+
+function renderTempRow(r,i){
+  if(r.tipo==='mes'){
+    return`<div style="display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:8px;padding:10px 14px;">
+      <span style="color:#c00000;font-weight:700;font-size:0.8rem">🔴 Mes:</span>
+      <select onchange="updateTempRange(${i},'mes',this.value)" style="font-size:0.82rem;padding:4px 8px;">
+        ${MESES_CORTOS.map((m,mi)=>`<option value="${mi+1}" ${parseInt(r.mes)===mi+1?'selected':''}>${m}</option>`).join('')}
+      </select>
+      <span style="font-size:0.78rem;color:var(--text-soft)">completo</span>
+      <button onclick="removeTempRange(${i})" style="margin-left:auto;background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem">✕</button>
+    </div>`;
+  } else {
+    return`<div style="display:flex;align-items:center;gap:8px;background:var(--cream);border-radius:8px;padding:10px 14px;flex-wrap:wrap;">
+      <span style="color:#c00000;font-weight:700;font-size:0.8rem">🔴 Desde:</span>
+      <input type="number" min="1" max="31" value="${r.diaDesde||1}" onchange="updateTempRange(${i},'diaDesde',this.value)" style="width:52px;font-size:0.82rem;padding:4px 6px;text-align:center;">
+      <select onchange="updateTempRange(${i},'mesDesde',this.value)" style="font-size:0.82rem;padding:4px 8px;">
+        ${MESES_CORTOS.map((m,mi)=>`<option value="${mi+1}" ${parseInt(r.mesDesde)===mi+1?'selected':''}>${m}</option>`).join('')}
+      </select>
+      <span style="color:var(--text-soft);font-size:0.82rem">→ Hasta:</span>
+      <input type="number" min="1" max="31" value="${r.diaHasta||28}" onchange="updateTempRange(${i},'diaHasta',this.value)" style="width:52px;font-size:0.82rem;padding:4px 6px;text-align:center;">
+      <select onchange="updateTempRange(${i},'mesHasta',this.value)" style="font-size:0.82rem;padding:4px 8px;">
+        ${MESES_CORTOS.map((m,mi)=>`<option value="${mi+1}" ${parseInt(r.mesHasta)===mi+1?'selected':''}>${m}</option>`).join('')}
+      </select>
+      <button onclick="removeTempRange(${i})" style="margin-left:auto;background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem">✕</button>
+    </div>`;
+  }
+}
+
+function addTempRange(tipo){
+  const ranges=lo('bn_temp',[]);
+  if(tipo==='mes') ranges.push({tipo:'mes',mes:1});
+  else ranges.push({tipo:'rango',diaDesde:15,mesDesde:12,diaHasta:28,mesHasta:2});
+  sd('bn_temp',ranges);
+  renderTemporadasConfig();
+}
+function removeTempRange(i){
+  const ranges=lo('bn_temp',[]);ranges.splice(i,1);sd('bn_temp',ranges);renderTemporadasConfig();
+}
+function updateTempRange(i,campo,val){
+  const ranges=lo('bn_temp',[]);if(!ranges[i])return;ranges[i][campo]=val;sd('bn_temp',ranges);
+}
 function guardarConfig(){
   const ks=['admin','gabi','vol'],np={};
   for(const k of ks){const v=document.getElementById('pi-'+k).value.trim();if(!/^\d{4}$/.test(v)){toast('Cada PIN debe tener 4 dígitos',false);return;}np[k]=v;}
