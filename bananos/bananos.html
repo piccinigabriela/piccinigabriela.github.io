@@ -434,6 +434,7 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
               </select>
             </div>
             <div class="form-group"><label>Huésped</label><input type="text" id="r-huesped" placeholder="Nombre completo"></div>
+            <div class="form-group"><label>Teléfono / WhatsApp</label><input type="tel" id="r-tel" placeholder="Ej: 5491112345678"></div>
             <div class="form-group"><label>Nacionalidad</label><input type="text" id="r-nac" placeholder="Ej: Brasileño"></div>
             <div class="form-group"><label>Estado</label>
               <select id="r-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option><option value="Devolución">Devolución</option></select>
@@ -677,6 +678,7 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
         </select>
       </div>
       <div class="form-group"><label>Huésped</label><input type="text" id="e-huesped"></div>
+      <div class="form-group"><label>Teléfono / WhatsApp</label><input type="tel" id="e-tel" placeholder="Ej: 5491112345678"></div>
       <div class="form-group"><label>Nacionalidad</label><input type="text" id="e-nac"></div>
       <div class="form-group"><label>Estado</label>
         <select id="e-estado"><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option><option value="Devolución">Devolución</option></select>
@@ -884,7 +886,18 @@ const fmtP=n=>isNaN(n)||n===''?'—':'$ '+Number(n).toFixed(0).replace(/\B(?=(\d
 const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
 const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
-function calc(r){const n=nights(r.checkin,r.checkout);const sub=n*r.precio;const com=r.plataforma==='Airbnb'?sub*0.03:0;const bkCom=r.plataforma==='Booking'&&r.estado==='Shown'?((sub-com)*0.15):0;return{n,sub,com,liq:sub-com,bkCom};}
+function getComisiones(){return lo('bn_com',{airbnb:3,booking:15});}
+function calc(r){
+  const n=nights(r.checkin,r.checkout);
+  const extraPax=Math.max(0,(r.pax||2)-2);
+  const plusTotal=extraPax*(r.plus||0)*n;
+  const sub=n*r.precio;
+  const subTotal=sub+plusTotal;
+  const com_cfg=getComisiones();
+  const com=r.plataforma==='Airbnb'?subTotal*(com_cfg.airbnb/100):0;
+  const bkCom=r.plataforma==='Booking'&&r.estado==='Shown'?subTotal*(com_cfg.booking/100):0;
+  return{n,sub,subTotal,plusTotal,com,liq:subTotal-com,bkCom};
+}
 function toast(msg,ok=true){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;document.getElementById('toast-icon').textContent=ok?'✓':'⚠';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 function csvDown(rows,fn){const bom='\uFEFF';const content='sep=;\n'+rows.join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+content);a.download=fn;a.click();}
 function csvRow(arr){return arr.map(v=>{const s=String(v??'');return(s.includes(';')||s.includes('"')||s.includes('\n'))?'"'+s.replace(/"/g,'""')+'"':s;}).join(';');}
@@ -912,10 +925,10 @@ function guardarReserva(){
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
   const conf=reservas.find(r=>r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
   if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' en '+DN[dep],false);return;}
-  const pax=parseInt(document.getElementById('r-pax').value)||2;const plus=parseFloat(document.getElementById('r-plus').value)||0;const rsena=parseFloat(document.getElementById('r-sena').value)||0;const rsaldo=parseFloat(document.getElementById('r-saldo').value)||0;reservas.push({id:uid(),depto:dep,huesped:hue,nac:document.getElementById('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax,plus,plataforma:document.getElementById('r-plataforma').value,destino:document.getElementById('r-destino')?document.getElementById('r-destino').value:'',estado:document.getElementById('r-estado').value,notas:document.getElementById('r-notas').value.trim(),early:document.getElementById('r-early')?document.getElementById('r-early').checked:false,late:document.getElementById('r-late')?document.getElementById('r-late').checked:false,sena:rsena,saldo:rsaldo,creado:new Date().toISOString()});
+  const pax=parseInt(document.getElementById('r-pax').value)||2;const plus=parseFloat(document.getElementById('r-plus').value)||0;const rsena=parseFloat(document.getElementById('r-sena').value)||0;const rsaldo=parseFloat(document.getElementById('r-saldo').value)||0;reservas.push({id:uid(),depto:dep,huesped:hue,tel:document.getElementById('r-tel')?document.getElementById('r-tel').value.trim():'',nac:document.getElementById('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax,plus,plataforma:document.getElementById('r-plataforma').value,destino:document.getElementById('r-destino')?document.getElementById('r-destino').value:'',estado:document.getElementById('r-estado').value,notas:document.getElementById('r-notas').value.trim(),early:document.getElementById('r-early')?document.getElementById('r-early').checked:false,late:document.getElementById('r-late')?document.getElementById('r-late').checked:false,sena:rsena,saldo:rsaldo,creado:new Date().toISOString()});
   saveToSheets('reservas',reservas);clearReservaForm();toast('Reserva guardada ✓');
 }
-function clearReservaForm(){['r-depto','r-huesped','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const px=document.getElementById('r-pax');if(px)px.value=2;const pl=document.getElementById('r-plus');if(pl)pl.value=0;const sn=document.getElementById('r-sena');if(sn)sn.value=0;const sl2=document.getElementById('r-saldo');if(sl2)sl2.value=0;['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-plusval','cp-liquido'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});}
+function clearReservaForm(){['r-depto','r-huesped','r-tel','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const px=document.getElementById('r-pax');if(px)px.value=2;const pl=document.getElementById('r-plus');if(pl)pl.value=0;const sn=document.getElementById('r-sena');if(sn)sn.value=0;const sl2=document.getElementById('r-saldo');if(sl2)sl2.value=0;['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-plusval','cp-liquido'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});}
 
 function renderReservas(){
   const fd=document.getElementById('fil-depto').value,fe=document.getElementById('fil-estado').value;
@@ -1321,21 +1334,40 @@ function renderConfig(){
       <div class="pin-user-card"><h4>Tu hermano</h4><p>Recibe avisos de check-in</p><input type="tel" id="wa-admin" value="${wa.admin}" placeholder="5493757123456"></div>
     </div>`;
   renderIcalConfig();
-}
+  // Comisiones configurables
+  const com=getComisiones();
+  let comSec=document.getElementById('com-config-section');
+  if(!comSec){
+    comSec=document.createElement('div');comSec.id='com-config-section';
+    document.getElementById('wa-config-section').after(comSec);
+  }
+  comSec.innerHTML=`
+    <div style="margin-top:28px;border-top:2px solid var(--cream2);padding-top:24px;">
+      <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--green-dark);margin-bottom:6px;">💸 Comisiones de Plataformas (%)</div>
+      <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px;">Se aplican sobre el subtotal de cada reserva.</div>
+      <div class="pin-settings-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="pin-user-card"><h4 style="color:#ff5a5f">Airbnb</h4><p>% sobre subtotal</p><div class="pin-input-row"><input type="number" id="com-airbnb" value="${com.airbnb}" min="0" max="100" step="0.1" style="width:100px;text-align:center;font-size:1rem"> <span style="color:var(--text-soft);font-size:0.9rem">%</span></div></div>
+        <div class="pin-user-card"><h4 style="color:#003580">Booking</h4><p>% sobre subtotal (solo estado Shown)</p><div class="pin-input-row"><input type="number" id="com-booking" value="${com.booking}" min="0" max="100" step="0.1" style="width:100px;text-align:center;font-size:1rem"> <span style="color:var(--text-soft);font-size:0.9rem">%</span></div></div>
+      </div>
+    </div>`;}
+
 
 function renderIcalConfig(){
   const urls=lo('bn_ical',{});
   const grid=document.getElementById('ical-config-grid');
   if(!grid)return;
   grid.innerHTML=CABANAS.map(code=>`
-    <div style="display:grid;grid-template-columns:80px 1fr;gap:12px;align-items:center;">
-      <span style="background:${DC[code]};color:white;padding:3px 10px;border-radius:5px;font-size:0.75rem;font-weight:700;text-align:center">${DN[code]}</span>
-      <div style="display:flex;gap:8px;">
-        <input type="url" id="ical-${code}" placeholder="https://www.airbnb.com/calendar/ical/..." value="${urls[code]||''}" style="flex:1;font-size:0.78rem;">
-        <select id="ical-src-${code}" style="width:110px;font-size:0.78rem;">
-          <option value="airbnb" ${(urls['src_'+code]||'airbnb')==='airbnb'?'selected':''}>Airbnb</option>
-          <option value="booking" ${(urls['src_'+code]||'')==='booking'?'selected':''}>Booking</option>
-        </select>
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:12px;align-items:start;">
+      <span style="background:${DC[code]};color:white;padding:3px 10px;border-radius:5px;font-size:0.75rem;font-weight:700;text-align:center;margin-top:8px">${DN[code]}</span>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:0.7rem;font-weight:700;color:#ff5a5f;min-width:58px">Airbnb</span>
+          <input type="url" id="ical-ab-${code}" placeholder="https://www.airbnb.com/calendar/ical/..." value="${urls['ab_'+code]||''}" style="flex:1;font-size:0.78rem;">
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:0.7rem;font-weight:700;color:#003580;min-width:58px">Booking</span>
+          <input type="url" id="ical-bk-${code}" placeholder="https://ical.booking.com/..." value="${urls['bk_'+code]||''}" style="flex:1;font-size:0.78rem;">
+        </div>
       </div>
     </div>`).join('');
 }
@@ -1343,10 +1375,10 @@ function renderIcalConfig(){
 function guardarIcal(){
   const urls=lo('bn_ical',{});
   CABANAS.forEach(code=>{
-    const v=document.getElementById('ical-'+code)?.value.trim();
-    const src=document.getElementById('ical-src-'+code)?.value;
-    if(v)urls[code]=v; else delete urls[code];
-    urls['src_'+code]=src||'airbnb';
+    const ab=document.getElementById('ical-ab-'+code)?.value.trim();
+    const bk=document.getElementById('ical-bk-'+code)?.value.trim();
+    if(ab)urls['ab_'+code]=ab; else delete urls['ab_'+code];
+    if(bk)urls['bk_'+code]=bk; else delete urls['bk_'+code];
   });
   sd('bn_ical',urls);
   toast('URLs iCal guardadas ✓');
@@ -1425,26 +1457,30 @@ async function syncIcalCabin(code,url,src){
 
 async function syncAllIcal(manual=false){
   const urls=lo('bn_ical',{});
-  const cabsWithUrl=CABANAS.filter(c=>urls[c]);
-  if(!cabsWithUrl.length){if(manual)toast('No hay URLs configuradas',false);return;}
+  // Armar lista de {code, url, src} para ab_ y bk_
+  const tasks=[];
+  CABANAS.forEach(code=>{
+    if(urls['ab_'+code])tasks.push({code,url:urls['ab_'+code],src:'airbnb'});
+    if(urls['bk_'+code])tasks.push({code,url:urls['bk_'+code],src:'booking'});
+  });
+  if(!tasks.length){if(manual)toast('No hay URLs configuradas',false);return;}
   const statusEl=document.getElementById('ical-sync-status');
   if(statusEl)statusEl.textContent='Sincronizando...';
   const reservasAntes=reservas.length;
   let ok=0,fail=0;
-  for(const code of cabsWithUrl){
-    const r=await syncIcalCabin(code,urls[code],urls['src_'+code]||'airbnb');
+  for(const t of tasks){
+    const r=await syncIcalCabin(t.code,t.url,t.src);
     if(r.ok)ok++;else fail++;
   }
   // Only save if sync was useful and didn't destroy data
   if(ok>0&&reservas.length>=reservasAntes){
     saveToSheets('reservas',reservas);
   } else if(ok===0){
-    // All failed — restore original reservas from localStorage
     reservas=lo('bn_r',[]);
     if(manual)toast('Sync fallido — datos sin cambios',false);
     return;
   }
-  const msg=`iCal: ${ok} cabaña${ok!==1?'s':''} sincronizada${ok!==1?'s':''}${fail>0?' · '+fail+' con error':''}`;
+  const msg=`iCal: ${ok} feed${ok!==1?'s':''} sincronizado${ok!==1?'s':''}${fail>0?' · '+fail+' con error':''}`;
   if(statusEl)statusEl.textContent=msg+' · '+new Date().toLocaleTimeString('es-AR');
   if(manual)toast(msg,fail===0);
   renderCalendario();
@@ -1497,6 +1533,10 @@ function guardarConfig(){
   const vals=Object.values(np);if(new Set(vals).size!==vals.length){toast('Los PINs deben ser distintos',false);return;}
   sd('bn_p',np);pins=np;
   sd('bn_wa',{admin:document.getElementById('wa-admin').value.trim()});
+  // Guardar comisiones
+  const cab=parseFloat(document.getElementById('com-airbnb')?.value)||3;
+  const cbk=parseFloat(document.getElementById('com-booking')?.value)||15;
+  sd('bn_com',{airbnb:cab,booking:cbk});
   toast('Configuración guardada ✓');
 }
 
@@ -1513,9 +1553,14 @@ function waMsg(rid){
     +'🏨 *Plataforma:* '+r.plataforma+'\n'
     +(r.notas?'📝 *Notas:* '+r.notas+'\n':'')
     +'\n✅ Confirmar recepción.';
-  const wa=lo('bn_wa',{admin:''});
-  if(!wa.admin){toast('Configurá el número en Config.',false);return;}
-  window.open('https://wa.me/'+wa.admin.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');
+  const telHuesped=r.tel?r.tel.replace(/\D/g,''):'';
+  if(telHuesped){
+    window.open('https://wa.me/'+telHuesped+'?text='+encodeURIComponent(msg),'_blank');
+  } else {
+    const wa=lo('bn_wa',{admin:''});
+    if(!wa.admin){toast('Configurá el número en Config.',false);return;}
+    window.open('https://wa.me/'+wa.admin.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');
+  }
 }
 
 let editingId=null;
@@ -1523,6 +1568,7 @@ function editRes(id){
   const r=reservas.find(x=>x.id===id);if(!r)return;
   editingId=id;
   document.getElementById('e-depto').value=r.depto;document.getElementById('e-huesped').value=r.huesped;
+  if(document.getElementById('e-tel'))document.getElementById('e-tel').value=r.tel||'';
   document.getElementById('e-nac').value=r.nac||'';document.getElementById('e-estado').value=r.estado;if(document.getElementById('e-early'))document.getElementById('e-early').checked=r.early||false;if(document.getElementById('e-late'))document.getElementById('e-late').checked=r.late||false;
   document.getElementById('e-checkin').value=r.checkin;document.getElementById('e-checkout').value=r.checkout;
   document.getElementById('e-precio').value=r.precio;document.getElementById('e-pax').value=r.pax||2;document.getElementById('e-plus').value=r.plus||0;document.getElementById('e-plataforma').value=r.plataforma;
@@ -1556,7 +1602,7 @@ function saveEdit(){
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
   const conf=reservas.find(r=>r.id!==editingId&&r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
   if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped,false);return;}
-  reservas=reservas.map(r=>{if(r.id!==editingId)return r;const epax=parseInt(document.getElementById('e-pax').value)||2;const eplus=parseFloat(document.getElementById('e-plus').value)||0;const esena=parseFloat(document.getElementById('e-sena').value)||0;const esaldo=parseFloat(document.getElementById('e-saldo').value)||0;return{...r,depto:dep,huesped:hue,nac:document.getElementById('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax:epax,plus:eplus,plataforma:document.getElementById('e-plataforma').value,destino:document.getElementById('e-destino')?document.getElementById('e-destino').value:'',estado:document.getElementById('e-estado').value,notas:document.getElementById('e-notas').value.trim(),early:document.getElementById('e-early')?document.getElementById('e-early').checked:r.early||false,late:document.getElementById('e-late')?document.getElementById('e-late').checked:r.late||false,sena:esena,saldo:esaldo};});
+  reservas=reservas.map(r=>{if(r.id!==editingId)return r;const epax=parseInt(document.getElementById('e-pax').value)||2;const eplus=parseFloat(document.getElementById('e-plus').value)||0;const esena=parseFloat(document.getElementById('e-sena').value)||0;const esaldo=parseFloat(document.getElementById('e-saldo').value)||0;return{...r,depto:dep,huesped:hue,tel:document.getElementById('e-tel')?document.getElementById('e-tel').value.trim():r.tel||'',nac:document.getElementById('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax:epax,plus:eplus,plataforma:document.getElementById('e-plataforma').value,destino:document.getElementById('e-destino')?document.getElementById('e-destino').value:'',estado:document.getElementById('e-estado').value,notas:document.getElementById('e-notas').value.trim(),early:document.getElementById('e-early')?document.getElementById('e-early').checked:r.early||false,late:document.getElementById('e-late')?document.getElementById('e-late').checked:r.late||false,sena:esena,saldo:esaldo};});
   saveToSheets('reservas',reservas);closeEdit();renderReservas();toast('Reserva actualizada ✓');
 }
 // ── DARK MODE ──
