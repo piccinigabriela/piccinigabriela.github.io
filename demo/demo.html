@@ -828,7 +828,7 @@ const sd=(k,v)=>sl(k,v);
 // Demo uses demo_ prefix to avoid colliding with real app localStorage
 const _lo=(k,d)=>{try{return JSON.parse(localStorage.getItem('demo_'+k))||d;}catch{return d;}};
 const _sl=(k,v)=>localStorage.setItem('demo_'+k,JSON.stringify(v));
-let reservas=[],gastos=[],pins=__lo('cn_p',{...DEFAULT_PINS}),cu=null,pb='';
+let reservas=[],gastos=[],pins=_lo('cn_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 // ── PLATAFORMAS CONFIGURABLES ──
 const DEFAULT_PLATAFORMAS=[
