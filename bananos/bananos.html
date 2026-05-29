@@ -1821,7 +1821,7 @@ Respondé basándote en los datos reales y en el conocimiento de la app.`;
     const resp=await fetch('https://xenia-proxy.huuventa.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,system:ctx,messages:xeniaHistory})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,system:ctx,messages:xeniaHistory})
     });
     const data=await resp.json();
     xeniaStopTyping();
