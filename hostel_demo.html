@@ -28,11 +28,8 @@ html.dark{
   --warn:#d89a3a;--warn-bg:rgba(200,120,10,0.2);
   --male-bg:rgba(37,99,171,0.2);--female-bg:rgba(124,61,158,0.2);--mixed-bg:rgba(232,97,10,0.2);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:15px;-webkit-font-smoothing:antialiased;}
 body{font-family:'Space Grotesk',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;transition:background .2s,color .2s;}
-
-/* LOGIN */
 #login-screen{position:fixed;inset:0;background:var(--ink-2);display:flex;align-items:center;justify-content:center;z-index:500;}
 .login-box{background:var(--paper);border-radius:var(--r-lg);padding:40px 36px;width:100%;max-width:340px;text-align:center;}
 .login-logo{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--orange);margin-bottom:4px;}
@@ -46,8 +43,6 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--paper);color:var(--
 .pin-btn.enter{background:var(--orange);color:white;border-color:var(--orange);}
 .pin-btn.clear{background:var(--paper-3);}
 .login-error{font-size:0.8rem;color:var(--err);min-height:20px;}
-
-/* LAYOUT */
 #app{display:none;min-height:100vh;}
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sb);background:var(--ink-2);display:flex;flex-direction:column;z-index:100;}
 html.dark .sidebar{background:#0e0c0a;}
@@ -72,25 +67,17 @@ html.dark .sidebar{background:#0e0c0a;}
 .dark-toggle{background:none;border:1px solid var(--line-2);border-radius:var(--r);padding:5px 10px;cursor:pointer;font-size:0.82rem;color:var(--muted);line-height:1;}
 .content{flex:1;padding:28px;max-width:1400px;}
 .screen{display:none;}.screen.active{display:block;}
-
-/* CARDS */
 .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px;margin-bottom:20px;}
 .card-title{font-weight:700;font-size:0.9rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0;}
-
-/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
 .stat-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;}
 .stat-label{font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
 .stat-value{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;line-height:1;letter-spacing:-0.02em;}
 .stat-sub{font-size:0.76rem;color:var(--muted);margin-top:4px;}
-
-/* GENERO BADGES */
 .badge-v{background:var(--male-bg);color:var(--male);font-weight:700;font-size:0.72rem;padding:3px 10px;border-radius:20px;}
 .badge-f{background:var(--female-bg);color:var(--female);font-weight:700;font-size:0.72rem;padding:3px 10px;border-radius:20px;}
 .badge-mx{background:var(--mixed-bg);color:var(--mixed);font-weight:700;font-size:0.72rem;padding:3px 10px;border-radius:20px;}
-
-/* CALENDARIO */
 .cal-wrapper{overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--line);}
 .cal-h-dorm,.cal-h-cama{background:var(--ink-2);color:rgba(255,255,255,0.5);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:10px 12px;position:sticky;z-index:3;}
 html.dark .cal-h-dorm,html.dark .cal-h-cama{background:#0e0c0a;}
@@ -106,16 +93,12 @@ html.dark .cal-h-day{background:#0e0c0a;}
 .cal-cell.occ-f{background:#7c3d9e;color:white;cursor:pointer;font-weight:700;}
 .cal-cell.occ-mx{background:#e8610a;color:white;cursor:pointer;font-weight:700;}
 .dorm-sep{border-top:3px solid var(--orange)!important;}
-
-/* DORM STATUS */
 .dorm-status-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
 .dorm-status{padding:8px 16px;border-radius:var(--r);border:1px solid var(--line-2);font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:6px;font-family:'Syne',sans-serif;}
 .dorm-status.libre{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);}
 .dorm-status.v{background:var(--male-bg);border-color:var(--male);color:var(--male);}
 .dorm-status.f{background:var(--female-bg);border-color:var(--female);color:var(--female);}
 .dorm-status.mx{background:var(--mixed-bg);border-color:var(--mixed);color:var(--mixed);}
-
-/* FORM */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .form-group{display:flex;flex-direction:column;gap:6px;}
 .form-group.full{grid-column:1/-1;}
@@ -126,10 +109,9 @@ html.dark .form-group input,html.dark .form-group select,html.dark .form-group t
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--r);font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
 .btn-primary{background:var(--orange);color:white;}.btn-primary:hover{background:var(--orange-2);}
 .btn-outline{background:none;border:1px solid var(--line-2);color:var(--muted);}.btn-outline:hover{border-color:var(--orange);color:var(--orange);}
+.btn-danger{background:none;border:1px solid var(--err);color:var(--err);}.btn-danger:hover{background:var(--err-bg);}
 .btn-sm{padding:6px 14px;font-size:0.78rem;}
 .btn-row{display:flex;gap:10px;margin-top:16px;}
-
-/* TABLA */
 .res-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
 .res-table th{background:var(--paper-2);color:var(--muted);font-weight:700;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:2px solid var(--line);}
 .res-table td{padding:10px 14px;border-bottom:1px solid var(--line);}
@@ -140,15 +122,14 @@ html.dark .cama-tag{background:rgba(232,97,10,0.15);}
 .eb-confirmada{background:var(--ok-bg);color:var(--ok);}
 .eb-pendiente{background:var(--warn-bg);color:var(--warn);}
 .eb-cancelada{background:var(--err-bg);color:var(--err);}
-
-/* GENERO PILLS */
+.eb-standby{background:#e8f0fb;color:#2563ab;}
+.eb-shown{background:#f3e8fb;color:#7c3d9e;}
+.eb-nonshow{background:var(--paper-3);color:var(--muted);}
 .genero-pills{display:flex;gap:8px;margin-top:4px;}
 .gpill{padding:10px 20px;border-radius:20px;border:2px solid var(--line-2);background:var(--paper-2);font-family:inherit;font-size:0.88rem;font-weight:700;cursor:pointer;transition:all .15s;color:var(--muted);}
 .gpill.v.active{background:var(--male-bg);border-color:var(--male);color:var(--male);}
 .gpill.f.active{background:var(--female-bg);border-color:var(--female);color:var(--female);}
 .gpill.mx.active{background:var(--mixed-bg);border-color:var(--mixed);color:var(--mixed);}
-
-/* CAMAS GRID */
 .dorm-block{margin-bottom:12px;}
 .dorm-block-title{font-size:0.72rem;font-weight:700;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
 .camas-row{display:flex;gap:6px;flex-wrap:wrap;}
@@ -157,37 +138,23 @@ html.dark .cama-tag{background:rgba(232,97,10,0.15);}
 .cama-btn.ocupada{border-color:var(--line);color:var(--muted-2);background:var(--paper-3);cursor:not-allowed;opacity:0.6;}
 .cama-btn.incompat{border-color:var(--err);color:var(--err-bg);background:var(--err-bg);cursor:not-allowed;opacity:0.5;}
 .cama-btn.selected{border-color:var(--orange);background:var(--orange);color:white;}
-
-/* CALC PREVIEW */
 .calc-preview{background:var(--ink-2);border-radius:var(--r);padding:16px 18px;margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
 html.dark .calc-preview{background:#0e0c0a;}
 .cp-label{font-size:0.62rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:4px;}
 .cp-val{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:white;letter-spacing:-0.01em;}
-
-/* AVISOS */
 .aviso-card{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;}
 .aviso-header{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
 .aviso-body{padding:14px 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
 .af-label{font-size:0.65rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
 .af-value{font-size:0.88rem;font-weight:500;margin-top:2px;}
-
-/* RENDIMIENTO */
 .rend-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
-
-/* CONSUMOS */
 .consumo-list{max-height:200px;overflow-y:auto;}
 .consumo-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:0.84rem;}
-
-/* MODAL */
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(26,20,16,0.6);z-index:200;align-items:center;justify-content:center;padding:20px;}
 .modal-backdrop.show{display:flex;}
-.modal{background:var(--paper);border-radius:var(--r-lg);width:100%;max-width:480px;padding:28px;max-height:90vh;overflow-y:auto;}
+.modal{background:var(--paper);border-radius:var(--r-lg);width:100%;max-width:520px;padding:28px;max-height:90vh;overflow-y:auto;}
 .modal-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:20px;}
-
-/* AVISO GÉNERO */
 .genero-warn{background:var(--warn-bg);border:1px solid var(--warn);border-radius:var(--r);padding:12px 16px;font-size:0.84rem;color:var(--warn);margin-top:8px;display:none;}
-
-/* MOBILE */
 .mobile-header{display:none;position:fixed;top:0;left:0;right:0;height:52px;background:var(--ink-2);z-index:100;align-items:center;padding:0 16px;gap:12px;}
 html.dark .mobile-header{background:#0e0c0a;}
 .mobile-logo{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--orange);flex:1;}
@@ -206,6 +173,26 @@ html.dark .bottom-nav{background:#0e0c0a;}
 }
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink-2);color:white;padding:10px 20px;border-radius:var(--r);font-size:0.84rem;font-weight:500;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* XENIA */
+#xenia-btn{position:fixed;bottom:80px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;box-shadow:0 4px 16px rgba(232,97,10,0.4);display:flex;align-items:center;justify-content:center;z-index:150;transition:transform .2s;}
+#xenia-btn:hover{transform:scale(1.1);}
+#xenia-chat{position:fixed;bottom:144px;right:20px;width:320px;max-height:420px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:150;display:none;flex-direction:column;overflow:hidden;}
+#xenia-chat.open{display:flex;}
+.xenia-header{background:var(--orange);padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.xenia-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.xenia-title{color:white;font-weight:700;font-size:0.88rem;flex:1;}
+.xenia-close{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1rem;padding:2px;}
+.xenia-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;max-height:280px;}
+.xenia-msg{padding:8px 12px;border-radius:10px;font-size:0.82rem;max-width:85%;line-height:1.45;}
+.xenia-msg.bot{background:var(--paper-2);color:var(--ink);align-self:flex-start;border-bottom-left-radius:2px;}
+.xenia-msg.user{background:var(--orange);color:white;align-self:flex-end;border-bottom-right-radius:2px;}
+.xenia-input-row{display:flex;padding:10px;gap:8px;border-top:1px solid var(--line);}
+.xenia-input-row input{flex:1;padding:8px 12px;border:1px solid var(--line-2);border-radius:20px;font-family:inherit;font-size:0.82rem;background:var(--paper-2);color:var(--ink);outline:none;}
+.xenia-input-row button{background:var(--orange);border:none;border-radius:50%;width:34px;height:34px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+@media(max-width:768px){
+  #xenia-btn{bottom:72px;}
+  #xenia-chat{bottom:136px;right:8px;left:8px;width:auto;}
+}
 </style>
 </head>
 <body>
@@ -223,6 +210,7 @@ html.dark .bottom-nav{background:#0e0c0a;}
       <button class="pin-btn clear" onclick="pinClear()">⌫</button><button class="pin-btn" onclick="pinPress('0')">0</button><button class="pin-btn enter" onclick="pinEnter()">✓</button>
     </div>
     <div class="login-error" id="login-error"></div>
+    <div style="font-size:0.72rem;color:var(--muted);margin-top:12px">Admin: 1234 · Recepción: 2345</div>
   </div>
 </div>
 
@@ -255,8 +243,11 @@ html.dark .bottom-nav{background:#0e0c0a;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Rendimiento</button>
     <button class="nav-item" onclick="showScreen('avisos')" id="nav-avisos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Avisos</button>
+    <div class="nav-section">Sistema</div>
+    <button class="nav-item" onclick="showScreen('config')" id="nav-config">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Configuración</button>
     <div class="sidebar-footer">
-      v1.0 · Hostel Demo
+      v2.0 · Hostel Demo
       <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" style="margin-top:8px;width:100%;justify-content:center;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);border-radius:6px;padding:8px;cursor:pointer;font-family:inherit;font-size:0.82rem;">🌙 Modo oscuro</button>
       <button class="logout-btn" onclick="logout()">⏻ Cerrar sesión</button>
     </div>
@@ -300,14 +291,17 @@ html.dark .bottom-nav{background:#0e0c0a;}
               <div class="genero-warn" id="genero-warn"></div>
             </div>
             <div class="form-group"><label>Huésped</label><input type="text" id="r-huesped" placeholder="Nombre completo"></div>
+            <div class="form-group"><label>Teléfono / WhatsApp</label><input type="tel" id="r-tel" placeholder="Ej: 5491112345678"></div>
             <div class="form-group"><label>Nacionalidad</label><input type="text" id="r-nac" placeholder="Argentina"></div>
             <div class="form-group"><label>Check-in</label><input type="date" id="r-checkin" onchange="calcNochesH()"></div>
             <div class="form-group"><label>Check-out</label><input type="date" id="r-checkout" onchange="calcNochesH()"></div>
             <div class="form-group"><label>Precio cama / noche (USD)</label><input type="number" id="r-precio" placeholder="0" oninput="calcNochesH()"></div>
+            <div class="form-group"><label>Seña (USD)</label><input type="number" id="r-sena" placeholder="0"></div>
+            <div class="form-group"><label>Saldo (USD)</label><input type="number" id="r-saldo" placeholder="0"></div>
             <div class="form-group"><label>Plataforma</label>
-              <select id="r-plataforma"><option>Directo</option><option>Hostelworld</option><option>Booking</option><option>Airbnb</option><option>Instagram</option><option>Facebook</option></select></div>
+              <select id="r-plataforma"><option>Directo</option><option>Hostelworld</option><option>Booking</option><option>Airbnb</option><option>Google Calendar</option><option>Instagram</option><option>Facebook</option></select></div>
             <div class="form-group"><label>Estado</label>
-              <select id="r-estado"><option>Confirmada</option><option>Pendiente</option><option>Cancelada</option></select></div>
+              <select id="r-estado"><option>Confirmada</option><option>Pendiente</option><option>Stand by</option><option>Shown</option><option>Non show</option><option>Cancelada</option></select></div>
             <div class="form-group full"><label>Notas</label><textarea id="r-notas" rows="2"></textarea></div>
           </div>
           <div class="calc-preview">
@@ -326,10 +320,18 @@ html.dark .bottom-nav{background:#0e0c0a;}
       <!-- RESERVAS -->
       <div class="screen" id="screen-reservas">
         <div class="card">
-          <div class="card-title"><div class="dot"></div>Reservas</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <div class="card-title" style="margin:0"><div class="dot"></div>Reservas</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input type="text" id="res-buscar" placeholder="Buscar huésped..." oninput="renderReservas()" style="padding:6px 12px;border:1px solid var(--line-2);border-radius:var(--r);font-family:inherit;font-size:0.82rem;background:var(--paper-2);color:var(--ink)">
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('csv-import-input').click()">↑ Importar CSV</button>
+              <input type="file" id="csv-import-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="importarCSV(this)">
+              <button class="btn btn-outline btn-sm" onclick="exportRendCSV()">↓ CSV</button>
+            </div>
+          </div>
           <div style="overflow-x:auto">
             <table class="res-table">
-              <thead><tr><th>#</th><th>Cama</th><th>Dorm</th><th>Género</th><th>Huésped</th><th>Nac.</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Cama</th><th>Consumos</th><th>Total</th><th>Plataforma</th><th>Estado</th></tr></thead>
+              <thead><tr><th>#</th><th>Cama</th><th>Dorm</th><th>Género</th><th>Huésped</th><th>Tel</th><th>Nac.</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Cama $</th><th>Seña</th><th>Saldo</th><th>Consumos</th><th>Total</th><th>Plataforma</th><th>Estado</th><th></th></tr></thead>
               <tbody id="res-tbody"></tbody>
             </table>
           </div>
@@ -346,8 +348,7 @@ html.dark .bottom-nav{background:#0e0c0a;}
                 <select id="c-reserva" onchange="setConsumoCama()"><option value="">— Seleccioná —</option></select></div>
               <div class="form-group"><label>Cama</label><input type="text" id="c-cama" readonly style="opacity:0.6"></div>
               <div class="form-group"><label>Ítem del menú</label>
-                <select id="c-item" onchange="setConsumoItem()"><option value="">— Elegir del menú —</option></select>
-              </div>
+                <select id="c-item" onchange="setConsumoItem()"><option value="">— Elegir del menú —</option></select></div>
               <div class="form-group"><label>Categoría</label>
                 <select id="c-cat"><option>Bar / Cafetería</option><option>Locker</option><option>Toallas</option><option>Tour / Excursión</option><option>Lavandería</option><option>Otro</option></select></div>
               <div class="form-group"><label>Descripción</label><input type="text" id="c-desc" placeholder="Ej: 2 cervezas"></div>
@@ -425,6 +426,33 @@ html.dark .bottom-nav{background:#0e0c0a;}
         <div class="card"><div class="card-title"><div class="dot"></div>Check-ins próximos 7 días</div><div id="avisos-list"></div></div>
       </div>
 
+      <!-- CONFIG -->
+      <div class="screen" id="screen-config">
+        <div class="card">
+          <div class="card-title"><div class="dot"></div>PINs de acceso</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
+            <div class="form-group"><label>PIN Administrador</label><input type="password" id="pin-admin" placeholder="4 dígitos" maxlength="4" pattern="[0-9]{4}"></div>
+            <div class="form-group"><label>PIN Recepción</label><input type="password" id="pin-recep" placeholder="4 dígitos" maxlength="4" pattern="[0-9]{4}"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="guardarPins()">Guardar PINs</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="dot"></div>iCal — Google Calendar / Airbnb / Booking</div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Pegá la URL del feed iCal para importar reservas automáticamente. Podés asignar un feed por cama o uno general para todo el hostel.</div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-bottom:12px">
+            <div class="form-group" style="margin:0"><label>Nombre del feed</label><input type="text" id="ical-nombre" placeholder="Ej: Google Calendar principal"></div>
+            <div></div>
+            <div class="form-group" style="margin:0;grid-column:1/-1"><label>URL iCal</label><input type="url" id="ical-url" placeholder="https://calendar.google.com/calendar/ical/..."></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:20px">
+            <button class="btn btn-primary btn-sm" onclick="agregarFeedIcal()">+ Agregar feed</button>
+            <button class="btn btn-outline btn-sm" onclick="sincronizarTodosIcal()">↻ Sincronizar todo</button>
+          </div>
+          <div id="ical-feeds-list"></div>
+          <div id="ical-sync-status" style="font-size:0.78rem;color:var(--muted);margin-top:8px"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -443,9 +471,55 @@ html.dark .bottom-nav{background:#0e0c0a;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Avisos</button>
 </div>
 
+<!-- MODAL EDITAR RESERVA -->
+<div class="modal-backdrop" id="modal-editar">
+  <div class="modal">
+    <div class="modal-title">Editar Reserva</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Huésped</label><input type="text" id="e-huesped"></div>
+      <div class="form-group"><label>Teléfono</label><input type="tel" id="e-tel"></div>
+      <div class="form-group"><label>Nacionalidad</label><input type="text" id="e-nac"></div>
+      <div class="form-group"><label>Check-in</label><input type="date" id="e-checkin"></div>
+      <div class="form-group"><label>Check-out</label><input type="date" id="e-checkout"></div>
+      <div class="form-group"><label>Precio/noche (USD)</label><input type="number" id="e-precio"></div>
+      <div class="form-group"><label>Seña (USD)</label><input type="number" id="e-sena"></div>
+      <div class="form-group"><label>Saldo (USD)</label><input type="number" id="e-saldo"></div>
+      <div class="form-group"><label>Plataforma</label>
+        <select id="e-plataforma"><option>Directo</option><option>Hostelworld</option><option>Booking</option><option>Airbnb</option><option>Google Calendar</option><option>Instagram</option><option>Facebook</option></select></div>
+      <div class="form-group"><label>Estado</label>
+        <select id="e-estado"><option>Confirmada</option><option>Pendiente</option><option>Stand by</option><option>Shown</option><option>Non show</option><option>Cancelada</option></select></div>
+      <div class="form-group full"><label>Notas</label><textarea id="e-notas" rows="2"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEdit()">Guardar cambios</button>
+      <button class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- XENIA -->
+<button id="xenia-btn" onclick="toggleXenia()" title="Xenia - Asistente CheckInn">
+  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="24" height="24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+</button>
+<div id="xenia-chat">
+  <div class="xenia-header">
+    <div class="xenia-avatar">✦</div>
+    <div class="xenia-title">Xenia · Asistente CheckInn</div>
+    <button class="xenia-close" onclick="toggleXenia()">✕</button>
+  </div>
+  <div class="xenia-msgs" id="xenia-msgs"></div>
+  <div class="xenia-input-row">
+    <input type="text" id="xenia-input" placeholder="Preguntá algo..." onkeydown="if(event.key==='Enter')xeniaEnviar()">
+    <button onclick="xeniaEnviar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// ── CONSTANTES ──
 const DEFAULT_PINS={admin:'1234',recep:'2345'};
 const USER_META={admin:{name:'Administrador',role:'Acceso total'},recep:{name:'Recepción',role:'Operaciones'}};
 const DORMS=['A','B','C','D','E'];
@@ -455,11 +529,14 @@ const TODAS=['A1','A2','A3','A4','B5','B6','B7','B8','C9','C10','C11','C12','D13
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const GL={V:'V · Varón',F:'M · Mujer',MX:'MX · Mixto'};
 const GB={V:'badge-v',F:'badge-f',MX:'badge-mx'};
+const ESTADO_CLS={Confirmada:'eb-confirmada',Pendiente:'eb-pendiente',Cancelada:'eb-cancelada','Stand by':'eb-standby',Shown:'eb-shown','Non show':'eb-nonshow'};
 
 let cu=null,pb='';
 let reservas=JSON.parse(localStorage.getItem('hd_r')||'[]');
 let consumos=JSON.parse(localStorage.getItem('hd_c')||'[]');
-let selectedGenero=null,selectedCama=null;
+let menuItems=JSON.parse(localStorage.getItem('hd_menu')||'[]');
+let icalFeeds=JSON.parse(localStorage.getItem('hd_ical')||'[]');
+let selectedGenero=null,selectedCama=null,editingId=null;
 
 const $=id=>document.getElementById(id);
 const fmt=n=>n?'USD '+parseFloat(n).toFixed(0):'—';
@@ -467,7 +544,9 @@ const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p
 const uid=()=>Math.random().toString(36).substr(2,9);
 const saveR=()=>localStorage.setItem('hd_r',JSON.stringify(reservas));
 const saveC=()=>localStorage.setItem('hd_c',JSON.stringify(consumos));
-const toast=(msg)=>{const t=$('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.className='toast',2500);};
+const saveMenu=()=>localStorage.setItem('hd_menu',JSON.stringify(menuItems));
+const saveIcal=()=>localStorage.setItem('hd_ical',JSON.stringify(icalFeeds));
+const toast=(msg,ok=true)=>{const t=$('toast');t.textContent=msg;t.style.background=ok?'var(--ink-2)':'var(--err)';t.className='toast show';setTimeout(()=>t.className='toast',2800);};
 
 // ── DARK MODE ──
 function toggleDark(){
@@ -492,14 +571,15 @@ const ud=()=>{for(let i=0;i<4;i++)$('dot-'+i).classList.toggle('filled',i<pb.len
 function pinPress(n){if(pb.length>=4)return;pb+=n;ud();if(pb.length===4)setTimeout(pinEnter,180);}
 function pinClear(){pb=pb.slice(0,-1);ud();}
 function pinEnter(){
-  const pins={...DEFAULT_PINS};
+  const stored=JSON.parse(localStorage.getItem('hd_pins')||'null');
+  const pins=stored||DEFAULT_PINS;
   const m=Object.entries(pins).find(([,p])=>p===pb);
   if(m){cu=m[0];$('login-error').textContent='';loginOk();}
   else{$('login-error').textContent='PIN incorrecto';pb='';ud();setTimeout(()=>$('login-error').textContent='',2000);}
 }
 function loginOk(){
   $('login-screen').style.display='none';$('app').style.display='block';
-  $('ub-name').textContent=USER_META[cu].name;$('ub-role').textContent=USER_META[cu].role;
+  $('ub-name').textContent=USER_META[cu]?.name||cu;$('ub-role').textContent=USER_META[cu]?.role||'';
   $('topbar-date').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   initSelects();showScreen('dashboard');
 }
@@ -512,7 +592,7 @@ function showScreen(id){
   const s=$('screen-'+id);if(s)s.classList.add('active');
   const n=$('nav-'+id);if(n)n.classList.add('active');
   const bn=$('bn-'+id);if(bn)bn.classList.add('active');
-  const titles={dashboard:'Dashboard','nueva-reserva':'Nueva Reserva',reservas:'Reservas',consumos:'Consumos',ocupacion:'Ocupación',rendimiento:'Rendimiento',avisos:'Avisos'};
+  const titles={dashboard:'Dashboard','nueva-reserva':'Nueva Reserva',reservas:'Reservas',consumos:'Consumos',ocupacion:'Ocupación',rendimiento:'Rendimiento',avisos:'Avisos',config:'Configuración'};
   $('topbar-title').textContent=titles[id]||id;
   if(id==='ocupacion')renderCal();
   if(id==='reservas')renderReservas();
@@ -521,6 +601,7 @@ function showScreen(id){
   if(id==='rendimiento')renderRend();
   if(id==='consumos'){renderConsumosHoy();renderConsReservaSelect();renderMenuList();renderItemSelect();}
   if(id==='nueva-reserva'){renderDormStatus();renderCamasGrid();}
+  if(id==='config')renderConfig();
 }
 
 // ── GÉNERO / DORM ──
@@ -532,12 +613,10 @@ function dormGenero(dorm,ci,co){
   if(gs.size>1||(gs.has('MX')))return'MX';
   return gs.values().next().value;
 }
-
 function camaDisponible(cama,ci,co){
   const ci2=ci||'0000',co2=co||'9999';
   return!reservas.some(r=>r.cama===cama&&r.estado!=='Cancelada'&&!(co2<=r.checkin||ci2>=r.checkout));
 }
-
 function selGenero(g){
   selectedGenero=g;selectedCama=null;
   document.querySelectorAll('.gpill').forEach(b=>b.classList.remove('active'));
@@ -546,7 +625,6 @@ function selGenero(g){
   $('genero-warn').style.display='none';
   renderCamasGrid();
 }
-
 function renderDormStatus(){
   const ci=$('r-checkin').value,co=$('r-checkout').value;
   $('dorm-status-row').innerHTML=DORMS.map(d=>{
@@ -557,7 +635,6 @@ function renderDormStatus(){
     return`<div class="dorm-status ${cls}"><strong>Dorm ${d}</strong><span>${label} · ${camasOcup}/4 ocupadas</span></div>`;
   }).join('');
 }
-
 function renderCamasGrid(){
   const ci=$('r-checkin').value,co=$('r-checkout').value;
   renderDormStatus();
@@ -566,8 +643,7 @@ function renderCamasGrid(){
     const dormLabel=dg?` <span class="eb ${GB[dg]||''}" style="font-size:0.68rem">${GL[dg]}</span>`:'<span style="font-size:0.68rem;color:var(--ok)">Libre</span>';
     const camasHtml=CAMAS[dorm].map(cama=>{
       const libre=camaDisponible(cama,ci||'0000',co||'9999');
-      let cls='cama-btn';
-      let disabled='';
+      let cls='cama-btn';let disabled='';
       if(!libre){cls+=' ocupada';disabled='disabled';}
       else if(selectedGenero&&dg&&dg!=='MX'&&selectedGenero!==dg){cls+=' incompat';disabled='disabled';}
       else{cls+=' libre';}
@@ -579,24 +655,15 @@ function renderCamasGrid(){
   $('cp-cama').textContent=selectedCama||'—';
   $('cp-dorm').textContent=selectedCama?CAMA_DORM[selectedCama]:'—';
 }
-
 function selCama(cama,dorm,dormG){
-  const ci=$('r-checkin').value,co=$('r-checkout').value;
   const warn=$('genero-warn');
-  // Advertencia si el dorm tiene género distinto
   if(selectedGenero&&dormG&&dormG!=='MX'&&selectedGenero!==dormG){
     warn.style.display='block';
     warn.textContent=`⚠️ El Dorm ${dorm} está ocupado por ${GL[dormG]}. Al confirmar, el dorm se convierte en MX (mixto).`;
-    // Igual permitir la selección con advertencia
-  } else {
-    warn.style.display='none';
-  }
-  selectedCama=cama;
-  renderCamasGrid();
-  $('cp-cama').textContent=cama;
-  $('cp-dorm').textContent=dorm;
+  } else {warn.style.display='none';}
+  selectedCama=cama;renderCamasGrid();
+  $('cp-cama').textContent=cama;$('cp-dorm').textContent=dorm;
 }
-
 function calcNochesH(){
   const ci=$('r-checkin').value,co=$('r-checkout').value,pre=parseFloat($('r-precio').value)||0;
   if(ci&&co&&new Date(co)>new Date(ci)){
@@ -611,27 +678,59 @@ function guardarReserva(){
   const hue=$('r-huesped').value.trim();
   const ci=$('r-checkin').value,co=$('r-checkout').value;
   const pre=parseFloat($('r-precio').value)||0;
-  if(!hue){toast('Ingresá el nombre del huésped');return;}
-  if(!selectedCama){toast('Seleccioná una cama');return;}
-  if(!selectedGenero){toast('Seleccioná el género');return;}
-  if(!ci||!co||new Date(co)<=new Date(ci)){toast('Fechas inválidas');return;}
-  if(!camaDisponible(selectedCama,ci,co)){toast('La cama no está disponible');return;}
+  if(!hue){toast('Ingresá el nombre del huésped',false);return;}
+  if(!selectedCama){toast('Seleccioná una cama',false);return;}
+  if(!selectedGenero){toast('Seleccioná el género',false);return;}
+  if(!ci||!co||new Date(co)<=new Date(ci)){toast('Fechas inválidas',false);return;}
+  if(!camaDisponible(selectedCama,ci,co)){toast('La cama no está disponible',false);return;}
   const n=Math.round((new Date(co)-new Date(ci))/86400000);
   reservas.push({id:uid(),cama:selectedCama,dorm:CAMA_DORM[selectedCama],genero:selectedGenero,
-    huesped:hue,nac:$('r-nac').value.trim(),checkin:ci,checkout:co,
-    precio:pre,noches:n,subtotal:n*pre,plataforma:$('r-plataforma').value,
-    estado:$('r-estado').value,notas:$('r-notas').value.trim(),creado:new Date().toISOString()});
+    huesped:hue,tel:$('r-tel').value.trim(),nac:$('r-nac').value.trim(),
+    checkin:ci,checkout:co,precio:pre,noches:n,subtotal:n*pre,
+    sena:parseFloat($('r-sena').value)||0,saldo:parseFloat($('r-saldo').value)||0,
+    plataforma:$('r-plataforma').value,estado:$('r-estado').value,
+    notas:$('r-notas').value.trim(),creado:new Date().toISOString()});
   saveR();toast('Reserva guardada ✓');limpiarForm();
 }
-
 function limpiarForm(){
-  ['r-huesped','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  ['r-huesped','r-tel','r-nac','r-checkin','r-checkout','r-precio','r-sena','r-saldo','r-notas'].forEach(id=>{const e=$(id);if(e)e.value='';});
   selectedGenero=null;selectedCama=null;
   document.querySelectorAll('.gpill').forEach(b=>b.classList.remove('active'));
   $('cp-n').textContent='—';$('cp-sub').textContent='—';$('cp-cama').textContent='—';$('cp-dorm').textContent='—';
-  $('genero-warn').style.display='none';
-  renderCamasGrid();
+  $('genero-warn').style.display='none';renderCamasGrid();
 }
+
+// ── EDITAR RESERVA ──
+function editRes(id){
+  const r=reservas.find(x=>x.id===id);if(!r)return;
+  editingId=id;
+  $('e-huesped').value=r.huesped||'';$('e-tel').value=r.tel||'';$('e-nac').value=r.nac||'';
+  $('e-checkin').value=r.checkin||'';$('e-checkout').value=r.checkout||'';
+  $('e-precio').value=r.precio||'';$('e-sena').value=r.sena||'';$('e-saldo').value=r.saldo||'';
+  $('e-plataforma').value=r.plataforma||'Directo';$('e-estado').value=r.estado||'Confirmada';
+  $('e-notas').value=r.notas||'';
+  $('modal-editar').classList.add('show');
+}
+function saveEdit(){
+  const r=reservas.find(x=>x.id===editingId);if(!r)return;
+  const ci=$('e-checkin').value,co=$('e-checkout').value;
+  const pre=parseFloat($('e-precio').value)||0;
+  const n=ci&&co?Math.round((new Date(co)-new Date(ci))/86400000):r.noches;
+  Object.assign(r,{
+    huesped:$('e-huesped').value.trim(),tel:$('e-tel').value.trim(),nac:$('e-nac').value.trim(),
+    checkin:ci||r.checkin,checkout:co||r.checkout,precio:pre,noches:n,subtotal:n*pre,
+    sena:parseFloat($('e-sena').value)||0,saldo:parseFloat($('e-saldo').value)||0,
+    plataforma:$('e-plataforma').value,estado:$('e-estado').value,notas:$('e-notas').value.trim()
+  });
+  saveR();cerrarModal();renderReservas();toast('Reserva actualizada ✓');
+}
+function eliminarRes(id){
+  if(!confirm('¿Eliminar esta reserva?'))return;
+  reservas=reservas.filter(x=>x.id!==id);
+  saveR();renderReservas();toast('Reserva eliminada');
+}
+function cerrarModal(){$('modal-editar').classList.remove('show');editingId=null;}
+$('modal-editar').addEventListener('click',e=>{if(e.target===$('modal-editar'))cerrarModal();});
 
 // ── CONSUMOS ──
 function renderConsReservaSelect(){
@@ -639,18 +738,16 @@ function renderConsReservaSelect(){
   const act=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkout>=today);
   $('c-reserva').innerHTML='<option value="">— Seleccioná —</option>'+act.map(r=>`<option value="${r.id}">${r.huesped} · ${r.cama} (${fmtD(r.checkin)}→${fmtD(r.checkout)})</option>`).join('');
 }
-
 function setConsumoCama(){
   const id=$('c-reserva').value;
   const r=reservas.find(x=>x.id===id);
   $('c-cama').value=r?r.cama:'';
 }
-
 function guardarConsumo(){
   const rid=$('c-reserva').value;
-  if(!rid){toast('Seleccioná una reserva');return;}
+  if(!rid){toast('Seleccioná una reserva',false);return;}
   const monto=parseFloat($('c-monto').value)||0;
-  if(!monto){toast('Ingresá un monto');return;}
+  if(!monto){toast('Ingresá un monto',false);return;}
   const r=reservas.find(x=>x.id===rid);
   consumos.push({id:uid(),reservaId:rid,cama:r?r.cama:'',dorm:r?r.dorm:'',genero:r?r.genero:'',
     huesped:r?r.huesped:'',nac:r?r.nac:'',categoria:$('c-cat').value,
@@ -659,7 +756,6 @@ function guardarConsumo(){
   $('c-monto').value='';$('c-desc').value='';
   renderConsumosHoy();
 }
-
 function renderConsumosHoy(){
   const today=new Date().toISOString().split('T')[0];
   const hoy=consumos.filter(c=>c.fecha.startsWith(today));
@@ -672,30 +768,84 @@ function renderConsumosHoy(){
 
 // ── RESERVAS ──
 function consTotal(rid){return consumos.filter(c=>c.reservaId===rid).reduce((s,c)=>s+c.monto,0);}
-
 function renderReservas(){
+  const q=($('res-buscar')?.value||'').toLowerCase();
   const tbody=$('res-tbody');
   const sorted=[...reservas].sort((a,b)=>b.creado.localeCompare(a.creado));
-  tbody.innerHTML=sorted.map((r,i)=>{
+  const fil=q?sorted.filter(r=>r.huesped.toLowerCase().includes(q)):sorted;
+  tbody.innerHTML=fil.map((r,i)=>{
     const ct=consTotal(r.id);
     const total=r.subtotal+ct;
+    const ecls=ESTADO_CLS[r.estado]||'';
     return`<tr>
       <td style="color:var(--muted)">${i+1}</td>
       <td><span class="cama-tag">${r.cama}</span></td>
       <td style="font-weight:600">${r.dorm}</td>
       <td><span class="eb ${GB[r.genero]||''}">${GL[r.genero]||r.genero}</span></td>
       <td style="font-weight:500">${r.huesped}</td>
+      <td style="color:var(--muted);font-size:0.78rem">${r.tel||'—'}</td>
       <td style="color:var(--muted)">${r.nac||'—'}</td>
       <td>${fmtD(r.checkin)}</td>
       <td>${fmtD(r.checkout)}</td>
       <td>${r.noches}</td>
       <td>${fmt(r.subtotal)}</td>
+      <td style="color:${(r.sena||0)>0?'var(--ok)':'var(--muted)'}">${(r.sena||0)>0?fmt(r.sena):'—'}</td>
+      <td style="color:${(r.saldo||0)>0?'var(--warn)':'var(--muted)'}">${(r.saldo||0)>0?fmt(r.saldo):'—'}</td>
       <td style="color:${ct>0?'var(--orange)':'var(--muted)'}">${ct>0?'USD '+ct.toFixed(2):'—'}</td>
       <td style="font-weight:700">${fmt(total)}</td>
       <td>${r.plataforma}</td>
-      <td><span class="eb ${{Confirmada:'eb-confirmada',Pendiente:'eb-pendiente',Cancelada:'eb-cancelada'}[r.estado]||''}">${r.estado}</span></td>
+      <td><span class="eb ${ecls}">${r.estado}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-outline btn-sm" onclick="editRes('${r.id}')" style="padding:4px 10px;font-size:0.72rem">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarRes('${r.id}')" style="padding:4px 10px;font-size:0.72rem;margin-left:4px">🗑</button>
+      </td>
     </tr>`;
-  }).join('')||'<tr><td colspan="14" style="text-align:center;padding:30px;color:var(--muted)">Sin reservas aún</td></tr>';
+  }).join('')||'<tr><td colspan="18" style="text-align:center;padding:30px;color:var(--muted)">Sin reservas aún</td></tr>';
+}
+
+// ── IMPORTAR CSV ──
+function importarCSV(input){
+  const file=input.files[0];if(!file)return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let rows=[];
+      if(ext==='csv'){
+        const text=e.target.result;
+        const sep=text.indexOf(';')>text.indexOf(',')?';':',';
+        const lines=text.split('\n').filter(l=>l.trim());
+        const headers=lines[0].split(sep).map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());
+        const col=n=>headers.findIndex(h=>h.includes(n));
+        const iH=col('huésped')||col('huesped')||col('guest')||col('nombre')||col('name');
+        const iCI=col('checkin')||col('check-in')||col('llegada')||col('entrada');
+        const iCO=col('checkout')||col('check-out')||col('salida');
+        const iP=col('precio')||col('price')||col('rate');
+        const iPl=col('plataforma')||col('platform')||col('canal');
+        const iE=col('estado')||col('status');
+        const iN=col('nac')||col('nacio')||col('country');
+        const iT=col('tel')||col('phone')||col('whatsapp');
+        const iNt=col('notas')||col('notes');
+        const parseFecha=v=>{if(!v)return'';const s=v.trim().replace(/"/g,'');if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;const m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);if(m)return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;return s;};
+        for(let i=1;i<lines.length;i++){
+          const cols=lines[i].split(sep).map(c=>c.replace(/^"|"$/g,'').trim());
+          const hue=iH>=0?cols[iH]||'':'';if(!hue)continue;
+          const ci=parseFecha(iCI>=0?cols[iCI]:'');
+          const co=parseFecha(iCO>=0?cols[iCO]:'');
+          const pre=parseFloat(iP>=0?cols[iP]||0:0)||0;
+          const n=ci&&co?Math.round((new Date(co)-new Date(ci))/86400000):0;
+          rows.push({id:uid(),cama:TODAS[0],dorm:'A',genero:'MX',huesped:hue,tel:iT>=0?cols[iT]||'':'',nac:iN>=0?cols[iN]||'':'',checkin:ci,checkout:co,precio:pre,noches:n,subtotal:n*pre,sena:0,saldo:0,plataforma:iPl>=0?cols[iPl]||'Directo':'Directo',estado:iE>=0?cols[iE]||'Confirmada':'Confirmada',notas:iNt>=0?cols[iNt]||'':'',creado:new Date().toISOString()});
+        }
+      }
+      if(!rows.length){toast('No se encontraron filas válidas',false);input.value='';return;}
+      if(!confirm(`Importar ${rows.length} reserva(s)? Se agregarán a las existentes.`)){input.value='';return;}
+      reservas=[...reservas,...rows];saveR();renderReservas();
+      toast(`${rows.length} reservas importadas ✓`);
+    }catch(err){toast('Error al importar: '+err.message,false);}
+    input.value='';
+  };
+  if(ext==='csv')reader.readAsText(file,'UTF-8');
+  else{toast('Formato no soportado aún. Usá CSV.',false);input.value='';}
 }
 
 // ── CALENDARIO ──
@@ -707,7 +857,6 @@ function initSelects(){
   $('r-mes').innerHTML='<option value="">Todo el año</option>'+MESES.map((m,i)=>`<option value="${i}"${i===now.getMonth()?' selected':''}>${m}</option>`).join('');
   $('r-anio').innerHTML=anioOpts;
 }
-
 function renderCal(){
   const mes=parseInt($('cal-mes').value),anio=parseInt($('cal-anio').value);
   const dim=new Date(anio,mes+1,0).getDate();
@@ -723,7 +872,7 @@ function renderCal(){
         const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const res=reservas.find(r=>r.cama===cama&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);
         const cls=di>0&&ci===0?' dorm-sep':'';
-        if(res){const gc={V:'occ-v',F:'occ-f',MX:'occ-mx'}[res.genero]||'';html+=`<div class="cal-cell ${gc}${cls}" style="cursor:pointer" onclick="openResPopup('${res.id}')" title="${res.huesped} · ${res.cama}">${res.huesped.split(' ')[0].substr(0,3)}</div>`;}
+        if(res){const gc={V:'occ-v',F:'occ-f',MX:'occ-mx'}[res.genero]||'';html+=`<div class="cal-cell ${gc}${cls}" style="cursor:pointer" onclick="editRes('${res.id}')" title="${res.huesped} · ${res.cama}">${res.huesped.split(' ')[0].substr(0,3)}</div>`;}
         else html+=`<div class="cal-cell${cls}"></div>`;
       }
     });
@@ -753,51 +902,35 @@ function renderRend(){
   const ingCons=cfil.reduce((s,c)=>s+c.monto,0);
   const totalNoches=fil.reduce((s,r)=>s+r.noches,0);
   const ocupPct=fil.length?(totalNoches/(20*30)*100).toFixed(0):0;
-
   $('rend-stats').innerHTML=`
     <div class="stat-card"><div class="stat-label">Ingresos Camas</div><div class="stat-value" style="font-size:1.4rem">${fmt(ingCama)}</div><div class="stat-sub">${fil.length} reservas</div></div>
     <div class="stat-card"><div class="stat-label">Ingresos Consumos</div><div class="stat-value" style="font-size:1.4rem;color:var(--orange)">${fmt(ingCons)}</div><div class="stat-sub">${cfil.length} consumos</div></div>
     <div class="stat-card"><div class="stat-label">Total Combinado</div><div class="stat-value" style="font-size:1.4rem">${fmt(ingCama+ingCons)}</div><div class="stat-sub">Camas + consumos</div></div>
     <div class="stat-card"><div class="stat-label">Noches vendidas</div><div class="stat-value">${totalNoches}</div><div class="stat-sub">${ocupPct}% ocupación est.</div></div>`;
-
-  const bar=(val,max,cls='')=>`<div style="height:8px;background:var(--paper-3);border-radius:4px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${max?Math.round(val/max*100):0}%;background:var(--orange);border-radius:4px"></div></div>`;
-
-  // Por plataforma
+  const bar=(val,max)=>`<div style="height:8px;background:var(--paper-3);border-radius:4px;overflow:hidden;margin-top:4px"><div style="height:100%;width:${max?Math.round(val/max*100):0}%;background:var(--orange);border-radius:4px"></div></div>`;
   const byPlat={};fil.forEach(r=>{byPlat[r.plataforma]=(byPlat[r.plataforma]||0)+r.subtotal;});
   const maxP=Math.max(...Object.values(byPlat),1);
   $('rend-plat').innerHTML=Object.entries(byPlat).sort((a,b)=>b[1]-a[1]).map(([p,v])=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:0.84rem"><span>${p}</span><strong>${fmt(v)}</strong></div>${bar(v,maxP)}</div>`).join('')||'<p style="color:var(--muted);font-size:0.84rem">Sin datos</p>';
-
-  // Por género
   const byGen={};fil.forEach(r=>{byGen[r.genero]=(byGen[r.genero]||0)+r.subtotal;});
   const maxG=Math.max(...Object.values(byGen),1);
   $('rend-gen').innerHTML=Object.entries(byGen).sort((a,b)=>b[1]-a[1]).map(([g,v])=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:0.84rem"><span><span class="eb ${GB[g]||''}">${GL[g]||g}</span></span><strong>${fmt(v)}</strong></div>${bar(v,maxG)}</div>`).join('')||'<p style="color:var(--muted);font-size:0.84rem">Sin datos</p>';
-
-  // Por nacionalidad
   const byNac={};fil.forEach(r=>{if(r.nac){byNac[r.nac]=(byNac[r.nac]||0)+1;}});
   const topNac=Object.entries(byNac).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const maxN=topNac.length?topNac[0][1]:1;
   $('rend-nac').innerHTML=topNac.map(([n,v])=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:0.84rem"><span>${n}</span><strong>${v} reservas</strong></div>${bar(v,maxN)}</div>`).join('')||'<p style="color:var(--muted);font-size:0.84rem">Sin datos de nacionalidad</p>';
-
-  // Consumos por categoría
   const byCat={};cfil.forEach(c=>{byCat[c.categoria]=(byCat[c.categoria]||0)+c.monto;});
   const maxC=Math.max(...Object.values(byCat),1);
   $('rend-cons').innerHTML=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,v])=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:0.84rem"><span>${cat}</span><strong>${fmt(v)}</strong></div>${bar(v,maxC)}</div>`).join('')||'<p style="color:var(--muted);font-size:0.84rem">Sin consumos</p>';
-  // Tabla detalle
   const tbody=$('rend-tbody');
   if(tbody){
     tbody.innerHTML=fil.length?fil.map(r=>{
       const ct=consumos.filter(c=>c.reservaId===r.id).reduce((s,c)=>s+c.monto,0);
       return`<tr>
-        <td style="font-weight:500">${r.huesped}</td>
-        <td style="color:var(--muted)">${r.nac||'—'}</td>
-        <td><span class="cama-tag">${r.cama}</span></td>
-        <td style="font-weight:600">${r.dorm}</td>
+        <td style="font-weight:500">${r.huesped}</td><td style="color:var(--muted)">${r.nac||'—'}</td>
+        <td><span class="cama-tag">${r.cama}</span></td><td style="font-weight:600">${r.dorm}</td>
         <td><span class="eb ${GB[r.genero]||''}">${GL[r.genero]||r.genero}</span></td>
-        <td>${fmtD(r.checkin)}</td>
-        <td>${fmtD(r.checkout)}</td>
-        <td>${r.noches}</td>
-        <td>${r.plataforma}</td>
-        <td>${fmt(r.subtotal)}</td>
+        <td>${fmtD(r.checkin)}</td><td>${fmtD(r.checkout)}</td><td>${r.noches}</td>
+        <td>${r.plataforma}</td><td>${fmt(r.subtotal)}</td>
         <td style="color:${ct>0?'var(--orange)':'var(--muted)'}">${ct>0?fmt(ct):'—'}</td>
         <td style="font-weight:700">${fmt(r.subtotal+ct)}</td>
       </tr>`;
@@ -805,24 +938,16 @@ function renderRend(){
   }
 }
 
+// ── EXPORT CSV ──
 function exportRendCSV(){
-  const mes=parseInt($('r-mes').value)||new Date().getMonth();
-  const anio=parseInt($('r-anio').value)||new Date().getFullYear();
-  const EXCL=['Cancelada'];
-  const fil=reservas.filter(r=>{
-    if(EXCL.includes(r.estado))return false;
-    const d=new Date(r.checkin);
-    return d.getFullYear()===anio;
-  });
-  const cols=['huesped','nac','cama','dorm','genero','checkin','checkout','noches','plataforma','estado','subtotal'];
+  const anio=parseInt($('r-anio')?.value)||new Date().getFullYear();
+  const fil=reservas.filter(r=>r.estado!=='Cancelada'&&new Date(r.checkin).getFullYear()===anio);
+  const cols=['huesped','tel','nac','cama','dorm','genero','checkin','checkout','noches','plataforma','estado','subtotal','sena','saldo'];
   const bom='\uFEFF';
-  const csv=bom+cols.join(';')+'\n'+fil.map(r=>cols.map(c=>{
-    const v=r[c]??'';return'"'+String(v).replace(/"/g,'""')+'"';
-  }).join(';')).join('\n');
+  const csv=bom+cols.join(';')+'\n'+fil.map(r=>cols.map(c=>'"'+String(r[c]??'').replace(/"/g,'""')+'"').join(';')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='hostel_reservas_'+anio+'.csv';
-  a.click();
+  a.download='hostel_reservas_'+anio+'.csv';a.click();
 }
 
 // ── DASHBOARD ──
@@ -835,13 +960,11 @@ function renderDashboard(){
   const em=reservas.filter(r=>r.estado!=='Cancelada'&&new Date(r.checkin).getMonth()===m&&new Date(r.checkin).getFullYear()===y);
   const ingCama=em.reduce((s,r)=>s+r.subtotal,0);
   const ingCons=consumos.filter(c=>new Date(c.fecha).getMonth()===m&&new Date(c.fecha).getFullYear()===y).reduce((s,c)=>s+c.monto,0);
-
   $('stats-grid').innerHTML=`
     <div class="stat-card"><div class="stat-label">Camas Ocupadas</div><div class="stat-value">${act.length}<span style="font-size:1rem;color:var(--muted)">/20</span></div><div class="stat-sub">${(act.length/20*100).toFixed(0)}% ocupación</div></div>
     <div class="stat-card"><div class="stat-label">Ingresos Mes</div><div class="stat-value" style="font-size:1.3rem">${fmt(ingCama+ingCons)}</div><div class="stat-sub">Camas + consumos</div></div>
     <div class="stat-card"><div class="stat-label">Check-ins 7 días</div><div class="stat-value">${prox.length}</div><div class="stat-sub">Próximas llegadas</div></div>
     <div class="stat-card"><div class="stat-label">Consumos Mes</div><div class="stat-value" style="color:var(--orange)">${fmt(ingCons)}</div><div class="stat-sub">Bar, tours, extras</div></div>`;
-
   const prx=prox.sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);
   const ul=[...reservas].sort((a,b)=>b.creado.localeCompare(a.creado)).slice(0,5);
   $('dash-cols').innerHTML=`
@@ -854,41 +977,26 @@ function renderDashboard(){
     <div class="card"><div class="card-title"><div class="dot"></div>Últimas Reservas</div>
       ${ul.length?ul.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)">
         <div style="display:flex;align-items:center;gap:8px"><span class="cama-tag">${r.cama}</span><span style="font-weight:500">${r.huesped}</span></div>
-        <span class="eb ${{Confirmada:'eb-confirmada',Pendiente:'eb-pendiente',Cancelada:'eb-cancelada'}[r.estado]||''}">${r.estado}</span></div>`).join('')
+        <span class="eb ${ESTADO_CLS[r.estado]||''}">${r.estado}</span></div>`).join('')
       :'<p style="color:var(--muted);padding:16px 0;text-align:center">Sin reservas aún</p>'}
     </div>`;
 }
 
 // ── MENÚ DE PRECIOS ──
-let menuItems = JSON.parse(localStorage.getItem('hd_menu') || '[]');
-const saveMenu = () => localStorage.setItem('hd_menu', JSON.stringify(menuItems));
-
 function agregarMenuItem(){
-  const nombre = $('m-nombre').value.trim();
-  const precio = parseFloat($('m-precio').value) || 0;
-  if(!nombre || !precio){toast('Completá nombre y precio');return;}
-  menuItems.push({id:uid(), nombre, categoria:$('m-cat').value, precio});
-  saveMenu();
-  $('m-nombre').value=''; $('m-precio').value='';
-  renderMenuList();
-  renderItemSelect();
-  toast('Ítem agregado ✓');
+  const nombre=$('m-nombre').value.trim();
+  const precio=parseFloat($('m-precio').value)||0;
+  if(!nombre||!precio){toast('Completá nombre y precio',false);return;}
+  menuItems.push({id:uid(),nombre,categoria:$('m-cat').value,precio});
+  saveMenu();$('m-nombre').value='';$('m-precio').value='';
+  renderMenuList();renderItemSelect();toast('Ítem agregado ✓');
 }
-
-function eliminarMenuItem(id){
-  menuItems = menuItems.filter(m=>m.id!==id);
-  saveMenu();
-  renderMenuList();
-  renderItemSelect();
-}
-
+function eliminarMenuItem(id){menuItems=menuItems.filter(m=>m.id!==id);saveMenu();renderMenuList();renderItemSelect();}
 function renderMenuList(){
-  const div = $('menu-list');
-  if(!div) return;
-  if(!menuItems.length){div.innerHTML='<p style="color:var(--muted);font-size:0.84rem;text-align:center;padding:16px">Sin ítems en el menú. Agregá uno arriba.</p>';return;}
-  const byCat = {};
-  menuItems.forEach(m=>{if(!byCat[m.categoria])byCat[m.categoria]=[];byCat[m.categoria].push(m);});
-  div.innerHTML = Object.entries(byCat).map(([cat,items])=>`
+  const div=$('menu-list');if(!div)return;
+  if(!menuItems.length){div.innerHTML='<p style="color:var(--muted);font-size:0.84rem;text-align:center;padding:16px">Sin ítems en el menú.</p>';return;}
+  const byCat={};menuItems.forEach(m=>{if(!byCat[m.categoria])byCat[m.categoria]=[];byCat[m.categoria].push(m);});
+  div.innerHTML=Object.entries(byCat).map(([cat,items])=>`
     <div style="margin-bottom:16px">
       <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">${cat}</div>
       ${items.map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
@@ -900,69 +1008,22 @@ function renderMenuList(){
       </div>`).join('')}
     </div>`).join('');
 }
-
 function renderItemSelect(){
-  const sel = $('c-item');
-  if(!sel) return;
-  sel.innerHTML = '<option value="">— Elegir del menú —</option>' +
-    menuItems.map(m=>`<option value="${m.id}">${m.nombre} · ${fmt(m.precio)}</option>`).join('');
+  const sel=$('c-item');if(!sel)return;
+  sel.innerHTML='<option value="">— Elegir del menú —</option>'+menuItems.map(m=>`<option value="${m.id}">${m.nombre} · ${fmt(m.precio)}</option>`).join('');
 }
-
 function setConsumoItem(){
-  const id = $('c-item').value;
-  if(!id) return;
-  const m = menuItems.find(x=>x.id===id);
-  if(!m) return;
-  $('c-cat').value = m.categoria;
-  $('c-desc').value = m.nombre;
-  $('c-monto').value = m.precio;
+  const id=$('c-item').value;if(!id)return;
+  const m=menuItems.find(x=>x.id===id);if(!m)return;
+  $('c-cat').value=m.categoria;$('c-desc').value=m.nombre;$('c-monto').value=m.precio;
 }
-
-// ── MENÚ DE PRECIOS ──
-function openResPopup(id){
-  const r=reservas.find(x=>x.id===id);if(!r)return;
-  const ct=consTotal(r.id);
-  const pop=document.createElement('div');
-  pop.style.cssText='position:fixed;inset:0;background:rgba(26,20,16,0.6);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;';
-  pop.innerHTML=`<div style="background:var(--paper);border-radius:var(--r-lg);width:100%;max-width:380px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
-    <div style="background:var(--orange);padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
-      <div style="color:white;font-weight:700;font-size:0.95rem">${r.huesped}</div>
-      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;border-radius:6px;padding:4px 10px;cursor:pointer">✕</button>
-    </div>
-    <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.86rem">
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Cama</div><div style="margin-top:4px"><span class="cama-tag">${r.cama}</span> Dorm ${r.dorm}</div></div>
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Género</div><div style="margin-top:4px"><span class="eb ${GB[r.genero]||''}">${GL[r.genero]||r.genero}</span></div></div>
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Check-in</div><div style="margin-top:4px;font-weight:500">${fmtD(r.checkin)}</div></div>
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Check-out</div><div style="margin-top:4px;font-weight:500">${fmtD(r.checkout)}</div></div>
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Noches</div><div style="margin-top:4px;font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800">${r.noches}</div></div>
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Nacionalidad</div><div style="margin-top:4px">${r.nac||'—'}</div></div>
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Subtotal cama</div><div style="margin-top:4px;font-weight:600">${fmt(r.subtotal)}</div></div>
-      <div><div style="font-size:0.64rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600">Consumos</div><div style="margin-top:4px;font-weight:600;color:var(--orange)">${ct>0?fmt(ct):'—'}</div></div>
-    </div>
-    <div style="padding:0 20px 16px;border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:0.84rem;color:var(--muted)">Total: <strong style="color:var(--ink);font-size:1rem">${fmt(r.subtotal+ct)}</strong></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-outline btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cerrar</button>
-        <button class="btn btn-primary btn-sm" onclick="this.closest('div[style*=fixed]').remove();showScreen('consumos')">+ Consumo</button>
-      </div>
-    </div>
-  </div>`;
-  pop.addEventListener('click',e=>{if(e.target===pop)pop.remove();});
-  document.body.appendChild(pop);
-}
-
-// ── PRECIOS SUGERIDOS CONSUMOS ──
 const CONSUMO_PRECIOS={'Bar / Cafetería':5,'Locker':3,'Toallas':2,'Tour / Excursión':25,'Lavandería':4,'Otro':0};
 document.addEventListener('DOMContentLoaded',()=>{
-  const cat=document.getElementById('c-cat');
-  const monto=document.getElementById('c-monto');
-  if(cat&&monto){
-    cat.addEventListener('change',()=>{
-      const p=CONSUMO_PRECIOS[cat.value];
-      if(p>0)monto.value=p;
-    });
-  }
+  const cat=$('c-cat'),monto=$('c-monto');
+  if(cat&&monto)cat.addEventListener('change',()=>{const p=CONSUMO_PRECIOS[cat.value];if(p>0)monto.value=p;});
 });
+
+// ── AVISOS ──
 function renderAvisos(){
   const today=new Date().toISOString().split('T')[0];
   const in7=new Date();in7.setDate(in7.getDate()+7);
@@ -974,10 +1035,8 @@ function renderAvisos(){
     const col=diff<=0?'var(--err)':diff<=2?'var(--warn)':'var(--orange)';
     return`<div class="aviso-card">
       <div class="aviso-header" style="background:${col};display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <strong style="color:white;font-size:1rem">${r.huesped}</strong>
-          <span style="margin-left:12px;color:rgba(255,255,255,0.85);font-size:0.88rem">Dorm ${r.dorm} · ${r.cama}</span>
-        </div>
+        <div><strong style="color:white;font-size:1rem">${r.huesped}</strong>
+          <span style="margin-left:12px;color:rgba(255,255,255,0.85);font-size:0.88rem">Dorm ${r.dorm} · ${r.cama}</span></div>
         <div style="text-align:right;color:white">
           <div style="font-weight:700;font-size:1rem">${fmtD(r.checkin)}</div>
           <div style="font-size:0.76rem;opacity:0.85">${diff<=0?'¡HOY!':diff===1?'Mañana':'En '+diff+' días'}</div>
@@ -986,6 +1045,155 @@ function renderAvisos(){
       ${r.notas?`<div style="padding:10px 18px;font-size:0.84rem;color:var(--muted);border-top:1px solid var(--line)">📝 ${r.notas}</div>`:''}
     </div>`;
   }).join('');
+}
+
+// ── CONFIG ──
+function renderConfig(){
+  const pins=JSON.parse(localStorage.getItem('hd_pins')||'null')||DEFAULT_PINS;
+  $('pin-admin').value=pins.admin||'';$('pin-recep').value=pins.recep||'';
+  renderIcalFeeds();
+}
+function guardarPins(){
+  const a=$('pin-admin').value.trim(),r=$('pin-recep').value.trim();
+  if(a&&!/^\d{4}$/.test(a)){toast('PIN admin debe ser 4 dígitos',false);return;}
+  if(r&&!/^\d{4}$/.test(r)){toast('PIN recep debe ser 4 dígitos',false);return;}
+  const cur=JSON.parse(localStorage.getItem('hd_pins')||'null')||DEFAULT_PINS;
+  localStorage.setItem('hd_pins',JSON.stringify({admin:a||cur.admin,recep:r||cur.recep}));
+  toast('PINs guardados ✓');
+}
+
+// ── iCAL FEEDS ──
+const ICAL_PROXY='https://icalproxy.huuventa.workers.dev/?url=';
+function renderIcalFeeds(){
+  const div=$('ical-feeds-list');if(!div)return;
+  if(!icalFeeds.length){div.innerHTML='<p style="font-size:0.82rem;color:var(--muted)">Sin feeds configurados.</p>';return;}
+  div.innerHTML=icalFeeds.map((f,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.86rem">${f.nombre||'Feed '+i}</div>
+        <div style="font-size:0.72rem;color:var(--muted);word-break:break-all">${f.url.substr(0,60)}...</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="sincronizarFeed(${i})">↻</button>
+      <button class="btn btn-danger btn-sm" onclick="eliminarFeed(${i})">✕</button>
+    </div>`).join('');
+}
+function agregarFeedIcal(){
+  const nombre=$('ical-nombre').value.trim();
+  const url=$('ical-url').value.trim();
+  if(!url){toast('Ingresá la URL del feed',false);return;}
+  icalFeeds.push({id:uid(),nombre:nombre||'Feed iCal',url});
+  saveIcal();$('ical-nombre').value='';$('ical-url').value='';
+  renderIcalFeeds();toast('Feed agregado ✓');
+}
+function eliminarFeed(i){icalFeeds.splice(i,1);saveIcal();renderIcalFeeds();}
+async function sincronizarFeed(i){
+  const f=icalFeeds[i];if(!f)return;
+  const statusEl=$('ical-sync-status');
+  if(statusEl)statusEl.textContent='Sincronizando "'+f.nombre+'"...';
+  try{
+    const res=await fetch(ICAL_PROXY+encodeURIComponent(f.url));
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const eventos=parseIcal(text);
+    let nuevas=0;
+    eventos.forEach(ev=>{
+      if(!ev.summary||!ev.dtstart||!ev.dtend)return;
+      const yaExiste=reservas.some(r=>r.icalUid===ev.uid);
+      if(yaExiste)return;
+      const ci=ev.dtstart.substr(0,10);
+      const co=ev.dtend.substr(0,10);
+      const n=Math.round((new Date(co)-new Date(ci))/86400000);
+      reservas.push({id:uid(),icalUid:ev.uid||uid(),cama:TODAS[0],dorm:'A',genero:'MX',
+        huesped:ev.summary,tel:'',nac:'',checkin:ci,checkout:co,precio:0,noches:n,subtotal:0,
+        sena:0,saldo:0,plataforma:'Google Calendar',estado:'Confirmada',
+        notas:ev.description||'',creado:new Date().toISOString()});
+      nuevas++;
+    });
+    saveR();
+    const msg=`"${f.nombre}": ${nuevas} reserva(s) nueva(s) importada(s)`;
+    if(statusEl)statusEl.textContent=msg+' · '+new Date().toLocaleTimeString('es-AR');
+    toast(msg);
+  }catch(err){
+    if(statusEl)statusEl.textContent='Error: '+err.message;
+    toast('Error al sincronizar: '+err.message,false);
+  }
+}
+async function sincronizarTodosIcal(){
+  if(!icalFeeds.length){toast('Sin feeds configurados',false);return;}
+  for(let i=0;i<icalFeeds.length;i++)await sincronizarFeed(i);
+}
+function parseIcal(text){
+  const eventos=[];let ev=null;
+  const lines=text.replace(/\r\n|\r/g,'\n').replace(/\n[ \t]/g,'').split('\n');
+  for(const line of lines){
+    if(line==='BEGIN:VEVENT'){ev={};}
+    else if(line==='END:VEVENT'){if(ev)eventos.push(ev);ev=null;}
+    else if(ev){
+      const col=line.indexOf(':');if(col<0)continue;
+      const key=line.substr(0,col).split(';')[0].trim().toUpperCase();
+      const val=line.substr(col+1).trim();
+      if(key==='SUMMARY')ev.summary=val;
+      else if(key==='DTSTART')ev.dtstart=fmtIcalDate(val);
+      else if(key==='DTEND')ev.dtend=fmtIcalDate(val);
+      else if(key==='UID')ev.uid=val;
+      else if(key==='DESCRIPTION')ev.description=val.replace(/\\n/g,' ');
+    }
+  }
+  return eventos;
+}
+function fmtIcalDate(v){
+  const s=v.replace(/[TZ]/g,'');
+  if(s.length>=8)return`${s.substr(0,4)}-${s.substr(4,2)}-${s.substr(6,2)}`;
+  return v;
+}
+
+// ── POPUP RESERVA ──
+function openResPopup(id){
+  editRes(id);
+}
+
+// ── XENIA ──
+let xeniaOpen=false;
+let xeniaHistory=[];
+function toggleXenia(){
+  xeniaOpen=!xeniaOpen;
+  const chat=$('xenia-chat');
+  chat.classList.toggle('open',xeniaOpen);
+  if(xeniaOpen&&xeniaHistory.length===0){
+    xeniaAddMsg('bot','¡Hola! Soy Xenia 👋 Puedo ayudarte con consultas sobre reservas, ocupación y gestión del hostel. ¿En qué te ayudo?');
+  }
+}
+function xeniaAddMsg(role,text){
+  xeniaHistory.push({role,text});
+  const msgs=$('xenia-msgs');
+  const div=document.createElement('div');
+  div.className='xenia-msg '+role;div.textContent=text;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+async function xeniaEnviar(){
+  const input=$('xenia-input');
+  const msg=input.value.trim();if(!msg)return;
+  input.value='';xeniaAddMsg('user',msg);
+  const thinking=document.createElement('div');
+  thinking.className='xenia-msg bot';thinking.textContent='...';
+  $('xenia-msgs').appendChild(thinking);
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    const activas=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
+    const prox=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin>today).sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);
+    const context=`Sos Xenia, asistente de CheckInn para este hostel demo. Respondé en español, de forma concisa y útil. Contexto actual — Hoy: ${today}. Camas ocupadas ahora: ${activas.length}/20. Próximos check-ins: ${prox.map(r=>`${r.huesped} (${r.cama}, ${r.checkin})`).join(', ')||'ninguno'}. Total reservas: ${reservas.length}.`;
+    const messages=xeniaHistory.slice(-6).map(m=>({role:m.role==='user'?'user':'assistant',content:m.text}));
+    messages[messages.length-1]={role:'user',content:msg};
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:context,messages})
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'No pude procesar tu consulta.';
+    thinking.remove();xeniaAddMsg('bot',reply);
+  }catch(err){
+    thinking.remove();xeniaAddMsg('bot','Error al conectar con el asistente. Verificá tu conexión.');
+  }
 }
 </script>
 </body>
