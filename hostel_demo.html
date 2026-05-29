@@ -1184,9 +1184,9 @@ async function xeniaEnviar(){
     const context=`Sos Xenia, asistente de CheckInn para este hostel demo. Respondé en español, de forma concisa y útil. Contexto actual — Hoy: ${today}. Camas ocupadas ahora: ${activas.length}/20. Próximos check-ins: ${prox.map(r=>`${r.huesped} (${r.cama}, ${r.checkin})`).join(', ')||'ninguno'}. Total reservas: ${reservas.length}.`;
     const messages=xeniaHistory.slice(-6).map(m=>({role:m.role==='user'?'user':'assistant',content:m.text}));
     messages[messages.length-1]={role:'user',content:msg};
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('https://xenia-proxy.huuventa.workers.dev',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:context,messages})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,system:context,messages})
     });
     const data=await res.json();
     const reply=data.content?.[0]?.text||'No pude procesar tu consulta.';
