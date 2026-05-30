@@ -769,6 +769,7 @@ const SB_URL='https://vnfgitgadadjjjciftsa.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuZmdpdGdhZGFkampqY2lmdHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NjI5MzgsImV4cCI6MjA5NTMzODkzOH0.g018Do3-8UvyWATZg-EesrXH8T5L65YXomK1mjsSnHQ';
 const SB_HDR={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 const SB_TABLE='reservas_bananos';
+const SB_TABLE_G='gastos_bananos';
 
 const lo=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d;}catch{return d;}};
 const sl=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
@@ -776,6 +777,7 @@ const sd=(k,v)=>sl(k,v);
 let reservas=[],gastos=[],pins=lo('bn_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 async function loadFromBins(){
+  // Cargar reservas
   try{
     const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?select=*&order=creado.asc',{headers:SB_HDR});
     if(res.ok){
@@ -790,7 +792,20 @@ async function loadFromBins(){
     console.log('Supabase no disponible, usando localStorage');
     reservas=lo('bn_r',[]).filter(r=>!r.icalUid);
   }
-  gastos=lo('bn_g',[]);
+  // Cargar gastos desde Supabase
+  try{
+    const rg=await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?select=*&order=fecha.desc',{headers:SB_HDR});
+    if(rg.ok){
+      gastos=await rg.json();
+      sl('bn_g',gastos);
+      console.log('Supabase: '+gastos.length+' gastos cargados');
+    } else {
+      gastos=lo('bn_g',[]);
+    }
+  }catch(e){
+    console.log('Supabase gastos no disponible, usando localStorage');
+    gastos=lo('bn_g',[]);
+  }
 }
 
 async function saveToBin(binId,data){
@@ -808,7 +823,19 @@ async function saveToBin(binId,data){
       if(!res.ok){const t=await res.text();console.log('Supabase bananos error:',t);}
     }catch(e){console.log('Supabase bananos save error:',e);}
   } else {
+    // Gastos: upsert individual en Supabase
     sl('bn_g',data);gastos=data;
+    try{
+      await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?id=neq.NONE',{method:'DELETE',headers:SB_HDR});
+      if(data.length>0){
+        const rg=await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G,{
+          method:'POST',
+          headers:{...SB_HDR,'Prefer':'return=minimal'},
+          body:JSON.stringify(data)
+        });
+        if(!rg.ok){const t=await rg.text();console.log('Supabase gastos error:',t);}
+      }
+    }catch(e){console.log('Supabase gastos save error:',e);}
   }
 }
 
