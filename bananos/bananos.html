@@ -616,6 +616,20 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
         <div class="section-title">Configuración</div>
         <div class="section-sub">PINs, WhatsApp e iCal</div>
         <div class="card">
+          <div class="card-title"><div class="dot"></div>Moneda</div>
+          <div style="margin-bottom:16px;font-size:0.84rem;color:var(--text-soft)">Seleccioná la moneda en la que operás. Se aplicará en toda la app.</div>
+          <div class="form-group" style="max-width:240px">
+            <label>Moneda de trabajo</label>
+            <select id="cfg-moneda">
+              <option value="ARS">$ — Peso argentino (ARS)</option>
+              <option value="USD">USD — Dólar estadounidense</option>
+              <option value="BRL">R$ — Real brasileño (BRL)</option>
+              <option value="UYU">$U — Peso uruguayo (UYU)</option>
+            </select>
+          </div>
+          <button class="btn btn-gold btn-sm" style="margin-top:16px" onclick="guardarMoneda()">Guardar moneda</button>
+        </div>
+        <div class="card">
           <div class="card-title"><div class="dot"></div>PINs de Acceso</div>
           <div class="pin-settings-grid" id="pin-settings-grid"></div>
           <div id="wa-config-section"></div>
@@ -909,7 +923,10 @@ function initSelects(){
   const gf=document.getElementById('g-fecha');if(gf)gf.value=new Date().toISOString().split('T')[0];
 }
 
-const fmtP=n=>isNaN(n)||n===''?'—':'$ '+Number(n).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const MONEDAS={ARS:{simbolo:'$',codigo:'ARS'},USD:{simbolo:'USD',codigo:'USD'},BRL:{simbolo:'R$',codigo:'BRL'},UYU:{simbolo:'$U',codigo:'UYU'}};
+let monedaActual=localStorage.getItem('bn_moneda')||'ARS';
+const getSim=()=>MONEDAS[monedaActual]?.simbolo||'$';
+const fmtP=n=>isNaN(n)||n===''?'—':getSim()+' '+Number(n).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
 const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
@@ -1381,6 +1398,7 @@ function toggleLimpio(id){
 }
 
 function renderConfig(){
+  const monSel=$('cfg-moneda');if(monSel)monSel.value=monedaActual;
   pins={...DEFAULT_PINS,...lo('bn_p',{})};// merge para incluir roles nuevos
   const us=[{k:'admin',n:'Admin (tu hermano)',d:'Acceso total'},{k:'gabi',n:'Gabi',d:'Acceso total'},{k:'vol',n:'Voluntario',d:'Solo ocupación y avisos · sin datos de dinero'}];
   document.getElementById('pin-settings-grid').innerHTML=us.map(u=>`<div class="pin-user-card"><h4>${u.n}</h4><p>${u.d}</p><div class="pin-input-row"><input type="password" id="pi-${u.k}" value="${pins[u.k]||''}" maxlength="4" placeholder="••••"><button class="btn btn-outline btn-sm" onclick="tp('${u.k}')">👁</button></div></div>`).join('');
@@ -1649,6 +1667,12 @@ function removeTempRange(i){
 }
 function updateTempRange(i,campo,val){
   const ranges=lo('bn_temp',[]);if(!ranges[i])return;ranges[i][campo]=val;sd('bn_temp',ranges);
+}
+function guardarMoneda(){
+  const m=document.getElementById('cfg-moneda').value;
+  monedaActual=m;
+  localStorage.setItem('bn_moneda',m);
+  toast('Moneda guardada: '+MONEDAS[m].codigo+' ✓');
 }
 function guardarConfig(){
   const ks=['admin','gabi','vol'],np={};
