@@ -643,6 +643,20 @@ html.dark .xenia-input{background:var(--paper-3);}
         <div class="section-title">Configuración</div>
         <div class="section-sub">PINs, WhatsApp y backup</div>
         <div class="card">
+          <div class="card-title"><div class="dot"></div>Moneda</div>
+          <div style="margin-bottom:16px;font-size:0.84rem;color:var(--muted)">Seleccioná la moneda en la que operás. Se aplicará en toda la app.</div>
+          <div class="form-group" style="max-width:240px">
+            <label>Moneda de trabajo</label>
+            <select id="cfg-moneda">
+              <option value="ARS">$ — Peso argentino (ARS)</option>
+              <option value="USD">USD — Dólar estadounidense</option>
+              <option value="BRL">R$ — Real brasileño (BRL)</option>
+              <option value="UYU">$U — Peso uruguayo (UYU)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px" onclick="guardarMoneda()">Guardar moneda</button>
+        </div>
+        <div class="card">
           <div class="card-title"><div class="dot"></div>Backup Local</div>
           <p style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;line-height:1.6">Tus datos ya se guardan automáticamente en la nube (JSONBin). Esto es un backup adicional en tu compu/celular, por si acaso.</p>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -996,7 +1010,10 @@ function initSelects(){
 }
 
 // ── UTILS ──
-const fmt=n=>isNaN(n)||n===''?'—':'USD '+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const MONEDAS={ARS:{simbolo:'$',codigo:'ARS'},USD:{simbolo:'USD',codigo:'USD'},BRL:{simbolo:'R$',codigo:'BRL'},UYU:{simbolo:'$U',codigo:'UYU'}};
+let monedaActual=localStorage.getItem('demo_moneda')||'USD';
+const getSim=()=>MONEDAS[monedaActual]?.simbolo||'USD';
+const fmt=n=>isNaN(n)||n===''?'—':getSim()+' '+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const fmtN=n=>isNaN(n)||n===''?'—':Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
 const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
@@ -1938,6 +1955,7 @@ function isBlocked(code,dateStr){return!!getBloqueo(code,dateStr);}
 function getBloqueo(code,dateStr){const bloqueos=_lo('cn_bloqueos',{});const events=bloqueos[code]||[];return events.find(e=>e.start<=dateStr&&e.end>dateStr)||null;}
 
 function renderConfig(){
+  const monSel=$('cfg-moneda');if(monSel)monSel.value=monedaActual;
   pins=_lo('cn_p',{...DEFAULT_PINS});
   const us=[{k:'admin',n:'Admin (vos)',d:'Acceso total'},{k:'dueno',n:'Propietario',d:'Solo lectura'},{k:'admin_e',n:'Admin Edificio',d:'Ocupación + avisos'},{k:'mant',n:'Mantenimiento',d:'Avisos hoy y mañana'}];
   $('pin-settings-grid').innerHTML=us.map(u=>`
@@ -2047,6 +2065,12 @@ function guardarPlataformas(){
   savePlatformas(plats);fillPlatformSelects();toast('Plataformas guardadas');
 }
 function tp(k){const i=$('pi-'+k);i.type=i.type==='password'?'text':'password';}
+function guardarMoneda(){
+  const m=document.getElementById('cfg-moneda').value;
+  monedaActual=m;
+  localStorage.setItem('demo_moneda',m);
+  toast('Moneda guardada: '+MONEDAS[m].codigo+' ✓');
+}
 function guardarConfig(){
   const ks=['admin','dueno','admin_e','mant'],np={};
   for(const k of ks){const v=$('pi-'+k).value.trim();if(!/^\d{4}$/.test(v)){toast('Cada PIN debe tener 4 dígitos',false);return;}np[k]=v;}
