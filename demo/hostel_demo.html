@@ -296,9 +296,9 @@ html.dark .bottom-nav{background:#0e0c0a;}
             <div class="form-group"><label>Nacionalidad</label><input type="text" id="r-nac" placeholder="Argentina"></div>
             <div class="form-group"><label>Check-in</label><input type="date" id="r-checkin" onchange="calcNochesH()"></div>
             <div class="form-group"><label>Check-out</label><input type="date" id="r-checkout" onchange="calcNochesH()"></div>
-            <div class="form-group"><label>Precio cama / noche (USD)</label><input type="number" id="r-precio" placeholder="0" oninput="calcNochesH()"></div>
-            <div class="form-group"><label>Seña (USD)</label><input type="number" id="r-sena" placeholder="0"></div>
-            <div class="form-group"><label>Saldo (USD)</label><input type="number" id="r-saldo" placeholder="0"></div>
+            <div class="form-group"><label id="lbl-precio-nueva">Precio cama / noche</label><input type="number" id="r-precio" placeholder="0" oninput="calcNochesH()"></div>
+            <div class="form-group"><label>Seña</label><input type="number" id="r-sena" placeholder="0"></div>
+            <div class="form-group"><label>Saldo</label><input type="number" id="r-saldo" placeholder="0"></div>
             <div class="form-group"><label>Plataforma</label>
               <select id="r-plataforma"><option>Directo</option><option>Hostelworld</option><option>Booking</option><option>Airbnb</option><option>Google Calendar</option><option>Instagram</option><option>Facebook</option></select></div>
             <div class="form-group"><label>Estado</label>
@@ -430,6 +430,20 @@ html.dark .bottom-nav{background:#0e0c0a;}
       <!-- CONFIG -->
       <div class="screen" id="screen-config">
         <div class="card">
+          <div class="card-title"><div class="dot"></div>Moneda</div>
+          <div style="margin-bottom:16px;font-size:0.84rem;color:var(--muted)">Seleccioná la moneda en la que operás. Se aplicará en toda la app.</div>
+          <div class="form-group" style="max-width:240px">
+            <label>Moneda de trabajo</label>
+            <select id="cfg-moneda">
+              <option value="ARS">$ — Peso argentino (ARS)</option>
+              <option value="USD">USD — Dólar estadounidense</option>
+              <option value="BRL">R$ — Real brasileño (BRL)</option>
+              <option value="UYU">$U — Peso uruguayo (UYU)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px" onclick="guardarMoneda()">Guardar moneda</button>
+        </div>
+        <div class="card">
           <div class="card-title"><div class="dot"></div>PINs de acceso</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
             <div class="form-group"><label>PIN Administrador</label><input type="password" id="pin-admin" placeholder="4 dígitos" maxlength="4" pattern="[0-9]{4}"></div>
@@ -482,9 +496,9 @@ html.dark .bottom-nav{background:#0e0c0a;}
       <div class="form-group"><label>Nacionalidad</label><input type="text" id="e-nac"></div>
       <div class="form-group"><label>Check-in</label><input type="date" id="e-checkin"></div>
       <div class="form-group"><label>Check-out</label><input type="date" id="e-checkout"></div>
-      <div class="form-group"><label>Precio/noche (USD)</label><input type="number" id="e-precio"></div>
-      <div class="form-group"><label>Seña (USD)</label><input type="number" id="e-sena"></div>
-      <div class="form-group"><label>Saldo (USD)</label><input type="number" id="e-saldo"></div>
+      <div class="form-group"><label>Precio/noche</label><input type="number" id="e-precio"></div>
+      <div class="form-group"><label>Seña</label><input type="number" id="e-sena"></div>
+      <div class="form-group"><label>Saldo</label><input type="number" id="e-saldo"></div>
       <div class="form-group"><label>Plataforma</label>
         <select id="e-plataforma"><option>Directo</option><option>Hostelworld</option><option>Booking</option><option>Airbnb</option><option>Google Calendar</option><option>Instagram</option><option>Facebook</option></select></div>
       <div class="form-group"><label>Estado</label>
@@ -540,7 +554,10 @@ let icalFeeds=JSON.parse(localStorage.getItem('hd_ical')||'[]');
 let selectedGenero=null,selectedCama=null,editingId=null;
 
 const $=id=>document.getElementById(id);
-const fmt=n=>n?'USD '+parseFloat(n).toFixed(0):'—';
+const MONEDAS={ARS:{simbolo:'$',codigo:'ARS'},USD:{simbolo:'USD',codigo:'USD'},BRL:{simbolo:'R$',codigo:'BRL'},UYU:{simbolo:'$U',codigo:'UYU'}};
+let monedaActual=localStorage.getItem('hd_moneda')||'ARS';
+const getSim=()=>MONEDAS[monedaActual]?.simbolo||'$';
+const fmt=n=>n?getSim()+' '+parseFloat(n).toFixed(0):'—';
 const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
 const uid=()=>Math.random().toString(36).substr(2,9);
 const saveR=()=>localStorage.setItem('hd_r',JSON.stringify(reservas));
@@ -669,7 +686,7 @@ function calcNochesH(){
   const ci=$('r-checkin').value,co=$('r-checkout').value,pre=parseFloat($('r-precio').value)||0;
   if(ci&&co&&new Date(co)>new Date(ci)){
     const n=Math.round((new Date(co)-new Date(ci))/86400000);
-    $('cp-n').textContent=n;$('cp-sub').textContent='USD '+(n*pre).toFixed(2);
+    $('cp-n').textContent=n;$('cp-sub').textContent=getSim()+' '+(n*pre).toFixed(2);
   } else {$('cp-n').textContent='—';$('cp-sub').textContent='—';}
   renderCamasGrid();
 }
@@ -1048,8 +1065,17 @@ function renderAvisos(){
   }).join('');
 }
 
+// ── MONEDA ──
+function guardarMoneda(){
+  const m=document.getElementById('cfg-moneda').value;
+  monedaActual=m;
+  localStorage.setItem('hd_moneda',m);
+  toast('Moneda guardada: '+MONEDAS[m].codigo+' ✓');
+}
+
 // ── CONFIG ──
 function renderConfig(){
+  const monSel=$('cfg-moneda');if(monSel)monSel.value=monedaActual;
   const pins=JSON.parse(localStorage.getItem('hd_pins')||'null')||DEFAULT_PINS;
   $('pin-admin').value=pins.admin||'';$('pin-recep').value=pins.recep||'';
   renderIcalFeeds();
@@ -1182,7 +1208,7 @@ async function xeniaEnviar(){
     const today=new Date().toISOString().split('T')[0];
     const activas=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
     const prox=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin>today).sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);
-    const context=`Sos Xenia, asistente de CheckInn para este hostel demo. Respondé en español, de forma concisa y útil. Contexto actual — Hoy: ${today}. Camas ocupadas ahora: ${activas.length}/20. Próximos check-ins: ${prox.map(r=>`${r.huesped} (${r.cama}, ${r.checkin})`).join(', ')||'ninguno'}. Total reservas: ${reservas.length}.`;
+    const context=`Sos Xenia, asistente de CheckInn para este hostel demo. Respondé en español, de forma concisa y útil. La moneda del hostel es ${MONEDAS[monedaActual].codigo} (${getSim()}). Contexto actual — Hoy: ${today}. Camas ocupadas ahora: ${activas.length}/20. Próximos check-ins: ${prox.map(r=>`${r.huesped} (${r.cama}, ${r.checkin})`).join(', ')||'ninguno'}. Total reservas: ${reservas.length}.`;
     const messages=xeniaHistory.filter(m=>m.role==='user'||m.role==='assistant').slice(-6).map(m=>({role:m.role,content:m.text}));
     messages[messages.length-1]={role:'user',content:msg};
     const res=await fetch('https://xenia-proxy.huuventa.workers.dev',{
