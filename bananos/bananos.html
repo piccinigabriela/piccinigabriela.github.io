@@ -828,26 +828,32 @@ async function saveToBin(binId,data){
     if(!toSave||toSave.length===0){console.log('saveToBin bananos: array vacío, ignorando');return;}
     sl('bn_r',toSave);reservas=toSave;
     try{
-      await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?id=neq.NONE',{method:'DELETE',headers:SB_HDR});
+      // UPSERT: inserta o actualiza por id, nunca borra todo
       const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE,{
         method:'POST',
-        headers:{...SB_HDR,'Prefer':'return=minimal'},
+        headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates,return=minimal'},
         body:JSON.stringify(toSave)
       });
       if(!res.ok){const t=await res.text();console.log('Supabase bananos error:',t);}
+      else{
+        // Borrar solo los ids que ya no existen (reservas eliminadas)
+        const ids=toSave.map(r=>r.id);
+        await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?id=not.in.('+ids.map(id=>`"${id}"`).join(',')+')',{method:'DELETE',headers:SB_HDR});
+      }
     }catch(e){console.log('Supabase bananos save error:',e);}
   } else {
-    // Gastos: upsert individual en Supabase
+    // Gastos: upsert seguro
     sl('bn_g',data);gastos=data;
     try{
-      await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?id=neq.NONE',{method:'DELETE',headers:SB_HDR});
-      if(data.length>0){
-        const rg=await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G,{
-          method:'POST',
-          headers:{...SB_HDR,'Prefer':'return=minimal'},
-          body:JSON.stringify(data)
-        });
-        if(!rg.ok){const t=await rg.text();console.log('Supabase gastos error:',t);}
+      const rg=await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G,{
+        method:'POST',
+        headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify(data)
+      });
+      if(!rg.ok){const t=await rg.text();console.log('Supabase gastos error:',t);}
+      else if(data.length>0){
+        const ids=data.map(g=>g.id);
+        await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?id=not.in.('+ids.map(id=>`"${id}"`).join(',')+')',{method:'DELETE',headers:SB_HDR});
       }
     }catch(e){console.log('Supabase gastos save error:',e);}
   }
