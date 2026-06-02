@@ -1511,14 +1511,14 @@ async function syncIcalCabin(code,url,src){
     if(!res.ok)throw new Error('HTTP '+res.status);
     const text=await res.text();
     const events=parseIcal(text,src);
-    // Remove old ical blocks for this cabin, keep manual reservations
-    reservas=reservas.filter(r=>!(r.depto===code&&r.icalUid));
+    // Trabajar sobre copia — si algo falla, reservas global no se toca
+    let nuevasReservas=reservas.filter(r=>!(r.depto===code&&r.icalUid));
     const today=new Date().toISOString().split('T')[0];
     events.forEach(ev=>{
-      if(ev.co<today)return; // skip past blocks
-      const exists=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&!(ev.co<=r.checkin||ev.ci>=r.checkout));
+      if(ev.co<today)return;
+      const exists=nuevasReservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&!(ev.co<=r.checkin||ev.ci>=r.checkout));
       if(!exists||(exists&&exists.icalUid)){
-        reservas.push({
+        nuevasReservas.push({
           id:'ical-'+code+'-'+ev.uid.replace(/[^a-z0-9]/gi,'-').substr(0,20),
           icalUid:ev.uid,
           depto:code,
@@ -1532,15 +1532,17 @@ async function syncIcalCabin(code,url,src){
         });
       }
     });
+    // Solo asignar si todo salió bien
+    reservas=nuevasReservas;
     return{ok:true,count:events.length};
   }catch(e){
+    console.error(`Error sync ${code} ${src}:`,e);
     return{ok:false,error:e.message};
   }
 }
 
 async function syncAllIcal(manual=false){
   const urls=lo('bn_ical',{});
-  // Armar lista de {code, url, src} para ab_ y bk_
   const tasks=[];
   CABANAS.forEach(code=>{
     if(urls['ab_'+code])tasks.push({code,url:urls['ab_'+code],src:'airbnb'});
@@ -1549,24 +1551,28 @@ async function syncAllIcal(manual=false){
   if(!tasks.length){if(manual)toast('No hay URLs configuradas',false);return;}
   const statusEl=document.getElementById('ical-sync-status');
   if(statusEl)statusEl.textContent='Sincronizando...';
-  const reservasAntes=reservas.length;
+  const reservasBackup=JSON.parse(JSON.stringify(reservas)); // backup antes de empezar
   let ok=0,fail=0;
   for(const t of tasks){
     const r=await syncIcalCabin(t.code,t.url,t.src);
     if(r.ok)ok++;else fail++;
   }
-  // Only save if sync was useful and didn't destroy data
-  if(ok>0&&reservas.length>=reservasAntes){
-    saveToSheets('reservas',reservas);
-  } else if(ok===0){
-    reservas=lo('bn_r',[]);
-    if(manual)toast('Sync fallido — datos sin cambios',false);
+  // Si hubo cualquier error, restaurar backup y no guardar nada
+  if(fail>0){
+    reservas=reservasBackup;
+    const msg=`Error en ${fail} feed${fail!==1?'s':''}. Datos sin cambios.`;
+    if(statusEl)statusEl.textContent='⚠️ '+msg+' · '+new Date().toLocaleTimeString('es-AR');
+    if(manual)toast(msg,false);
     return;
   }
-  const msg=`iCal: ${ok} feed${ok!==1?'s':''} sincronizado${ok!==1?'s':''}${fail>0?' · '+fail+' con error':''}`;
-  if(statusEl)statusEl.textContent=msg+' · '+new Date().toLocaleTimeString('es-AR');
-  if(manual)toast(msg,fail===0);
-  renderCalendario();
+  // Solo si todo salió bien, guardar
+  if(ok>0){
+    saveToSheets('reservas',reservas);
+    const msg=`iCal: ${ok} feed${ok!==1?'s':''} sincronizado${ok!==1?'s':''}`;
+    if(statusEl)statusEl.textContent=msg+' · '+new Date().toLocaleTimeString('es-AR');
+    if(manual)toast(msg,true);
+    renderCalendario();
+  }
 }
 function importarICS(input){
   const file=input.files[0];if(!file)return;
