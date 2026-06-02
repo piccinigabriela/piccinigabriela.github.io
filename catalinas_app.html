@@ -1917,8 +1917,12 @@ async function sincronizarIcal(){
           ok++;exito=true;break;
         }
         const eventos=parseIcal(text,plat).map(e=>({...e,plat}));
-        bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat).concat(eventos);
-        console.log('iCal '+code+' ('+plat+'): '+eventos.length+' eventos');
+        // Filtrar eventos que ya tienen reserva activa en esas fechas
+        const eventosFiltrados=eventos.filter(ev=>
+          !reservas.some(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<ev.end&&r.checkout>ev.start)
+        );
+        bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat).concat(eventosFiltrados);
+        console.log('iCal '+code+' ('+plat+'): '+eventosFiltrados.length+' eventos ('+eventos.length+' recibidos, '+(eventos.length-eventosFiltrados.length)+' ignorados por reserva existente)');
         ok++;exito=true;break;
       }catch(e){console.log('iCal error '+code+' '+plat,e);}
     }
