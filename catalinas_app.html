@@ -1126,7 +1126,14 @@ function guardarReserva(){
   if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast(`Superposición con ${conf.huesped} en ${DN[dep]}`,false);return;}
   const nr={id:uid(),depto:dep,huesped:hue,nac:$('r-nac').value.trim(),tel:($('r-tel')?.value.trim()||''),checkin:ci,checkout:co,precio:pre,plataforma:$('r-plataforma').value,destino:$('r-destino').value,estado:$('r-estado').value,notas:$('r-notas').value.trim(),early:$('r-early').checked,late:$('r-late').checked,creado:new Date().toISOString()};
   reservas.push(nr);
-  saveOneReserva(nr);clearReservaForm();toast('Reserva guardada');
+  saveOneReserva(nr);
+  // Eliminar bloqueos iCal que se superpongan con la nueva reserva
+  const bloqueos=lo('cn_bloqueos',{});
+  if(bloqueos[dep]&&bloqueos[dep].length){
+    bloqueos[dep]=bloqueos[dep].filter(b=>!(b.start<co&&b.end>ci));
+    saveBloqueos(bloqueos);
+  }
+  clearReservaForm();toast('Reserva guardada');
 }
 function clearReservaForm(){['r-depto','r-huesped','r-nac','r-tel','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=$(id);if(e){e.value='';delete e.dataset.modified;}});['r-early','r-late'].forEach(id=>{const e=$(id);if(e)e.checked=false;});['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-gestion','cp-liquido'].forEach(id=>$(id).textContent='—');const b=$('temporada-badge');if(b)b.style.display='none';}
 
