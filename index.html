@@ -9,6 +9,7 @@
 <meta property="og:title" content="CheckInn · Gestión para cabañas, apartamentos y B&B">
 <meta property="og:description" content="Xenia te dice cada mañana qué tenés que hacer. Probalo gratis.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://piccinigabriela.github.io/demo/xenia.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 <title>CheckInn · Gestión para cabañas, apartamentos y B&B</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -663,6 +664,9 @@
     .pricing-card {
       padding: 32px 24px;
     }
+    .pricing-grid-3 {
+      grid-template-columns: 1fr !important;
+    }
     .nav {
       display: none;
     }
@@ -815,8 +819,8 @@
         </div>
         <div class="feature">
           <div class="feature-icon">🔄</div>
-          <h3>iCal Sync gratis</h3>
-          <p>Conectá tus calendarios de Airbnb y Booking. Los bloqueos se importan solos. Evitás dobles reservas sin pagar channel manager.</p>
+          <h3>iCal Sync</h3>
+          <p>Conectá tus calendarios de Airbnb y Booking. Los bloqueos se importan automáticamente. Evitás dobles reservas sin pagar channel manager. Comisiones por plataforma configurables para calcular tu líquido real.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">👥</div>
@@ -827,31 +831,21 @@
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
+  <!-- CASOS DE USO -->
   <section class="testimonials" id="casos">
     <div class="container">
-      <div class="section-label">Ya lo están usando</div>
-      <div class="section-title">De anfitriones para anfitriones</div>
+      <div class="section-label">En producción</div>
+      <div class="section-title">Casos reales de uso</div>
       <div class="testimonials-grid">
         <div class="testimonial">
-          <div class="testimonial-text">"Con 7 departamentos en Buenos Aires, Xenia me ahorra una hora por día. Ya no reviso calendarios, ella me dice lo que necesito saber."</div>
-          <div class="testimonial-author">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='20' fill='%232a5e4a'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3EG%3C/text%3E%3C/svg%3E" alt="Gabriela">
-            <div>
-              <div class="testimonial-name">Gabriela Piccini</div>
-              <div class="testimonial-role">Catalinas Norte · CABA</div>
-            </div>
-          </div>
+          <div style="font-size: 1.8rem; margin-bottom: 12px;">🏙️</div>
+          <div class="testimonial-name" style="font-size: 1rem; margin-bottom: 8px;">Catalinas Norte · CABA</div>
+          <div class="testimonial-text">7 departamentos en Buenos Aires. Xenia informa cada mañana los check-ins del día, el estado de cobros y las tareas pendientes de limpieza. Sincronización iCal activa con Airbnb y Booking.</div>
         </div>
         <div class="testimonial">
-          <div class="testimonial-text">"El asistente Xenia nos avisa con anticipación cada check-in. Para un complejo de cabañas en Iguazú, es la diferencia entre olvidarse o estar preparados."</div>
-          <div class="testimonial-author">
-            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='20' fill='%23c6a43b'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3EJ%3C/text%3E%3C/svg%3E" alt="Juan">
-            <div>
-              <div class="testimonial-name">Juan Carlos</div>
-              <div class="testimonial-role">Wood Cabin · Iguazú</div>
-            </div>
-          </div>
+          <div style="font-size: 1.8rem; margin-bottom: 12px;">🌿</div>
+          <div class="testimonial-name" style="font-size: 1rem; margin-bottom: 8px;">Los Bananeros · Puerto Iguazú</div>
+          <div class="testimonial-text">Complejo de cabañas en la selva misionera. Gestión multimoneda (ARS/USD/BRL), comisiones por plataforma configurables y sincronización iCal para evitar dobles reservas sin channel manager.</div>
         </div>
       </div>
     </div>
@@ -862,22 +856,58 @@
     <div class="container">
       <div class="section-label">Sin sorpresas</div>
       <div class="section-title">Una tarifa simple</div>
-      <div class="pricing-card">
-        <div style="font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase;">Instalación + mensualidad</div>
-        <div class="pricing-price">USD 20 <small>/mes por unidad</small></div>
-        <div class="pricing-price" style="font-size: 1rem; color: var(--text-light);">+ USD 200 <small>instalación (único)</small></div>
-        <ul class="pricing-features">
-          <li>Personalización completa (tu marca, tus unidades)</li>
-          <li>Dominio propio incluido</li>
-          <li>Xenia — asistente IA</li>
-          <li>Sincronización iCal (Airbnb/Booking)</li>
-          <li>Múltiples usuarios con roles</li>
-          <li>Reportes PDF y CSV</li>
-          <li>Soporte por WhatsApp</li>
-        </ul>
-        <a href="https://wa.me/5491140925939" class="btn-primary" style="display: block; text-align: center;">Consultar disponibilidad →</a>
+      <div class="section-sub">USD 200 de instalación única · Luego solo el mantenimiento mensual</div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 860px; margin: 0 auto;">
+
+        <div class="pricing-card" style="padding: 36px 28px;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Plan 7</div>
+          <div class="pricing-price" style="font-size: 2.4rem;">USD 10<small style="font-size: 0.85rem;">/mes</small></div>
+          <div style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 24px;">Hasta 7 unidades</div>
+          <ul class="pricing-features" style="margin-bottom: 28px;">
+            <li>Xenia — asistente IA</li>
+            <li>iCal Sync (Airbnb/Booking)</li>
+            <li>Multimoneda</li>
+            <li>Reportes PDF y CSV</li>
+            <li>Múltiples usuarios</li>
+            <li>Soporte por WhatsApp</li>
+          </ul>
+          <a href="https://wa.me/5491140925939" class="btn-primary" style="display: block; text-align: center; font-size: 0.85rem; padding: 12px 20px;">Consultar →</a>
+        </div>
+
+        <div class="pricing-card" style="padding: 36px 28px; border: 2px solid var(--green); position: relative;">
+          <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--green); color: white; font-size: 0.7rem; font-weight: 700; padding: 4px 14px; border-radius: 20px; white-space: nowrap;">Más elegido</div>
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Plan 15</div>
+          <div class="pricing-price" style="font-size: 2.4rem;">USD 15<small style="font-size: 0.85rem;">/mes</small></div>
+          <div style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 24px;">Hasta 15 unidades</div>
+          <ul class="pricing-features" style="margin-bottom: 28px;">
+            <li>Todo lo del Plan 7</li>
+            <li>Comisiones por plataforma</li>
+            <li>Dominio propio incluido</li>
+            <li>Personalización completa</li>
+            <li>Reportes por propietario</li>
+            <li>Soporte prioritario</li>
+          </ul>
+          <a href="https://wa.me/5491140925939" class="btn-primary" style="display: block; text-align: center; font-size: 0.85rem; padding: 12px 20px;">Consultar →</a>
+        </div>
+
+        <div class="pricing-card" style="padding: 36px 28px;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Plan 20</div>
+          <div class="pricing-price" style="font-size: 2.4rem;">USD 20<small style="font-size: 0.85rem;">/mes</small></div>
+          <div style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 24px;">Hasta 20 unidades</div>
+          <ul class="pricing-features" style="margin-bottom: 28px;">
+            <li>Todo lo del Plan 15</li>
+            <li>Configuración avanzada</li>
+            <li>Múltiples propiedades</li>
+            <li>Roles diferenciados</li>
+            <li>Onboarding personalizado</li>
+            <li>Soporte dedicado</li>
+          </ul>
+          <a href="https://wa.me/5491140925939" class="btn-primary" style="display: block; text-align: center; font-size: 0.85rem; padding: 12px 20px;">Consultar →</a>
+        </div>
+
       </div>
-      <p style="text-align: center; margin-top: 32px; font-size: 0.8rem; color: var(--text-light);">* Para más de 15 unidades, consultar precio especial.</p>
+      <p style="text-align: center; margin-top: 28px; font-size: 0.8rem; color: var(--text-light);">* Para más de 20 unidades, consultar precio especial.</p>
     </div>
   </section>
 
@@ -895,8 +925,7 @@
   <div class="container">
     <p>CheckInn · Sistema de gestión para cabañas, apartamentos, B&B y alojamientos turísticos</p>
     <p style="margin-top: 12px;">
-      <a href="https://wa.me/5491140925939">contacto@checkinn.com.ar</a> · 
-      <a href="https://wa.me/5491140925939">WhatsApp</a>
+      <a href="https://wa.me/5491140925939">Contacto por WhatsApp</a>
     </p>
   </div>
 </footer>
