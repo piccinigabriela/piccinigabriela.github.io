@@ -407,7 +407,7 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
       <!-- DASHBOARD -->
       <div class="screen" id="screen-dashboard">
         <div class="section-title">Dashboard</div>
-        <div class="section-sub" id="dash-sub">Resumen de las 8 cabañas</div>
+        <div class="section-sub" id="dash-sub">Resumen de las cabañas</div>
         <div class="stats-grid" id="stats-grid"></div>
         <div class="hoy-cols-3" id="hoy-cols"></div>
         <div class="dashboard-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
@@ -1362,6 +1362,8 @@ function renderAvisos(){
 
 function renderDashboard(){
   const today=new Date().toISOString().split('T')[0];
+  const dashSub=document.getElementById('dash-sub');
+  if(dashSub)dashSub.textContent=`Resumen de las ${CABANAS.length} cabañas`;
   const act=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
   const m=new Date().getMonth(),y=new Date().getFullYear();
   const EXD=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
