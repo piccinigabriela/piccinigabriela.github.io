@@ -1377,7 +1377,7 @@ function renderDashboard(){
   const aLimpiar=reservas.filter(r=>r.estado!=='Cancelada'&&!r.limpio&&r.checkout>=fiveAgo&&r.checkout<=today).sort((a,b)=>a.checkout.localeCompare(b.checkout));
   const isAdm=cu==='admin'||cu==='gabi';
   document.getElementById('stats-grid').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Ocupadas Hoy</div><div class="stat-value">${act.length}<span style="font-size:1rem;color:var(--text-soft)">/8</span></div><div class="stat-sub">Cabañas activas</div></div>
+    <div class="stat-card"><div class="stat-label">Ocupadas Hoy</div><div class="stat-value">${act.length}<span style="font-size:1rem;color:var(--text-soft)">/${CABANAS.length}</span></div><div class="stat-sub">Cabañas activas</div></div>
     <div class="stat-card"><div class="stat-label">Ingresos Mes</div><div class="stat-value" style="font-size:1.3rem">${fmtP(ing)}</div><div class="stat-sub">Líquido propietario</div></div>
     <div class="stat-card"><div class="stat-label">Noches Vendidas</div><div class="stat-value">${nochesVendidas}<span style="font-size:0.85rem;color:var(--text-soft);margin-left:4px">~${promNoches}x</span></div><div class="stat-sub">Prom. por reserva</div></div>
     <div class="stat-card"><div class="stat-label">Check-ins 7d</div><div class="stat-value">${pr.length}</div><div class="stat-sub">Próximas llegadas</div></div>`;
