@@ -1106,7 +1106,7 @@ function renderCalendario(){
   const byDep={};CABANAS.forEach(c=>byDep[c]={});
   const byDepCO={};CABANAS.forEach(c=>byDepCO[c]={});
   reservas.forEach(r=>{
-    if(r.estado==='Cancelada'||!byDep[r.depto])return;
+    if(r.estado==='Cancelada'||r.estado==='Non show'||!byDep[r.depto])return;
     const s=new Date(r.checkin),e=new Date(r.checkout);
     for(let d=new Date(s);d<e;d.setDate(d.getDate()+1)){byDep[r.depto][d.toISOString().split('T')[0]]=r;}
     byDepCO[r.depto][r.checkout]=r;
