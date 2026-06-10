@@ -904,7 +904,7 @@ async function loadFromBins(){
   }
   // ── Gastos (Supabase con fallback a localStorage) ──
   try{
-    const res=await fetch(SB_URL+'/rest/v1/gastos?select=*&order=fecha.asc',{headers:SB_HDR});
+    const res=await fetch(SB_URL+'/rest/v1/gastos_catalinas?select=*&order=fecha.asc',{headers:SB_HDR});
     if(res.ok){
       let remoto=await res.json();
       const local=lo('cn_g',[]);
@@ -968,7 +968,7 @@ async function deleteReservaRemota(id){
 async function upsertGasto(g){
   markPending('gup',g.id);
   try{
-    const res=await fetch(SB_URL+'/rest/v1/gastos',{
+    const res=await fetch(SB_URL+'/rest/v1/gastos_catalinas',{
       method:'POST',
       headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates,return=minimal'},
       body:JSON.stringify(g)
@@ -980,7 +980,7 @@ async function upsertGasto(g){
 async function deleteGastoRemoto(id){
   markPending('gdel',id);
   try{
-    const res=await fetch(SB_URL+'/rest/v1/gastos?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SB_HDR});
+    const res=await fetch(SB_URL+'/rest/v1/gastos_catalinas?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:SB_HDR});
     if(!res.ok){const t=await res.text();console.log('Supabase gasto delete error:',t);return;}
     clearPending('gdel',id);
   }catch(err){console.log('Supabase gasto delete error:',err);}
@@ -1968,7 +1968,7 @@ function restoreBackup(file){
         sl('cn_g',data.gastos);
         for(const g of data.gastos)await upsertGasto(g);
         try{
-          const res=await fetch(SB_URL+'/rest/v1/gastos?select=id',{headers:SB_HDR});
+          const res=await fetch(SB_URL+'/rest/v1/gastos_catalinas?select=id',{headers:SB_HDR});
           if(res.ok){
             const remotos=await res.json();
             const ids=new Set(data.gastos.map(g=>g.id));
