@@ -1422,7 +1422,7 @@ function toggleLimpio(id){
 }
 
 function renderConfig(){
-  const monSel=$('cfg-moneda');if(monSel)monSel.value=monedaActual;
+  const monSel=document.getElementById('cfg-moneda');if(monSel)monSel.value=monedaActual;
   pins={...DEFAULT_PINS,...lo('bn_p',{})};// merge para incluir roles nuevos
   const us=[{k:'admin',n:'Admin (tu hermano)',d:'Acceso total'},{k:'gabi',n:'Gabi',d:'Acceso total'},{k:'vol',n:'Voluntario',d:'Solo ocupación y avisos · sin datos de dinero'}];
   document.getElementById('pin-settings-grid').innerHTML=us.map(u=>`<div class="pin-user-card"><h4>${u.n}</h4><p>${u.d}</p><div class="pin-input-row"><input type="password" id="pi-${u.k}" value="${pins[u.k]||''}" maxlength="4" placeholder="••••"><button class="btn btn-outline btn-sm" onclick="tp('${u.k}')">👁</button></div></div>`).join('');
