@@ -795,11 +795,20 @@ async function loadFromBins(){
   try{
     const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?select=*&order=creado.asc',{headers:SB_HDR});
     if(res.ok){
-      const all=await res.json();
-      reservas=all.filter(r=>!r.icalUid);
-      sl('bn_r',reservas);
-      console.log('Supabase: '+reservas.length+' reservas cargadas');
+      let remoto=await res.json();
+      const local=lo('bn_r',[]).filter(r=>!r.icalUid);
+      if(remoto.length===0&&local.length>0){
+        // Guard: la nube devolvió 0 pero hay datos locales — NO pisar el cache
+        console.warn('Supabase devolvió 0 reservas con '+local.length+' locales — se conserva el cache');
+        toast('⚠️ La nube devolvió 0 reservas. Usando datos locales.',false);
+        reservas=local;
+      } else {
+        reservas=remoto.filter(r=>!r.icalUid);
+        sl('bn_r',reservas);
+        console.log('Supabase: '+reservas.length+' reservas cargadas');
+      }
     } else {
+      console.log('Supabase error, usando localStorage');
       reservas=lo('bn_r',[]).filter(r=>!r.icalUid);
     }
   }catch(e){
@@ -810,9 +819,16 @@ async function loadFromBins(){
   try{
     const rg=await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?select=*&order=fecha.desc',{headers:SB_HDR});
     if(rg.ok){
-      gastos=await rg.json();
-      sl('bn_g',gastos);
-      console.log('Supabase: '+gastos.length+' gastos cargados');
+      const remotoG=await rg.json();
+      const localG=lo('bn_g',[]);
+      if(remotoG.length===0&&localG.length>0){
+        gastos=localG;
+        console.warn('Supabase devolvió 0 gastos — usando localStorage');
+      } else {
+        gastos=remotoG;
+        sl('bn_g',gastos);
+        console.log('Supabase: '+gastos.length+' gastos cargados');
+      }
     } else {
       gastos=lo('bn_g',[]);
     }
@@ -1442,16 +1458,18 @@ function renderIcalConfig(){
   const grid=document.getElementById('ical-config-grid');
   if(!grid)return;
   grid.innerHTML=CABANAS.map(code=>`
-    <div style="display:grid;grid-template-columns:80px 1fr;gap:12px;align-items:start;">
-      <span style="background:${DC[code]};color:white;padding:3px 10px;border-radius:5px;font-size:0.75rem;font-weight:700;text-align:center;margin-top:8px">${DN[code]}</span>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;gap:6px;align-items:center;">
-          <span style="font-size:0.7rem;font-weight:700;color:#ff5a5f;min-width:58px">Airbnb</span>
-          <input type="url" id="ical-ab-${code}" placeholder="https://www.airbnb.com/calendar/ical/..." value="${urls['ab_'+code]||''}" style="flex:1;font-size:0.78rem;">
+    <div style="background:var(--cream1,#f7f5f0);border-radius:10px;padding:14px;border-left:4px solid ${DC[code]};margin-bottom:4px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="background:${DC[code]};color:white;padding:3px 12px;border-radius:5px;font-size:0.8rem;font-weight:700;">${DN[code]}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:700;color:#ff5a5f;display:block;margin-bottom:4px;">🏠 Airbnb</label>
+          <input type="url" id="ical-ab-${code}" placeholder="https://www.airbnb.com/calendar/ical/..." value="${urls['ab_'+code]||''}" style="width:100%;box-sizing:border-box;font-size:0.8rem;padding:8px 10px;">
         </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <span style="font-size:0.7rem;font-weight:700;color:#003580;min-width:58px">Booking</span>
-          <input type="url" id="ical-bk-${code}" placeholder="https://ical.booking.com/..." value="${urls['bk_'+code]||''}" style="flex:1;font-size:0.78rem;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:700;color:#003580;display:block;margin-bottom:4px;">🔵 Booking</label>
+          <input type="url" id="ical-bk-${code}" placeholder="https://ical.booking.com/..." value="${urls['bk_'+code]||''}" style="width:100%;box-sizing:border-box;font-size:0.8rem;padding:8px 10px;">
         </div>
       </div>
     </div>`).join('');
