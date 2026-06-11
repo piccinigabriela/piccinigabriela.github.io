@@ -936,7 +936,7 @@ function showScreen(id){
   if(id==='dashboard')renderDashboard();if(id==='reservas')renderReservas();
   if(id==='ocupacion')renderCalendario();if(id==='gastos')renderGastos();
   if(id==='rendimiento')renderRendimiento();if(id==='avisos')renderAvisos();
-  if(id==='config')renderConfig();window.scrollTo(0,0);
+  if(id==='config')setTimeout(renderConfig,50);window.scrollTo(0,0);
 }
 function initSelects(){
   const y=new Date().getFullYear();
