@@ -1433,7 +1433,7 @@ function renderConfig(){
       <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px;">Número con código de país, sin espacios. Ej: 5493757123456</div>
       <div class="pin-user-card"><h4>Tu hermano</h4><p>Recibe avisos de check-in</p><input type="tel" id="wa-admin" value="${wa.admin}" placeholder="5493757123456"></div>
     </div>`;
-  renderIcalConfig();
+  try{renderIcalConfig();}catch(e){console.error('renderIcalConfig error:',e);}
   // Comisiones configurables
   const com=getComisiones();
   let comSec=document.getElementById('com-config-section');
