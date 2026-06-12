@@ -672,6 +672,16 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
           <label class="btn btn-gold" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;">📅 Seleccionar archivo .ics<input type="file" accept=".ics" style="display:none" onchange="importarICS(this)"></label>
           <div id="ics-status" style="font-size:0.78rem;color:var(--text-soft);margin-top:10px;min-height:18px;"></div>
         </div>
+        <div class="card">
+          <div class="card-title"><div class="dot"></div>💾 Backup Local</div>
+          <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:14px;line-height:1.6;">Tus datos ya se guardan automáticamente en la nube (Supabase). Esto es un backup adicional en tu compu/celular, por si acaso.</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="downloadBackup()">⬇️ Descargar Backup</button>
+            <input type="file" id="backup-file" accept=".json" style="display:none" onchange="restoreBackup(this.files[0])">
+            <button class="btn btn-outline" onclick="document.getElementById('backup-file').click()">🔄 Restaurar Backup</button>
+          </div>
+          <div id="backup-status" style="margin-top:12px;font-size:0.78rem;color:var(--text-soft)"></div>
+        </div>
       </div>
 
     </div>
@@ -954,6 +964,7 @@ async function loginOk(){
   document.body.appendChild(ol);
   await loadFromBins();
   ol.remove();buildBottomNav();showScreen(NAV_CONFIG[cu][0]);
+  checkBackupReminder();
   const mcb=document.getElementById('mobile-config-btn');
   if(mcb)mcb.style.display=NAV_CONFIG[cu].includes('config')?'inline-block':'none';
 }
@@ -1510,6 +1521,7 @@ function toggleLimpio(id){
 
 function renderConfig(){
   const monSel=document.getElementById('cfg-moneda');if(monSel)monSel.value=monedaActual;
+  updateBackupStatus();
   pins={...DEFAULT_PINS,...lo('bn_p',{})};// merge para incluir roles nuevos
   const us=[{k:'admin',n:'Admin (tu hermano)',d:'Acceso total'},{k:'gabi',n:'Gabi',d:'Acceso total'},{k:'vol',n:'Voluntario',d:'Solo ocupación y avisos · sin datos de dinero'}];
   document.getElementById('pin-settings-grid').innerHTML=us.map(u=>`<div class="pin-user-card"><h4>${u.n}</h4><p>${u.d}</p><div class="pin-input-row"><input type="password" id="pi-${u.k}" value="${pins[u.k]||''}" maxlength="4" placeholder="••••"><button class="btn btn-outline btn-sm" onclick="tp('${u.k}')">👁</button></div></div>`).join('');
@@ -1560,6 +1572,95 @@ function renderIcalConfig(){
         </div>
       </div>
     </div>`).join('');
+}
+
+function downloadBackup(){
+  const data={
+    version:1,fecha:new Date().toISOString(),
+    reservas:reservas,gastos:gastos,
+    pins:lo('bn_p',DEFAULT_PINS),wa:lo('bn_wa',{admin:''}),
+    ical:lo('bn_ical',{}),moneda:lo('bn_moneda','ARS')
+  };
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`backup_bananos_${new Date().toISOString().split('T')[0]}.json`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),100);
+  sl('bn_lastBackup',new Date().toISOString());
+  updateBackupStatus();
+  toast('Backup descargado');
+}
+
+function restoreBackup(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.reservas||!Array.isArray(data.reservas)){toast('Archivo inválido',false);document.getElementById('backup-file').value='';return;}
+      const fecha=data.fecha?new Date(data.fecha).toLocaleString('es-AR'):'?';
+      if(!confirm(`¿Restaurar backup del ${fecha}?\n\n${data.reservas.length} reservas · ${(data.gastos||[]).length} gastos.\n\nReemplazará TODA la data actual (local y nube).`)){document.getElementById('backup-file').value='';return;}
+      reservas=data.reservas;gastos=data.gastos||[];
+      if(data.pins)sl('bn_p',data.pins);
+      if(data.wa)sl('bn_wa',data.wa);
+      if(data.ical)sl('bn_ical',data.ical);
+      if(data.moneda){sl('bn_moneda',data.moneda);monedaActual=data.moneda;}
+      // Escritura local directa primero (igual que delRes/delGas — evita el bug del array vacío)
+      sl('bn_r',reservas.filter(r=>!r.icalUid));
+      sl('bn_g',gastos);
+      // Guardar en Supabase con upsert
+      await saveToBin('reservas',reservas);
+      await saveToBin('gastos',gastos);
+      // Limpiar huérfanos en la nube (reservas/gastos que ya no están en el backup)
+      try{
+        const resR=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?select=id',{headers:SB_HDR});
+        if(resR.ok){
+          const remotas=await resR.json();
+          const ids=new Set(reservas.map(r=>r.id));
+          const huerfanas=remotas.filter(x=>!ids.has(x.id)).map(x=>x.id);
+          if(huerfanas.length)await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?id=in.('+huerfanas.map(id=>`"${id}"`).join(',')+')',{method:'DELETE',headers:SB_HDR});
+        }
+      }catch(e){console.log('No se pudieron limpiar reservas huérfanas:',e);}
+      try{
+        const resG=await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?select=id',{headers:SB_HDR});
+        if(resG.ok){
+          const remotos=await resG.json();
+          const ids=new Set(gastos.map(g=>g.id));
+          const huerfanos=remotos.filter(x=>!ids.has(x.id)).map(x=>x.id);
+          if(huerfanos.length)await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?id=in.('+huerfanos.map(id=>`"${id}"`).join(',')+')',{method:'DELETE',headers:SB_HDR});
+        }
+      }catch(e){console.log('No se pudieron limpiar gastos huérfanos:',e);}
+      toast('Backup restaurado');
+      setTimeout(()=>location.reload(),1200);
+    }catch(err){toast('Error al leer el archivo',false);console.error(err);}
+    document.getElementById('backup-file').value='';
+  };
+  reader.readAsText(file);
+}
+
+function updateBackupStatus(){
+  const last=lo('bn_lastBackup',null);
+  const el=document.getElementById('backup-status');if(!el)return;
+  if(!last){el.innerHTML='Nunca descargaste un backup local.';el.style.color='var(--err,#c0392b)';return;}
+  const days=Math.floor((Date.now()-new Date(last))/86400000);
+  el.innerHTML=`Último backup: ${new Date(last).toLocaleDateString('es-AR')} (hace ${days===0?'hoy':days===1?'1 día':days+' días'})`;
+  el.style.color=days>=15?'var(--err,#c0392b)':days>=7?'var(--warn,#d4a017)':'var(--text-soft)';
+}
+
+function checkBackupReminder(){
+  if(cu!=='admin'&&cu!=='gabi')return;
+  const last=lo('bn_lastBackup',null);
+  const days=last?Math.floor((Date.now()-new Date(last))/86400000):999;
+  if(days>=15){
+    setTimeout(()=>{
+      const msg=last?`Hace ${days} días que no descargás backup. ¿Querés bajar uno ahora?`:'No descargaste ningún backup todavía. ¿Querés bajar uno ahora?';
+      if(confirm(msg+'\n\nSe guarda solo en tu dispositivo. La nube ya tiene una copia automática.')){
+        downloadBackup();
+      } else {
+        sl('bn_lastBackup',new Date(Date.now()-7*86400000).toISOString());
+      }
+    },2500);
+  }
 }
 
 function guardarIcal(){
