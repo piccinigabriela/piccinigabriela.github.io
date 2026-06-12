@@ -1730,13 +1730,15 @@ async function syncIcalCabin(code,url,src){
       if(!exists||(exists&&exists.icalUid)){
         nuevasReservas.push({
           id:'ical-'+code+'-'+ev.uid.replace(/[^a-z0-9]/gi,'-').substr(0,20),
+          id:'ical-'+code+'-'+ev.uid.replace(/[^a-z0-9]/gi,'-').substr(0,20),
           icalUid:ev.uid,
           depto:code,
           huesped:ev.summary.includes('Not available')||ev.summary.includes('Bloqueado')||ev.summary.includes('Airbnb')||ev.summary.includes('Booking')?'🔒 Bloqueado':'🔒 '+ev.summary,
-          nac:'',checkin:ev.ci,checkout:ev.co,
+          tel:'',nac:'',checkin:ev.ci,checkout:ev.co,
           precio:0,pax:0,plus:0,
           plataforma:src==='booking'?'Booking':'Airbnb',
-          estado:'Confirmada',notas:'Bloqueo iCal · '+src,
+          destino:'',estado:'Confirmada',notas:'Bloqueo iCal · '+src,
+          early:false,late:false,
           sena:0,saldo:0,
           creado:new Date().toISOString()
         });
@@ -1806,11 +1808,12 @@ function importarICS(input){
           id:'ical-'+code+'-'+ev.uid.replace(/[^a-z0-9]/gi,'-').substr(0,20),
           icalUid:ev.uid,depto:code,
           huesped:'\uD83D\uDD12 Bloqueado',
-          nac:'',checkin:ev.ci,checkout:ev.co,
+          tel:'',nac:'',checkin:ev.ci,checkout:ev.co,
           precio:0,pax:0,plus:0,
           plataforma:plat,
-          estado:'Confirmada',
+          destino:'',estado:'Confirmada',
           notas:'Bloqueo iCal \u00B7 '+plat,
+          early:false,late:false,
           sena:0,saldo:0,creado:new Date().toISOString()
         });
         added++;
