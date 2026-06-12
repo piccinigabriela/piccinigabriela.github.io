@@ -862,9 +862,15 @@ async function loadFromBins(){
   }
 }
 
+// Asegura que toda reserva tenga el mismo set de claves (Supabase exige "All object keys must match")
+const RESERVA_TEMPLATE={id:'',depto:'',huesped:'',tel:'',nac:'',checkin:'',checkout:'',precio:0,pax:2,plus:0,plataforma:'',destino:'',estado:'Confirmada',notas:'',early:false,late:false,sena:0,saldo:0,creado:'',icalUid:null,limpio:false};
+function normalizarReserva(r){
+  return {...RESERVA_TEMPLATE,...r};
+}
+
 async function saveToBin(binId,data){
   if(binId==='reservas'||binId===BIN_R||binId===undefined){
-    const toSave=Array.isArray(data)?data:[];
+    const toSave=Array.isArray(data)?data.map(normalizarReserva):[];
     if(!toSave||toSave.length===0){console.log('saveToBin bananos: array vacío, ignorando');return;}
     sl('bn_r',toSave);reservas=toSave;
     try{
