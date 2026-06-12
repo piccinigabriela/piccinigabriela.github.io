@@ -792,13 +792,19 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 let reservas=[],gastos=[],pins=lo('bn_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 async function loadFromBins(){
+  const dirtyR=lo('bn_dirty_r',false);
+  const dirtyG=lo('bn_dirty_g',false);
   // Cargar reservas
   try{
     const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?select=*&order=creado.asc',{headers:SB_HDR});
     if(res.ok){
       let remoto=await res.json();
       const local=lo('bn_r',[]).filter(r=>!r.icalUid);
-      if(remoto.length===0&&local.length>0){
+      if(dirtyR&&local.length>0){
+        // Hay cambios locales sin confirmar en la nube — priorizar local y reintentar
+        console.warn('Reservas con guardado pendiente — usando cache local');
+        reservas=local;
+      } else if(remoto.length===0&&local.length>0){
         // Guard: la nube devolvió 0 pero hay datos locales — NO pisar el cache
         console.warn('Supabase devolvió 0 reservas con '+local.length+' locales — se conserva el cache');
         toast('⚠️ La nube devolvió 0 reservas. Usando datos locales.',false);
@@ -822,7 +828,10 @@ async function loadFromBins(){
     if(rg.ok){
       const remotoG=await rg.json();
       const localG=lo('bn_g',[]);
-      if(remotoG.length===0&&localG.length>0){
+      if(dirtyG&&localG.length>0){
+        console.warn('Gastos con guardado pendiente — usando cache local');
+        gastos=localG;
+      } else if(remotoG.length===0&&localG.length>0){
         gastos=localG;
         console.warn('Supabase devolvió 0 gastos — usando localStorage');
       } else {
@@ -836,6 +845,10 @@ async function loadFromBins(){
   }catch(e){
     console.log('Supabase gastos no disponible, usando localStorage');
     gastos=lo('bn_g',[]);
+  }
+  // Reintentar guardados pendientes después de cargar
+  if(dirtyR||dirtyG){
+    setTimeout(retryDirtySaves,1500);
   }
 }
 
@@ -851,13 +864,22 @@ async function saveToBin(binId,data){
         headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates,return=minimal'},
         body:JSON.stringify(toSave)
       });
-      if(!res.ok){const t=await res.text();console.log('Supabase bananos error:',t);}
+      if(!res.ok){
+        const t=await res.text();console.log('Supabase bananos error:',t);
+        sl('bn_dirty_r',true);
+        toast('⚠️ No se pudo guardar en la nube. Reintentando...',false);
+      }
       else{
         // Borrar solo los ids que ya no existen (reservas eliminadas)
         const ids=toSave.map(r=>r.id);
         await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?id=not.in.('+ids.map(id=>`"${id}"`).join(',')+')',{method:'DELETE',headers:SB_HDR});
+        sl('bn_dirty_r',false);
       }
-    }catch(e){console.log('Supabase bananos save error:',e);}
+    }catch(e){
+      console.log('Supabase bananos save error:',e);
+      sl('bn_dirty_r',true);
+      toast('⚠️ Sin conexión. Los datos se guardaron localmente y se reintentará.',false);
+    }
   } else {
     // Gastos: upsert seguro
     sl('bn_g',data);gastos=data;
@@ -867,12 +889,35 @@ async function saveToBin(binId,data){
         headers:{...SB_HDR,'Prefer':'resolution=merge-duplicates,return=minimal'},
         body:JSON.stringify(data)
       });
-      if(!rg.ok){const t=await rg.text();console.log('Supabase gastos error:',t);}
-      else if(data.length>0){
-        const ids=data.map(g=>g.id);
-        await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?id=not.in.('+ids.map(id=>`"${id}"`).join(',')+')',{method:'DELETE',headers:SB_HDR});
+      if(!rg.ok){
+        const t=await rg.text();console.log('Supabase gastos error:',t);
+        sl('bn_dirty_g',true);
+        toast('⚠️ No se pudo guardar en la nube. Reintentando...',false);
       }
-    }catch(e){console.log('Supabase gastos save error:',e);}
+      else{
+        if(data.length>0){
+          const ids=data.map(g=>g.id);
+          await fetch(SB_URL+'/rest/v1/'+SB_TABLE_G+'?id=not.in.('+ids.map(id=>`"${id}"`).join(',')+')',{method:'DELETE',headers:SB_HDR});
+        }
+        sl('bn_dirty_g',false);
+      }
+    }catch(e){
+      console.log('Supabase gastos save error:',e);
+      sl('bn_dirty_g',true);
+      toast('⚠️ Sin conexión. Los datos se guardaron localmente y se reintentará.',false);
+    }
+  }
+}
+
+// Reintenta el guardado si quedó pendiente (flag bn_dirty) de una sesión anterior
+async function retryDirtySaves(){
+  if(lo('bn_dirty_r',false)){
+    console.log('Reintentando guardado pendiente de reservas...');
+    await saveToBin('reservas',lo('bn_r',[]));
+  }
+  if(lo('bn_dirty_g',false)){
+    console.log('Reintentando guardado pendiente de gastos...');
+    await saveToBin('gastos',lo('bn_g',[]));
   }
 }
 
@@ -1059,6 +1104,26 @@ function delRes(id){
   }
   renderReservas();toast('Reserva eliminada');
 }
+// Parser de línea CSV que respeta comas/punto-y-coma dentro de comillas (ej: "Pérez, Juan")
+function parseCsvLine(line,sep){
+  const out=[];let cur='';let inQuotes=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(inQuotes&&line[i+1]==='"'){cur+='"';i++;}
+      else inQuotes=!inQuotes;
+    } else if(c===sep&&!inQuotes){
+      out.push(cur);cur='';
+    } else {
+      cur+=c;
+    }
+  }
+  out.push(cur);
+  return out.map(c=>c.trim());
+}
+
+const ESTADOS_VALIDOS=['Confirmada','Pendiente','Stand by','Shown','Non show','Cancelada','Cortesía','Devolución'];
+
 function importarCSV(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
@@ -1067,7 +1132,7 @@ function importarCSV(input){
     const sep=text.indexOf(';')>text.indexOf(',')&&text.indexOf(';')!==-1?';':',';
     const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim()&&!l.startsWith('sep='));
     if(lines.length<2){toast('El archivo no tiene datos',false);return;}
-    const headers=lines[0].split(sep).map(h=>h.replace(/"/g,'').trim().toLowerCase());
+    const headers=parseCsvLine(lines[0],sep).map(h=>h.replace(/"/g,'').trim().toLowerCase());
     const col=(names)=>{for(const n of names){const i=headers.findIndex(h=>h.includes(n));if(i>=0)return i;}return -1;};
     const iDepto=col(['depto','cabaña','cabana','unidad']);
     const iHuesped=col(['huesped','huésped','nombre','guest','pasajero']);
@@ -1088,16 +1153,18 @@ function importarCSV(input){
     Object.entries(DN).forEach(([k,v])=>{deptoMap[v.toLowerCase()]=k;deptoMap[k.toLowerCase()]=k;});
     const nuevas=[];const errores=[];
     for(let i=1;i<lines.length;i++){
-      const cells=lines[i].split(sep).map(c=>c.replace(/^"|"$/g,'').trim());
+      const cells=parseCsvLine(lines[i],sep).map(c=>c.replace(/^"|"$/g,'').trim());
       const huesped=iHuesped>=0?cells[iHuesped]||'':'';
       const ci=parseDate(iCheckin>=0?cells[iCheckin]:'');
       const co=parseDate(iCheckout>=0?cells[iCheckout]:'');
       if(!huesped||!ci||!co){errores.push(i+1);continue;}
       const deptoRaw=iDepto>=0?cells[iDepto]||'':'';
       const depto=deptoMap[deptoRaw.toLowerCase()]||CABANAS[0];
+      const estadoRaw=iEstado>=0?(cells[iEstado]||'').trim():'';
+      const estado=ESTADOS_VALIDOS.includes(estadoRaw)?estadoRaw:'Confirmada';
       nuevas.push({id:uid(),depto,huesped,nac:'',checkin:ci,checkout:co,
         precio:iPrecio>=0?parseFloat(cells[iPrecio])||0:0,
-        estado:iEstado>=0?cells[iEstado]||'Confirmada':'Confirmada',
+        estado,
         plataforma:iPlat>=0?cells[iPlat]||'Importado':'Importado',
         notas:iNotas>=0?cells[iNotas]||'':'',
         pax:2,plus:0,early:false,late:false,sena:0,saldo:0,creado:new Date().toISOString()});
