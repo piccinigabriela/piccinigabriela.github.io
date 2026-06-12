@@ -809,7 +809,7 @@ async function loadFromBins(){
     const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?select=*&order=creado.asc',{headers:SB_HDR});
     if(res.ok){
       let remoto=await res.json();
-      const local=lo('bn_r',[]);
+      const local=lo('bn_r',[]).map(reconstruirIcalUid);
       if(dirtyR&&local.length>0){
         // Hay cambios locales sin confirmar en la nube — priorizar local y reintentar
         console.warn('Reservas con guardado pendiente — usando cache local');
@@ -820,13 +820,13 @@ async function loadFromBins(){
         toast('⚠️ La nube devolvió 0 reservas. Usando datos locales.',false);
         reservas=local;
       } else {
-        reservas=remoto;
+        reservas=remoto.map(reconstruirIcalUid);
         sl('bn_r',reservas);
         console.log('Supabase: '+reservas.length+' reservas cargadas');
       }
     } else {
       console.log('Supabase error, usando localStorage');
-      reservas=lo('bn_r',[]);
+      reservas=lo('bn_r',[]).map(reconstruirIcalUid);
     }
   }catch(e){
     console.log('Supabase no disponible, usando localStorage');
@@ -863,9 +863,19 @@ async function loadFromBins(){
 }
 
 // Asegura que toda reserva tenga el mismo set de claves (Supabase exige "All object keys must match")
-const RESERVA_TEMPLATE={id:'',depto:'',huesped:'',tel:'',nac:'',checkin:'',checkout:'',precio:0,pax:2,plus:0,plataforma:'',destino:'',estado:'Confirmada',notas:'',early:false,late:false,sena:0,saldo:0,creado:'',icalUid:null,limpio:false};
+// icalUid NO es columna en Supabase — se guarda solo en localStorage/memoria, se quita antes de enviar
+const RESERVA_TEMPLATE={id:'',depto:'',huesped:'',tel:'',nac:'',checkin:'',checkout:'',precio:0,pax:2,plus:0,plataforma:'',destino:'',estado:'Confirmada',notas:'',early:false,late:false,sena:0,saldo:0,creado:'',limpio:false};
 function normalizarReserva(r){
-  return {...RESERVA_TEMPLATE,...r};
+  const {icalUid,...rest}=r;
+  return {...RESERVA_TEMPLATE,...rest};
+}
+// Reconstruye icalUid (no persiste en Supabase) a partir del id 'ical-CODE-uidpart' para reservas marcadas como bloqueo
+function reconstruirIcalUid(r){
+  if(r.id&&typeof r.id==='string'&&r.id.startsWith('ical-')&&r.notas&&r.notas.includes('Bloqueo iCal')){
+    // El UID real no es recuperable 1:1, pero basta un valor truthy: usamos el id mismo
+    return {...r,icalUid:r.id};
+  }
+  return r;
 }
 
 async function saveToBin(binId,data){
