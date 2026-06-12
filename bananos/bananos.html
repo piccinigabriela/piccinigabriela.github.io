@@ -809,7 +809,7 @@ async function loadFromBins(){
     const res=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?select=*&order=creado.asc',{headers:SB_HDR});
     if(res.ok){
       let remoto=await res.json();
-      const local=lo('bn_r',[]).filter(r=>!r.icalUid);
+      const local=lo('bn_r',[]);
       if(dirtyR&&local.length>0){
         // Hay cambios locales sin confirmar en la nube — priorizar local y reintentar
         console.warn('Reservas con guardado pendiente — usando cache local');
@@ -820,13 +820,13 @@ async function loadFromBins(){
         toast('⚠️ La nube devolvió 0 reservas. Usando datos locales.',false);
         reservas=local;
       } else {
-        reservas=remoto.filter(r=>!r.icalUid);
+        reservas=remoto;
         sl('bn_r',reservas);
         console.log('Supabase: '+reservas.length+' reservas cargadas');
       }
     } else {
       console.log('Supabase error, usando localStorage');
-      reservas=lo('bn_r',[]).filter(r=>!r.icalUid);
+      reservas=lo('bn_r',[]);
     }
   }catch(e){
     console.log('Supabase no disponible, usando localStorage');
@@ -864,7 +864,7 @@ async function loadFromBins(){
 
 async function saveToBin(binId,data){
   if(binId==='reservas'||binId===BIN_R||binId===undefined){
-    const toSave=Array.isArray(data)?data.filter(r=>!r.icalUid):[];
+    const toSave=Array.isArray(data)?data:[];
     if(!toSave||toSave.length===0){console.log('saveToBin bananos: array vacío, ignorando');return;}
     sl('bn_r',toSave);reservas=toSave;
     try{
@@ -936,8 +936,8 @@ const BIN_R='SUPABASE';
 const BIN_G='GASTOS';
 
 function saveToSheets(sheet,data){
-  const toSave=sheet==='reservas'?data.filter(r=>!r.icalUid):data;
-  saveToBin(sheet==='reservas'?'reservas':'gastos',toSave);
+  // Los bloqueos iCal (icalUid) se incluyen en el guardado para persistir entre sesiones
+  saveToBin(sheet==='reservas'?'reservas':'gastos',data);
 }
 
 const ud=()=>{for(let i=0;i<4;i++)document.getElementById('dot-'+i).classList.toggle('filled',i<pb.length);};
@@ -963,6 +963,7 @@ async function loginOk(){
   ol.innerHTML='<div style="background:white;border-radius:12px;padding:32px 40px;text-align:center;"><div style="font-family:DM Serif Display,serif;font-size:1.1rem;color:#2d5a1b;margin-bottom:8px;">Cargando datos...</div><div style="font-size:0.8rem;color:#5a6a50">Sincronizando con la nube</div></div>';
   document.body.appendChild(ol);
   await loadFromBins();
+  await syncAllIcal(false);
   ol.remove();buildBottomNav();showScreen(NAV_CONFIG[cu][0]);
   checkBackupReminder();
   const mcb=document.getElementById('mobile-config-btn');
@@ -1086,7 +1087,7 @@ function clearReservaForm(){['r-depto','r-huesped','r-tel','r-nac','r-checkin','
 function renderReservas(){
   const fd=document.getElementById('fil-depto').value,fe=document.getElementById('fil-estado').value;
   const fn=(document.getElementById('fil-nombre')?.value||'').toLowerCase().trim();
-  const data=reservas.filter(r=>(!fd||r.depto===fd)&&(!fe||r.estado===fe)&&(!fn||r.huesped.toLowerCase().includes(fn))).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
+  const data=reservas.filter(r=>!r.icalUid&&(!fd||r.depto===fd)&&(!fe||r.estado===fe)&&(!fn||r.huesped.toLowerCase().includes(fn))).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
   const tb=document.getElementById('tabla-reservas');
   if(!data.length){tb.innerHTML=`<tr><td colspan="13" style="text-align:center;padding:40px;color:var(--text-soft)">Sin reservas</td></tr>`;return;}
   tb.innerHTML=data.map((r,i)=>{const c=calc(r);const b=r.estado==='Confirmada'||r.estado==='Shown'?'badge-green':r.estado==='Pendiente'||r.estado==='Stand by'?'badge-gold':r.estado==='Cortesía'?'badge-purple':'badge-red';
@@ -1606,7 +1607,7 @@ function restoreBackup(file){
       if(data.ical)sl('bn_ical',data.ical);
       if(data.moneda){sl('bn_moneda',data.moneda);monedaActual=data.moneda;}
       // Escritura local directa primero (igual que delRes/delGas — evita el bug del array vacío)
-      sl('bn_r',reservas.filter(r=>!r.icalUid));
+      sl('bn_r',reservas);
       sl('bn_g',gastos);
       // Guardar en Supabase con upsert
       await saveToBin('reservas',reservas);
