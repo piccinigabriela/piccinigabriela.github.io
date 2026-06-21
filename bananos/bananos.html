@@ -841,6 +841,7 @@ async function loadFromBins(){
         reservas=remoto.map(reconstruirIcalUid);
         sl('bn_r',reservas);
         console.log('Supabase: '+reservas.length+' reservas cargadas');
+        console.log('DEBUG bloqueos con icalUid tras reconstruir:',reservas.filter(r=>r.id&&r.id.startsWith('ical-')).map(r=>({id:r.id,icalUid:r.icalUid,notas:r.notas})));
       }
     } else {
       console.log('Supabase error, usando localStorage');
