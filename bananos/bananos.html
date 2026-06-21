@@ -841,7 +841,6 @@ async function loadFromBins(){
         reservas=remoto.map(reconstruirIcalUid);
         sl('bn_r',reservas);
         console.log('Supabase: '+reservas.length+' reservas cargadas');
-        console.log('DEBUG bloqueos con icalUid tras reconstruir:',reservas.filter(r=>r.id&&r.id.startsWith('ical-')).map(r=>({id:r.id,icalUid:r.icalUid,notas:r.notas})));
       }
     } else {
       console.log('Supabase error, usando localStorage');
@@ -1784,14 +1783,14 @@ async function syncIcalCabin(code,url,src){
     if(!text.includes('BEGIN:VCALENDAR'))throw new Error('Respuesta inválida — no es un calendario iCal');
     const events=parseIcal(text,src);
     // Trabajar sobre copia — si algo falla, reservas global no se toca
-    let nuevasReservas=reservas.filter(r=>!(r.depto===code&&r.icalUid));
+    // Filtra tanto por icalUid como por id con prefijo 'ical-CODE-' (limpia bloqueos fantasma que perdieron la marca icalUid)
+    let nuevasReservas=reservas.filter(r=>!(r.depto===code&&(r.icalUid||(r.id&&r.id.startsWith('ical-'+code+'-')))));
     const today=new Date().toISOString().split('T')[0];
     events.forEach(ev=>{
       if(ev.co<today)return;
       const exists=nuevasReservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución'&&!(ev.co<=r.checkin||ev.ci>=r.checkout));
       if(!exists||(exists&&exists.icalUid)){
         nuevasReservas.push({
-          id:'ical-'+code+'-'+ev.uid.replace(/[^a-z0-9]/gi,'-').substr(0,20),
           id:'ical-'+code+'-'+ev.uid.replace(/[^a-z0-9]/gi,'-').substr(0,20),
           icalUid:ev.uid,
           depto:code,
@@ -1860,7 +1859,7 @@ function importarICS(input){
     const events=parseIcal(text,plat.toLowerCase());
     if(!events.length){statusEl.textContent='No se encontraron eventos en el archivo.';input.value='';return;}
     const today=new Date().toISOString().split('T')[0];
-    reservas=reservas.filter(r=>!(r.depto===code&&r.icalUid));
+    reservas=reservas.filter(r=>!(r.depto===code&&(r.icalUid||(r.id&&r.id.startsWith('ical-'+code+'-')))));
     let added=0,skipped=0;
     events.forEach(ev=>{
       if(ev.co<today){skipped++;return;}
