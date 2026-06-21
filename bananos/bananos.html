@@ -410,6 +410,7 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
         <div class="section-sub" id="dash-sub">Resumen de las cabañas</div>
         <div class="stats-grid" id="stats-grid"></div>
         <div class="hoy-cols-3" id="hoy-cols"></div>
+        <div id="aviso-sin-asignar" style="display:none;margin-bottom:24px;"></div>
         <div class="dashboard-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
           <div class="card"><div class="card-title"><div class="dot"></div>Próximos Check-ins (7 días)</div><div id="proximos-checkins"></div></div>
           <div class="card"><div class="card-title"><div class="dot"></div>Últimas Reservas</div><div id="ultimas-reservas"></div></div>
@@ -426,11 +427,14 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
             <div class="form-group"><label>Cabaña</label>
               <select id="r-depto">
                 <option value="">— Seleccioná —</option>
-                <option value="C2">Cabaña 2</option>
-                <option value="C3">Cabaña 3</option>
-                <option value="C5">Cabaña 5</option><option value="C6">Cabaña 6</option>
-                <option value="C7">Cabaña 7</option><option value="C8">Cabaña 8</option>
-                <option value="C9">Cabaña 9</option>
+                <option value="SA_big">🟥 Sin asignar — Big</option>
+                <option value="SA_tj">🟦 Sin asignar — Tiny Jacuzzi</option>
+                <option value="SA_te">🟪 Sin asignar — Tiny Estándar</option>
+                <option value="C2">Cabaña 2 (Big)</option>
+                <option value="C3">Cabaña 3 (Big)</option>
+                <option value="C5">Cabaña 5 (Tiny Estándar)</option><option value="C6">Cabaña 6 (Tiny Estándar)</option>
+                <option value="C7">Cabaña 7 (Tiny Jacuzzi)</option><option value="C8">Cabaña 8 (Tiny Estándar)</option>
+                <option value="C9">Cabaña 9 (Tiny Estándar)</option>
               </select>
             </div>
             <div class="form-group"><label>Huésped</label><input type="text" id="r-huesped" placeholder="Nombre completo"></div>
@@ -491,6 +495,9 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
           <label>Cabaña:</label>
           <select id="fil-depto" onchange="renderReservas()">
             <option value="">Todas</option>
+            <option value="SA_big">⏳ Sin asignar — Big</option>
+            <option value="SA_tj">⏳ Sin asignar — Tiny Jacuzzi</option>
+            <option value="SA_te">⏳ Sin asignar — Tiny Estándar</option>
             <option value="C2">Cabaña 2</option><option value="C3">Cabaña 3</option>
             <option value="C5">Cabaña 5</option><option value="C6">Cabaña 6</option>
             <option value="C7">Cabaña 7</option><option value="C8">Cabaña 8</option><option value="C9">Cabaña 9</option>
@@ -696,9 +703,12 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
     <div class="form-grid">
       <div class="form-group"><label>Cabaña</label>
         <select id="e-depto">
-          <option value="C2">Cabaña 2</option><option value="C3">Cabaña 3</option>
-          <option value="C5">Cabaña 5</option><option value="C6">Cabaña 6</option>
-          <option value="C7">Cabaña 7</option><option value="C8">Cabaña 8</option><option value="C9">Cabaña 9</option>
+          <option value="SA_big">🟥 Sin asignar — Big</option>
+          <option value="SA_tj">🟦 Sin asignar — Tiny Jacuzzi</option>
+          <option value="SA_te">🟪 Sin asignar — Tiny Estándar</option>
+          <option value="C2">Cabaña 2 (Big)</option><option value="C3">Cabaña 3 (Big)</option>
+          <option value="C5">Cabaña 5 (Tiny Estándar)</option><option value="C6">Cabaña 6 (Tiny Estándar)</option>
+          <option value="C7">Cabaña 7 (Tiny Jacuzzi)</option><option value="C8">Cabaña 8 (Tiny Estándar)</option><option value="C9">Cabaña 9 (Tiny Estándar)</option>
         </select>
       </div>
       <div class="form-group"><label>Huésped</label><input type="text" id="e-huesped"></div>
@@ -785,8 +795,16 @@ const NAV_META={
 };
 const MOBILE_NAV={admin:['nueva-reserva','reservas','ocupacion','rendimiento','avisos'],gabi:['nueva-reserva','reservas','ocupacion','rendimiento','avisos'],vol:['ocupacion','avisos']};
 const CABANAS=['C2','C3','C5','C6','C7','C8','C9'];
-const DC={C2:'#3d7a25',C3:'#c55a11',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276',C9:'#7030a0'};
-const DN={C2:'Cabaña 2',C3:'Cabaña 3',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8',C9:'Cabaña 9'};
+const DC={C2:'#3d7a25',C3:'#c55a11',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276',C9:'#7030a0',SA_big:'#9b1c1c',SA_tj:'#0e7490',SA_te:'#6d28d9'};
+const DN={C2:'Cabaña 2',C3:'Cabaña 3',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8',C9:'Cabaña 9',SA_big:'Sin asignar (Big)',SA_tj:'Sin asignar (Tiny Jacuzzi)',SA_te:'Sin asignar (Tiny Estándar)'};
+// Sistema de tipos (Booking vende por tipo, no por cabaña física — se asigna unidad después)
+const TIPOS={big:'Big',tj:'Tiny Jacuzzi',te:'Tiny Estándar'};
+const TIPO_DE_CABANA={C2:'big',C3:'big',C7:'tj',C5:'te',C6:'te',C8:'te',C9:'te'};
+const CABANAS_POR_TIPO={};Object.keys(TIPOS).forEach(t=>{CABANAS_POR_TIPO[t]=CABANAS.filter(c=>TIPO_DE_CABANA[c]===t);});
+const TIPO_COLOR={big:'#9b1c1c',tj:'#0e7490',te:'#6d28d9'};
+// "Sin asignar" usa un pseudo-depto SA_<tipo> hasta que se le ponga cabaña física
+const esSinAsignar=dep=>typeof dep==='string'&&dep.startsWith('SA_');
+const tipoDeSinAsignar=dep=>dep.replace('SA_','');
 
 // ── SUPABASE ──
 const SB_URL='https://vnfgitgadadjjjciftsa.supabase.co';
@@ -1093,10 +1111,17 @@ function guardarReserva(){
   const pre=parseFloat(document.getElementById('r-precio').value);
   if(!dep||!hue||!ci||!co||isNaN(pre)){toast('Completá todos los campos obligatorios',false);return;}
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
-  const conf=reservas.find(r=>r.depto===dep&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución'&&!(co<=r.checkin||ci>=r.checkout));
-  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' en '+DN[dep],false);return;}
+  if(esSinAsignar(dep)){
+    const tipo=tipoDeSinAsignar(dep);
+    const cupo=CABANAS_POR_TIPO[tipo].length;
+    const ocupadas=reservas.filter(r=>r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución'&&!(co<=r.checkin||ci>=r.checkout)&&(esSinAsignar(r.depto)?tipoDeSinAsignar(r.depto)===tipo:TIPO_DE_CABANA[r.depto]===tipo)).length;
+    if(ocupadas>=cupo){toast(`Sin disponibilidad: las ${cupo} caba\u00f1as ${TIPOS[tipo]} ya est\u00e1n ocupadas o reservadas esas fechas`,false);return;}
+  } else {
+    const conf=reservas.find(r=>r.depto===dep&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución'&&!(co<=r.checkin||ci>=r.checkout));
+    if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' en '+DN[dep],false);return;}
+  }
   const pax=parseInt(document.getElementById('r-pax').value)||2;const plus=parseFloat(document.getElementById('r-plus').value)||0;const rsena=parseFloat(document.getElementById('r-sena').value)||0;const rsaldo=parseFloat(document.getElementById('r-saldo').value)||0;reservas.push({id:uid(),depto:dep,huesped:hue,tel:document.getElementById('r-tel')?document.getElementById('r-tel').value.trim():'',nac:document.getElementById('r-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax,plus,plataforma:document.getElementById('r-plataforma').value,destino:document.getElementById('r-destino')?document.getElementById('r-destino').value:'',estado:document.getElementById('r-estado').value,notas:document.getElementById('r-notas').value.trim(),early:document.getElementById('r-early')?document.getElementById('r-early').checked:false,late:document.getElementById('r-late')?document.getElementById('r-late').checked:false,sena:rsena,saldo:rsaldo,creado:new Date().toISOString()});
-  saveToSheets('reservas',reservas);clearReservaForm();toast('Reserva guardada ✓');
+  saveToSheets('reservas',reservas);clearReservaForm();toast(esSinAsignar(dep)?'Reserva guardada — pendiente de asignar cabaña ✓':'Reserva guardada ✓');
 }
 function clearReservaForm(){['r-depto','r-huesped','r-tel','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const px=document.getElementById('r-pax');if(px)px.value=2;const pl=document.getElementById('r-plus');if(pl)pl.value=0;const sn=document.getElementById('r-sena');if(sn)sn.value=0;const sl2=document.getElementById('r-saldo');if(sl2)sl2.value=0;['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-plusval','cp-liquido'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});}
 
@@ -1118,7 +1143,7 @@ function renderReservas(){
     <td>${(()=>{const t=getTemporada(r.checkin);return t==='Alta'?'<span style="color:#c00000;font-weight:700;font-size:0.78rem">🔴 Alta</span>':'<span style="color:#1f4e79;font-size:0.78rem">🔵 Baja</span>';})()}</td>
     <td><span class="badge ${b}">${r.estado}</span></td><td style="font-size:0.78rem">${r.plataforma}</td>
     <td style="font-size:0.78rem;color:var(--soft)">${r.destino||'—'}</td>
-    <td><div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="editRes('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delRes('${r.id}')">✕</button></div></td></tr>`;
+    <td><div style="display:flex;gap:6px">${esSinAsignar(r.depto)?`<button class="btn btn-gold btn-sm" onclick="asignarCabana('${r.id}')" title="Asignar cabaña">🏠</button>`:''}<button class="btn btn-outline btn-sm" onclick="editRes('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delRes('${r.id}')">✕</button></div></td></tr>`;
   }).join('');
 }
 function delRes(id){
@@ -1223,18 +1248,22 @@ function exportReservasPDF(){
 function renderCalendario(){
   const mes=parseInt(document.getElementById('cal-mes').value),anio=parseInt(document.getElementById('cal-anio').value);
   const dim=new Date(anio,mes+1,0).getDate();
+  const FILAS=['SA_big','SA_tj','SA_te',...CABANAS];
   const parts=[`<div class="cal-grid" style="grid-template-columns:70px repeat(${dim},1fr)">`,`<div class="cal-header">Cabaña</div>`];
   for(let d=1;d<=dim;d++){const dow=new Date(anio,mes,d).getDay();parts.push(`<div class="cal-header" style="${dow===0||dow===6?'background:#1a3a0a':''}">${d}</div>`);}
-  const byDep={};CABANAS.forEach(c=>byDep[c]={});
-  const byDepCO={};CABANAS.forEach(c=>byDepCO[c]={});
+  const byDep={};FILAS.forEach(c=>byDep[c]={});
+  const byDepCO={};FILAS.forEach(c=>byDepCO[c]={});
   reservas.forEach(r=>{
     if(r.estado==='Cancelada'||r.estado==='Non show'||!byDep[r.depto])return;
     const s=new Date(r.checkin),e=new Date(r.checkout);
     for(let d=new Date(s);d<e;d.setDate(d.getDate()+1)){byDep[r.depto][d.toISOString().split('T')[0]]=r;}
     byDepCO[r.depto][r.checkout]=r;
   });
-  CABANAS.forEach(code=>{
-    parts.push(`<div class="cal-depto" style="background:${DC[code]}">${DN[code]}</div>`);
+  // Las filas "Sin asignar" solo se muestran si tienen al menos una reserva pendiente ese mes
+  const tieneSinAsignar=code=>Object.keys(byDep[code]).length>0;
+  FILAS.forEach(code=>{
+    if(esSinAsignar(code)&&!tieneSinAsignar(code))return;
+    parts.push(`<div class="cal-depto" style="background:${DC[code]}">${esSinAsignar(code)?'⏳ '+TIPOS[tipoDeSinAsignar(code)]:DN[code]}</div>`);
     for(let d=1;d<=dim;d++){
       const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const res=byDep[code][ds];
@@ -1245,7 +1274,8 @@ function renderCalendario(){
         parts.push(`<div class="cal-cell split" title="${resOut.huesped} → ${res.huesped}"><div class="split-top" style="background:${DC[code]}" onclick="openCalPopup('${resOut.id}')">${nmOut}</div><div class="split-bot" style="background:${DC[code]}" onclick="openCalPopup('${res.id}')">${nmIn}</div><div class="split-line"></div></div>`);
       } else if(res){
         const ec=res.early&&ds===res.checkin?' early-ci':'';
-        parts.push(`<div class="cal-cell occupied${ec}" style="background:${DC[code]};cursor:pointer" onclick="openCalPopup('${res.id}')" title="${res.huesped}">${res.huesped.split(' ')[0].substr(0,4)}</div>`);
+        const label=res.icalUid?`🔒 ${res.plataforma==='Booking'?'BKG':'ARB'}`:res.huesped.split(' ')[0].substr(0,4);
+        parts.push(`<div class="cal-cell occupied${ec}" style="background:${DC[code]};cursor:pointer" onclick="openCalPopup('${res.id}')" title="${res.icalUid?'🔒 Bloqueado · '+(res.plataforma||'iCal'):res.huesped}">${label}</div>`);
       } else if(resOut&&resOut.late){
         parts.push(`<div class="cal-cell occupied late-co" style="background:${DC[code]};cursor:pointer;opacity:0.6" onclick="openCalPopup('${resOut.id}')" title="${resOut.huesped} (late CO)">${resOut.huesped.split(' ')[0].substr(0,4)}</div>`);
       } else {
@@ -1280,13 +1310,14 @@ function openCalPopup(id){
       <div class="cal-popup-field"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.82rem">${r.notas||'—'}</div></div>
     `;
     document.getElementById('cal-popup-footer').innerHTML=isAdm
-      ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-danger btn-sm" onclick="closeCalPopup();eliminarBloqueo('${r.id}')">✕ Eliminar bloqueo</button>`
+      ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();convertirBloqueoEnReserva('${r.id}')">➕ Convertir en reserva</button><button class="btn btn-danger btn-sm" onclick="closeCalPopup();eliminarBloqueo('${r.id}')">✕ Eliminar</button>`
       :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
   } else {
-    // ── Popup para reservas normales ──
+    // ── Popup para reservas normales (o "Sin asignar" pendiente de cabaña) ──
     const c=calc(r);
     const sena=r.sena||0,saldo=r.saldo||0,pend=Math.max(0,c.sub-sena-saldo);
-    document.getElementById('cal-popup-nombre').textContent=r.huesped+(r.nac?' · '+r.nac:'');
+    const sa=esSinAsignar(r.depto);
+    document.getElementById('cal-popup-nombre').textContent=r.huesped+(r.nac?' · '+r.nac:'')+(sa?' ⏳':'');
     document.getElementById('cal-popup-body').innerHTML=`
       <div class="cal-popup-field"><div class="cal-popup-label">Cabaña</div><div class="cal-popup-value"><span style="background:${DC[r.depto]};color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700">${DN[r.depto]}</span></div></div>
       <div class="cal-popup-field"><div class="cal-popup-label">Estado</div><div class="cal-popup-value">${r.estado}</div></div>
@@ -1299,7 +1330,7 @@ function openCalPopup(id){
       ${r.notas?`<div class="cal-popup-field" style="grid-column:1/-1"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.84rem;white-space:normal">${r.notas}</div></div>`:''}
     `;
     document.getElementById('cal-popup-footer').innerHTML=isAdm
-      ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')">✏ Editar</button>`
+      ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>${sa?`<button class="btn btn-gold btn-sm" onclick="closeCalPopup();asignarCabana('${r.id}')">🏠 Asignar cabaña</button>`:''}<button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')">✏ Editar</button>`
       :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
   }
   pop.classList.add('show');
@@ -1522,6 +1553,20 @@ function renderDashboard(){
     <div class="card"><div class="card-title"><div class="dot" style="background:var(--green)"></div>Check-ins HOY · ${ciHoy.length}</div>${colCI}</div>
     <div class="card"><div class="card-title"><div class="dot" style="background:#c8a84b"></div>Check-outs HOY · ${coHoy.length}</div>${colCO}</div>
     <div class="card"><div class="card-title"><div class="dot" style="background:#C00000"></div>A Limpiar · ${aLimpiar.length}</div>${colLimp}</div>`;
+  // Aviso de reservas pendientes de asignar cabaña física (Booking por tipo)
+  const sinAsignar=reservas.filter(r=>esSinAsignar(r.depto)&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución').sort((a,b)=>a.checkin.localeCompare(b.checkin));
+  const avisoEl=document.getElementById('aviso-sin-asignar');
+  if(avisoEl){
+    if(sinAsignar.length){
+      avisoEl.style.display='block';
+      avisoEl.innerHTML=`<div class="card" style="border-left:4px solid #c8a84b;">
+        <div class="card-title"><div class="dot" style="background:#c8a84b"></div>⏳ Pendientes de asignar cabaña · ${sinAsignar.length}</div>
+        ${sinAsignar.map(r=>`<div class="dash-item"><div class="dash-item-left">${mkTag(r.depto)}<span class="dash-item-name">${r.huesped} · ${fmtD(r.checkin)} → ${fmtD(r.checkout)}</span></div><button class="btn btn-gold btn-sm" onclick="asignarCabana('${r.id}')">🏠 Asignar</button></div>`).join('')}
+      </div>`;
+    } else {
+      avisoEl.style.display='none';avisoEl.innerHTML='';
+    }
+  }
   const ps=[...pr].sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);
   document.getElementById('proximos-checkins').innerHTML=ps.length?ps.map(r=>`<div class="dash-item"><div class="dash-item-left">${mkTag(r.depto)}<span class="dash-item-name">${r.huesped}</span></div><span class="dash-item-meta">${fmtD(r.checkin)}</span></div>`).join(''):`<div style="padding:20px;text-align:center;color:var(--text-soft)">Sin check-ins próximos</div>`;
   const ul=[...reservas].sort((a,b)=>b.creado.localeCompare(a.creado)).slice(0,5);
@@ -1952,6 +1997,42 @@ function waMsg(rid){
 }
 
 let editingId=null;
+// Convierte un bloqueo iCal (🔒) en una reserva real editable: limpia icalUid y datos del bloqueo, abre el formulario de edición
+function convertirBloqueoEnReserva(id){
+  const r=reservas.find(x=>x.id===id);if(!r)return;
+  const plat=r.plataforma||'';
+  reservas=reservas.map(x=>{
+    if(x.id!==id)return x;
+    const {icalUid,...rest}=x;
+    return{...rest,id:uid(),huesped:'',notas:'',plataforma:plat};
+  });
+  saveToSheets('reservas',reservas);
+  renderCalendario();
+  editRes(reservas.find(x=>x.depto===r.depto&&x.checkin===r.checkin&&x.checkout===r.checkout&&!x.icalUid).id);
+  toast('Bloqueo convertido — completá los datos del huésped');
+}
+// Asigna una cabaña física concreta a una reserva "Sin asignar" (Booking)
+function asignarCabana(id){
+  const r=reservas.find(x=>x.id===id);if(!r||!esSinAsignar(r.depto))return;
+  const tipo=tipoDeSinAsignar(r.depto);
+  const opciones=CABANAS_POR_TIPO[tipo].filter(code=>{
+    const conf=reservas.find(x=>x.id!==id&&x.depto===code&&x.estado!=='Cancelada'&&x.estado!=='Non show'&&x.estado!=='Devolución'&&!(r.checkout<=x.checkin||r.checkin>=x.checkout));
+    return !conf;
+  });
+  if(!opciones.length){toast('No hay cabañas '+TIPOS[tipo]+' libres esas fechas',false);return;}
+  const lista=opciones.map((c,i)=>`${i+1}. ${DN[c]}`).join('\n');
+  const sel=prompt(`Asignar "${r.huesped}" (${fmtD2(r.checkin)} → ${fmtD2(r.checkout)}) a:\n\n${lista}\n\nEscribí el número:`);
+  if(!sel)return;
+  const idx=parseInt(sel)-1;
+  if(isNaN(idx)||idx<0||idx>=opciones.length){toast('Opción inválida',false);return;}
+  const cabanaElegida=opciones[idx];
+  reservas=reservas.map(x=>x.id===id?{...x,depto:cabanaElegida}:x);
+  saveToSheets('reservas',reservas);
+  renderCalendario();renderReservas();
+  toast(`Asignada a ${DN[cabanaElegida]} ✓`);
+}
+function fmtD2(d){if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;}
+
 function editRes(id){
   const r=reservas.find(x=>x.id===id);if(!r)return;
   editingId=id;
@@ -1988,8 +2069,15 @@ function saveEdit(){
   const dep=document.getElementById('e-depto').value,ci=document.getElementById('e-checkin').value,co=document.getElementById('e-checkout').value,pre=parseFloat(document.getElementById('e-precio').value),hue=document.getElementById('e-huesped').value.trim();
   if(!hue||!ci||!co||isNaN(pre)){toast('Completá todos los campos',false);return;}
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
-  const conf=reservas.find(r=>r.id!==editingId&&r.depto===dep&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución'&&!(co<=r.checkin||ci>=r.checkout));
-  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped,false);return;}
+  if(esSinAsignar(dep)){
+    const tipo=tipoDeSinAsignar(dep);
+    const cupo=CABANAS_POR_TIPO[tipo].length;
+    const ocupadas=reservas.filter(r=>r.id!==editingId&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución'&&!(co<=r.checkin||ci>=r.checkout)&&(esSinAsignar(r.depto)?tipoDeSinAsignar(r.depto)===tipo:TIPO_DE_CABANA[r.depto]===tipo)).length;
+    if(ocupadas>=cupo){toast(`Sin disponibilidad: las ${cupo} caba\u00f1as ${TIPOS[tipo]} ya est\u00e1n ocupadas o reservadas esas fechas`,false);return;}
+  } else {
+    const conf=reservas.find(r=>r.id!==editingId&&r.depto===dep&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución'&&!(co<=r.checkin||ci>=r.checkout));
+    if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped,false);return;}
+  }
   reservas=reservas.map(r=>{if(r.id!==editingId)return r;const epax=parseInt(document.getElementById('e-pax').value)||2;const eplus=parseFloat(document.getElementById('e-plus').value)||0;const esena=parseFloat(document.getElementById('e-sena').value)||0;const esaldo=parseFloat(document.getElementById('e-saldo').value)||0;return{...r,depto:dep,huesped:hue,tel:document.getElementById('e-tel')?document.getElementById('e-tel').value.trim():r.tel||'',nac:document.getElementById('e-nac').value.trim(),checkin:ci,checkout:co,precio:pre,pax:epax,plus:eplus,plataforma:document.getElementById('e-plataforma').value,destino:document.getElementById('e-destino')?document.getElementById('e-destino').value:'',estado:document.getElementById('e-estado').value,notas:document.getElementById('e-notas').value.trim(),early:document.getElementById('e-early')?document.getElementById('e-early').checked:r.early||false,late:document.getElementById('e-late')?document.getElementById('e-late').checked:r.late||false,sena:esena,saldo:esaldo};});
   saveToSheets('reservas',reservas);closeEdit();renderReservas();toast('Reserva actualizada ✓');
 }
