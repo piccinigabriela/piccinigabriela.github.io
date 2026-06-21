@@ -848,7 +848,7 @@ async function loadFromBins(){
     }
   }catch(e){
     console.log('Supabase no disponible, usando localStorage');
-    reservas=lo('bn_r',[]).filter(r=>!r.icalUid);
+    reservas=lo('bn_r',[]).map(reconstruirIcalUid);
   }
   // Cargar gastos desde Supabase
   try{
