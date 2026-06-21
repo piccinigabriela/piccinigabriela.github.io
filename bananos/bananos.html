@@ -2170,20 +2170,30 @@ async function xeniaSend(){
   const ingMes=em.reduce((s,r)=>s+calc(r).liq,0);
   const pendientes=reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkin>=today).filter(r=>{const c=calc(r);return(r.sena||0)+(r.saldo||0)<c.sub;});
 
+  const sinAsignarHoy=reservas.filter(r=>esSinAsignar(r.depto)&&r.estado!=='Cancelada'&&r.estado!=='Non show'&&r.estado!=='Devolución');
   const ctx=`Sos Xenia, asistente de hospitalidad de CheckInn para Los Bananos, complejo de cabañas en Puerto Iguazú, Misiones. Respondé siempre en español rioplatense, de forma concisa y cálida. Usá emojis con moderación. El complejo tiene 7 cabañas rodeadas de selva misionera, cerca de las Cataratas del Iguazú.
 
 CÓMO USAR LA APP:
 - Nueva reserva: botón "+" → completar cabaña, huésped, fechas, precio/noche, plataforma → Guardar.
 - Editar reserva: en Reservas tocar el lápiz. O desde el calendario → popup → Editar.
-- Convertir bloqueo en reserva: tocar celda bloqueada en calendario → popup → "Convertir en reserva".
+- Convertir bloqueo iCal en reserva: tocar el bloqueo (candado 🔒 ARB o 🔒 BKG) en el calendario → popup → botón "➕ Convertir en reserva" → se abre el formulario para completar el nombre del huésped real.
 - Estados: Confirmada, Pendiente, Stand by, Shown, Non show, Cancelada, Cortesía, Devolución.
-- Calendario: celdas de color = ocupado, celdas partidas = mismo día cambia huésped.
-- Sincronización iCal: en Configuración pegar URLs de Airbnb y Booking.
+- Calendario: celdas de color = ocupado, celdas partidas = mismo día cambia huésped, candado = bloqueo de Airbnb/Booking.
+- Sincronización iCal: en Configuración pegar URLs de Airbnb (no usar iCal de Booking, ver abajo).
 - Importar .ics: en Configuración, sección "Importar calendario .ics".
 - Avisos: check-ins próximos 7 días con checklist y WhatsApp.
 - Rendimiento: ingresos por mes/año por cabaña y plataforma.
 - Seña y saldo: campos para registrar pagos parciales.
 - Rol Voluntario: acceso solo a ocupación y avisos, sin datos de dinero.
+
+RESERVAS "SIN ASIGNAR" (solo para Booking, NO para Airbnb):
+Booking vende por tipo de cabaña (Big, Tiny Jacuzzi, Tiny Estándar), no por unidad física — recién se sabe qué cabaña concreta es cuando el dueño la asigna. Por eso:
+- Tipos: Big = Cabaña 2 y 3. Tiny Jacuzzi = Cabaña 7. Tiny Estándar = Cabañas 5, 6, 8 y 9.
+- Para cargar una reserva de Booking sin cabaña definida: en "Nueva Reserva", en el campo Cabaña elegir una de las 3 opciones "Sin asignar — [Tipo]" en vez de una cabaña física. El sistema valida que no se supere el cupo de cabañas de ese tipo en esas fechas (evita overbooking del tipo).
+- Para asignarle la cabaña física después: ir a Reservas y tocar el botón 🏠 al lado de esa reserva (o el botón "🏠 Asignar cabaña" en el popup del calendario) — el sistema muestra solo las cabañas de ese tipo que estén libres esas fechas exactas, se elige el número y queda asignada. También se puede hacer editando la reserva (lápiz) y cambiando el campo Cabaña directo.
+- El Dashboard muestra un aviso "⏳ Pendientes de asignar cabaña" con todas las que faltan asignar.
+- Airbnb SÍ asigna cabaña física desde el momento de la reserva (no se usa "Sin asignar" para Airbnb).
+- Reservas sin asignar pendientes ahora mismo: ${sinAsignarHoy.length}${sinAsignarHoy.length?' — '+sinAsignarHoy.map(r=>TIPOS[tipoDeSinAsignar(r.depto)]+': '+r.huesped+' ('+r.checkin+' a '+r.checkout+')').join(', '):''}
 
 DATOS DE HOY (${today}):
 - Cabañas ocupadas ahora: ${act.length} de 7 — ${act.map(r=>DN[r.depto]+'('+r.huesped.split(' ')[0]+')').join(', ')||'ninguna'}
@@ -2195,7 +2205,7 @@ DATOS DE HOY (${today}):
 RESERVAS FUTURAS:
 ${reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkout>=today).slice(0,20).map(r=>{const c=calc(r);return r.checkin+' al '+r.checkout+' | '+DN[r.depto]+' | '+r.huesped+' | '+r.estado+' | Líquido: USD '+c.liq.toFixed(0);}).join('\n')||'Sin reservas futuras'}
 
-Respondé basándote en los datos reales y en el conocimiento de la app.`;
+Respondé basándote en los datos reales y en el conocimiento de la app. Si no sabés algo con certeza sobre cómo funciona la app, decilo en vez de inventar un flujo — sugerí consultar con Gabi.`;
 
   try{
     const resp=await fetch('https://xenia-proxy.huuventa.workers.dev',{
