@@ -475,6 +475,7 @@ html.dark .xenia-input{background:var(--paper-3);}
         <div class="section-title">Hoy</div>
         <div class="section-sub" id="hoy-sub">Resumen del día y próximos movimientos</div>
         <div class="stats-grid" id="stats-grid"></div>
+        <div id="aviso-sin-asignar" style="display:none;margin-bottom:12px"></div>
         <div class="dash-grid hoy-cols-3" id="hoy-cols"></div>
         <div style="height:8px"></div>
         <div class="dash-grid">
@@ -491,7 +492,7 @@ html.dark .xenia-input{background:var(--paper-3);}
           <div class="card-title"><div class="dot"></div>Datos</div>
           <div class="form-grid">
             <div class="form-group"><label>Departamento</label>
-              <select id="r-depto"><option value="">— Seleccioná —</option><option value="D01">PB5</option><option value="D02">1A</option><option value="D03">2C</option><option value="D04">2D</option><option value="D05">PR1</option><option value="D06">PR2</option><option value="D07">1B</option></select>
+              <select id="r-depto"><option value="">— Seleccioná —</option><option value="SA_a">⏳ Sin asignar — Tipo A</option><option value="SA_b">⏳ Sin asignar — Tipo B</option><option value="D01">Unidad 1 (Tipo A)</option><option value="D02">Unidad 2 (Tipo A)</option><option value="D03">Unidad 3 (Tipo A)</option><option value="D04">Unidad 4 (Tipo B)</option><option value="D05">Unidad 5 (Tipo B)</option><option value="D06">Unidad 6 (Tipo B)</option><option value="D07">Unidad 7 (Tipo B)</option></select>
             </div>
             <div class="form-group"><label>Huésped</label><input type="text" id="r-huesped" placeholder="Nombre completo"></div>
             <div class="form-group"><label>Nacionalidad</label><input type="text" id="r-nac" placeholder="Ej: Estadounidense"></div>
@@ -531,7 +532,7 @@ html.dark .xenia-input{background:var(--paper-3);}
         <div class="section-sub">Historial completo</div>
         <div class="filter-row">
           <label>Depto</label>
-          <select id="fil-depto"><option value="">Todos</option><option value="D01">PB5</option><option value="D02">1A</option><option value="D03">2C</option><option value="D04">2D</option><option value="D05">PR1</option><option value="D06">PR2</option><option value="D07">1B</option></select>
+          <select id="fil-depto"><option value="">Todos</option><option value="SA_a">⏳ Sin asignar — Tipo A</option><option value="SA_b">⏳ Sin asignar — Tipo B</option><option value="D01">Unidad 1</option><option value="D02">Unidad 2</option><option value="D03">Unidad 3</option><option value="D04">Unidad 4</option><option value="D05">Unidad 5</option><option value="D06">Unidad 6</option><option value="D07">Unidad 7</option></select>
           <label>Estado</label>
           <select id="fil-estado"><option value="">Todos</option><option value="Confirmada">Confirmada</option><option value="Pendiente">Pendiente</option><option value="Stand by">Stand by</option><option value="Shown">Shown</option><option value="Non show">Non show</option><option value="Cancelada">Cancelada</option><option value="Cortesía">Cortesía</option><option value="Devolución">Devolución</option></select>
           <input type="text" id="fil-nombre" placeholder="🔍 Buscar huésped..." style="padding:6px 12px;border:1px solid var(--line);border-radius:var(--r);font-size:0.82rem;color:var(--text);background:var(--white);min-width:180px;" oninput="renderReservas()">
@@ -705,7 +706,7 @@ html.dark .xenia-input{background:var(--paper-3);}
     <div class="modal-title">Editar Reserva</div>
     <div class="form-grid">
       <div class="form-group"><label>Departamento</label>
-        <select id="e-depto"><option value="D01">PB5</option><option value="D02">1A</option><option value="D03">2C</option><option value="D04">2D</option><option value="D05">PR1</option><option value="D06">PR2</option><option value="D07">1B</option></select>
+        <select id="e-depto"><option value="SA_a">⏳ Sin asignar — Tipo A</option><option value="SA_b">⏳ Sin asignar — Tipo B</option><option value="D01">Unidad 1 (Tipo A)</option><option value="D02">Unidad 2 (Tipo A)</option><option value="D03">Unidad 3 (Tipo A)</option><option value="D04">Unidad 4 (Tipo B)</option><option value="D05">Unidad 5 (Tipo B)</option><option value="D06">Unidad 6 (Tipo B)</option><option value="D07">Unidad 7 (Tipo B)</option></select>
       </div>
       <div class="form-group"><label>Huésped</label><input type="text" id="e-huesped"></div>
       <div class="form-group"><label>Nacionalidad</label><input type="text" id="e-nac"></div>
@@ -830,9 +831,18 @@ const MOBILE_NAV={
   admin_e:['ocupacion','avisos'],
   mant:['avisos']
 };
-const DC={D01:'#2e5d8a',D02:'#3e5b2a',D03:'#a85828',D04:'#5d3d7a',D05:'#9a3a2e',D06:'#24324f',D07:'#6e3a18'};
-const DN={D01:'Unidad 1',D02:'Unidad 2',D03:'Unidad 3',D04:'Unidad 4',D05:'Unidad 5',D06:'Unidad 6',D07:'Unidad 7'};
+const DC={D01:'#2e5d8a',D02:'#3e5b2a',D03:'#a85828',D04:'#5d3d7a',D05:'#9a3a2e',D06:'#24324f',D07:'#6e3a18',SA_a:'#7c3aed',SA_b:'#0369a1'};
+const DN={D01:'Unidad 1',D02:'Unidad 2',D03:'Unidad 3',D04:'Unidad 4',D05:'Unidad 5',D06:'Unidad 6',D07:'Unidad 7',SA_a:'Sin asignar (Tipo A)',SA_b:'Sin asignar (Tipo B)'};
 const DEPTOS=['D01','D02','D03','D04','D05','D06','D07'];
+// ── SISTEMA "SIN ASIGNAR" (para Booking que vende por tipo, no unidad física) ──
+const TIPOS={a:'Tipo A',b:'Tipo B'};
+const TIPO_DE_UNIDAD={D01:'a',D02:'a',D03:'a',D04:'b',D05:'b',D06:'b',D07:'b'};
+const UNIDADES_POR_TIPO={};
+Object.keys(TIPOS).forEach(t=>{UNIDADES_POR_TIPO[t]=DEPTOS.filter(d=>TIPO_DE_UNIDAD[d]===t);});
+const TIPO_COLOR={a:'#7c3aed',b:'#0369a1'};
+const esSinAsignar=dep=>typeof dep==='string'&&dep.startsWith('SA_');
+const tipoDeSinAsignar=dep=>dep.replace('SA_','');
+const SA_CODES=['SA_a','SA_b'];
 
 // ── DEMO MODE — sin Supabase, solo localStorage ──
 
@@ -1110,11 +1120,19 @@ function guardarReserva(){
   const pre=parseFloat($('r-precio').value);
   if(!dep||!hue||!ci||!co||isNaN(pre)){toast('Completá todos los campos obligatorios',false);return;}
   if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
-  const conf=reservas.find(r=>r.depto===dep&&r.estado!=='Cancelada'&&!(co<=r.checkin||ci>=r.checkout));
-  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast(`Superposición con ${conf.huesped} en ${DN[dep]}`,false);return;}
+  const EXCL=['Cancelada','Non show','Devolución'];
+  if(esSinAsignar(dep)){
+    const tipo=tipoDeSinAsignar(dep);
+    const cupo=UNIDADES_POR_TIPO[tipo].length;
+    const ocupadas=reservas.filter(r=>!EXCL.includes(r.estado)&&!(co<=r.checkin||ci>=r.checkout)&&(esSinAsignar(r.depto)?tipoDeSinAsignar(r.depto)===tipo:TIPO_DE_UNIDAD[r.depto]===tipo)).length;
+    if(ocupadas>=cupo){toast(`Sin disponibilidad: las ${cupo} unidades ${TIPOS[tipo]} ya están ocupadas esas fechas`,false);return;}
+  } else {
+    const conf=reservas.find(r=>r.depto===dep&&!EXCL.includes(r.estado)&&!(co<=r.checkin||ci>=r.checkout));
+    if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast(`Superposición con ${conf.huesped} en ${DN[dep]}`,false);return;}
+  }
   const nr={id:uid(),depto:dep,huesped:hue,nac:$('r-nac').value.trim(),tel:($('r-tel')?.value.trim()||''),checkin:ci,checkout:co,precio:pre,plataforma:$('r-plataforma').value,destino:$('r-destino').value,estado:$('r-estado').value,notas:$('r-notas').value.trim(),early:$('r-early').checked,late:$('r-late').checked,creado:new Date().toISOString()};
   reservas.push(nr);
-  saveOneReserva(nr);clearReservaForm();toast('Reserva guardada');
+  saveOneReserva(nr);clearReservaForm();toast(esSinAsignar(dep)?'Reserva guardada — pendiente de asignar unidad ✓':'Reserva guardada');
 }
 function clearReservaForm(){['r-depto','r-huesped','r-nac','r-tel','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=$(id);if(e){e.value='';delete e.dataset.modified;}});['r-early','r-late'].forEach(id=>{const e=$(id);if(e)e.checked=false;});['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-gestion','cp-liquido'].forEach(id=>$(id).textContent='—');const b=$('temporada-badge');if(b)b.style.display='none';}
 
@@ -1149,10 +1167,30 @@ function renderReservas(){
       <td style="font-size:0.78rem;color:var(--muted)">${r.destino||'—'}</td>
       <td style="font-weight:600;color:var(--ok)">${senia?fmt(senia):'—'}</td>
       <td style="font-weight:600;color:${saldo?(pend<0.01?'var(--ok)':'var(--err)'):'var(--muted)'}">${saldo?fmt(saldo)+(pend<0.01?' ✓':''):'—'}</td>
-      <td>${ia?`<div style="display:flex;gap:6px"><button class="btn-icon-sm" onclick="editRes('${r.id}')" aria-label="Editar"><svg><use href="#i-edit"/></svg></button><button class="btn-icon-sm danger" onclick="delRes('${r.id}')" aria-label="Eliminar"><svg><use href="#i-close"/></svg></button>${r.tel?`<button class="btn-icon-sm btn-wa" onclick="waMsgHuesped('${r.id}')" title="WhatsApp al huésped" style="background:#128c5e;border-color:#128c5e"><svg><use href="#i-wa"/></svg></button>`:''}</div>`:''}</td>
+      <td>${ia?`<div style="display:flex;gap:6px">${esSinAsignar(r.depto)?`<button class="btn btn-gold btn-sm" onclick="asignarUnidad('${r.id}')" title="Asignar unidad física">🏠</button>`:''}<button class="btn-icon-sm" onclick="editRes('${r.id}')" aria-label="Editar"><svg><use href="#i-edit"/></svg></button><button class="btn-icon-sm danger" onclick="delRes('${r.id}')" aria-label="Eliminar"><svg><use href="#i-close"/></svg></button>${r.tel?`<button class="btn-icon-sm btn-wa" onclick="waMsgHuesped('${r.id}')" title="WhatsApp al huésped" style="background:#128c5e;border-color:#128c5e"><svg><use href="#i-wa"/></svg></button>`:''}</div>`:''}</td>
     </tr>`;
   }).join('');
 }
+
+// Asigna una unidad física concreta a una reserva "Sin asignar" (Booking por tipo)
+function asignarUnidad(id){
+  const r=reservas.find(x=>x.id===id);if(!r||!esSinAsignar(r.depto))return;
+  const tipo=tipoDeSinAsignar(r.depto);
+  const opciones=UNIDADES_POR_TIPO[tipo].filter(code=>{
+    const conf=reservas.find(x=>x.id!==id&&x.depto===code&&!['Cancelada','Non show','Devolución'].includes(x.estado)&&!(r.checkout<=x.checkin||r.checkin>=x.checkout));
+    return !conf;
+  });
+  if(!opciones.length){toast('No hay unidades libres de ese tipo para esas fechas',false);return;}
+  const lista=opciones.map((c,i)=>`${i+1}) ${DN[c]}`).join('\n');
+  const elec=prompt(`Unidades ${TIPOS[tipo]} disponibles para ${r.huesped} (${r.checkin} → ${r.checkout}):\n\n${lista}\n\nEscribí el número de la opción:`);
+  if(!elec)return;
+  const idx=parseInt(elec)-1;
+  if(isNaN(idx)||idx<0||idx>=opciones.length){toast('Opción inválida',false);return;}
+  r.depto=opciones[idx];
+  saveOneReserva(r);renderHoy();renderReservas();renderCalendario();
+  toast(`Asignada a ${DN[r.depto]} ✓`);
+}
+
 function delRes(id){if(cu!=='admin')return;if(!confirm('¿Eliminar reserva?'))return;reservas=reservas.filter(r=>r.id!==id);deleteOneReserva(id);renderReservas();toast('Reserva eliminada');}
 function exportReservas(){
   const h=['Depto','Huésped','Nacionalidad','Check-in','Check-out','Noches','USD/Noche','Subtotal','Com.Airbnb','Neto','Com.Gestión','Líquido','Estado','Plataforma','Destino cobro','Notas','Seña','Saldo'];
@@ -1259,8 +1297,10 @@ function renderCalendario(){
     // Registrar también el día de checkout para detectar same-day
     byDepCO[r.depto][r.checkout]=r;
   });
-  DEPTOS.forEach(code=>{
-    parts.push(`<div class="cal-depto" style="background:${DC[code]}">${DN[code]}</div>`);
+  TODAS_FILAS.forEach(code=>{
+    if(esSinAsignar(code)&&!Object.keys(byDep[code]).length)return;
+    const etiq=esSinAsignar(code)?`⏳ ${TIPOS[tipoDeSinAsignar(code)]}`:DN[code];
+    parts.push(`<div class="cal-depto" style="background:${DC[code]}">${etiq}</div>`);
     for(let d=1;d<=dim;d++){
       const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const res=byDep[code][ds];       // reserva que ocupa este día (CI..CO-1)
@@ -1327,7 +1367,7 @@ function openCalPopup(id){
     ${r.notas?`<div class="cal-popup-field" style="grid-column:1/-1"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.84rem;white-space:normal">${esc(r.notas)}</div></div>`:''}
   `;
   $('cal-popup-footer').innerHTML=cu==='admin'
-    ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')"><svg><use href="#i-edit"/></svg>Editar</button>${r.tel?`<button class="btn btn-sm btn-wa" onclick="waMsgHuesped('${r.id}')"><svg><use href="#i-wa"/></svg>Huésped</button>`:''}`
+    ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>${esSinAsignar(r.depto)?`<button class="btn btn-gold btn-sm" onclick="closeCalPopup();asignarUnidad('${r.id}')">🏠 Asignar unidad</button>`:''}<button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')"><svg><use href="#i-edit"/></svg>Editar</button>${r.tel?`<button class="btn btn-sm btn-wa" onclick="waMsgHuesped('${r.id}')"><svg><use href="#i-wa"/></svg>Huésped</button>`:''}`
     :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
   pop.classList.add('show');
 }
@@ -1687,6 +1727,18 @@ function renderHoy(){
     <div class="card"><div class="card-title"><div class="dot" style="background:var(--ok)"></div>Check-ins HOY · ${ciHoy.length}</div>${colCI}</div>
     <div class="card"><div class="card-title"><div class="dot" style="background:var(--accent)"></div>Check-outs HOY · ${coHoy.length}</div>${colCO}</div>
     <div class="card"><div class="card-title"><div class="dot" style="background:var(--err)"></div>A Limpiar · ${aLimpiar.length}</div>${colLimp}</div>`;
+  // Aviso pendientes de asignar
+  const sinAsignar=reservas.filter(r=>esSinAsignar(r.depto)&&!['Cancelada','Non show','Devolución'].includes(r.estado)).sort((a,b)=>a.checkin.localeCompare(b.checkin));
+  const avisoSA=$('aviso-sin-asignar');
+  if(avisoSA){
+    if(sinAsignar.length){
+      avisoSA.style.display='block';
+      avisoSA.innerHTML=`<div class="card" style="border-left:4px solid #c8a84b;">
+        <div class="card-title"><div class="dot" style="background:#c8a84b"></div>⏳ Pendientes de asignar unidad · ${sinAsignar.length}</div>
+        ${sinAsignar.map(r=>`<div class="dash-item"><div class="dash-item-left"><span class="depto-tag" style="background:${TIPO_COLOR[tipoDeSinAsignar(r.depto)]}">${TIPOS[tipoDeSinAsignar(r.depto)]}</span><span class="dash-item-name">${r.huesped} · ${fmtD(r.checkin)} → ${fmtD(r.checkout)}</span></div><button class="btn btn-gold btn-sm" onclick="asignarUnidad('${r.id}')">🏠 Asignar</button></div>`).join('')}
+      </div>`;
+    } else { avisoSA.style.display='none'; }
+  }
   const ps=[...pr].sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);
   $('proximos-checkins').innerHTML=ps.length
     ?ps.map(r=>`<div class="dash-item"><div class="dash-item-left"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span><span class="dash-item-name">${esc(r.huesped)}</span></div><span class="dash-item-meta">${fmtD(r.checkin)}</span></div>`).join('')
