@@ -152,6 +152,8 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .btn-row{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;flex-wrap:wrap;}
 
 .table-wrap{overflow-x:auto;}
+.table-scroll-mirror{overflow-x:auto;overflow-y:hidden;height:12px;position:sticky;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line-1);}
+.table-scroll-mirror-inner{height:1px;}
 table{width:100%;border-collapse:collapse;font-size:0.83rem;}
 thead tr{border-bottom:1px solid var(--line-2);}
 thead th{color:var(--muted);font-weight:600;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;padding:12px 14px;text-align:left;white-space:nowrap;background:var(--paper-2);}
@@ -542,10 +544,11 @@ html.dark .xenia-input{background:var(--paper-3);}
           </div>
         </div>
         <div class="card" style="padding:0;overflow:hidden;">
-          <div class="table-wrap"><table>
+          <div class="table-wrap" id="res-table-wrap"><table>
             <thead><tr><th class="res-sticky-1">#</th><th class="res-sticky-2">Depto</th><th class="res-sticky-3">Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>USD/N</th><th>Subtotal</th><th>Airbnb</th><th>Neto</th><th>Gestión</th><th>Líquido</th><th>Estado</th><th>Destino</th><th>Seña</th><th>Saldo</th><th></th></tr></thead>
             <tbody id="tabla-reservas"></tbody>
           </table></div>
+          <div class="table-scroll-mirror" id="res-scroll-mirror"><div class="table-scroll-mirror-inner" id="res-scroll-inner"></div></div>
         </div>
       </div>
 
@@ -2733,6 +2736,24 @@ Respondé basándote en los datos reales y en el conocimiento de la app.`;
     console.error('Xenia error:',e);
   }
 }
+
+// ── SCROLL HORIZONTAL FIJO EN TABLA DE RESERVAS ──────────────────────
+(function(){
+  function initScrollMirror(){
+    const wrap = document.getElementById('res-table-wrap');
+    const mirror = document.getElementById('res-scroll-mirror');
+    const inner = document.getElementById('res-scroll-inner');
+    if(!wrap||!mirror||!inner) return;
+    function syncWidth(){ inner.style.width = wrap.scrollWidth + 'px'; }
+    syncWidth();
+    wrap.addEventListener('scroll', ()=>{ mirror.scrollLeft = wrap.scrollLeft; });
+    mirror.addEventListener('scroll', ()=>{ wrap.scrollLeft = mirror.scrollLeft; });
+    const ro = new ResizeObserver(syncWidth);
+    ro.observe(wrap);
+  }
+  document.addEventListener('DOMContentLoaded', initScrollMirror);
+})();
+// ─────────────────────────────────────────────────────────────────────
 </script>
 
 <!-- Modal ficha detalle de reserva -->
