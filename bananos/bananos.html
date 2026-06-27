@@ -807,14 +807,14 @@ let _semanaBase = null; // lunes de la semana activa
 
 function setVistaCalendario(v){
   _vistaCalendario = v;
-  $('btn-vista-mes').className = 'btn btn-sm ' + (v==='mes' ? 'btn-primary' : 'btn-outline');
-  $('btn-vista-sem').className = 'btn btn-sm ' + (v==='sem' ? 'btn-primary' : 'btn-outline');
-  $('cal-vista-label').textContent = v==='mes' ? 'vista mensual' : 'vista semanal';
+  document.getElementById('btn-vista-mes').className = 'btn btn-sm ' + (v==='mes' ? 'btn-primary' : 'btn-outline');
+  document.getElementById('btn-vista-sem').className = 'btn btn-sm ' + (v==='sem' ? 'btn-primary' : 'btn-outline');
+  document.getElementById('cal-vista-label').textContent = v==='mes' ? 'vista mensual' : 'vista semanal';
   // Mostrar/ocultar controles
   const showMes = v === 'mes';
   document.querySelectorAll('#cal-mes, label[for="cal-mes"]').forEach(el=>el.style.display=showMes?'':'none');
   document.querySelectorAll('#lbl-anio, #cal-anio').forEach(el=>el.style.display=showMes?'':'none');
-  $('nav-semana').style.display = showMes ? 'none' : 'flex';
+  document.getElementById('nav-semana').style.display = showMes ? 'none' : 'flex';
   if(v==='sem'){
     if(!_semanaBase) _semanaBase = getLunes(new Date());
     actualizarLabelSemana();
@@ -851,7 +851,7 @@ function actualizarLabelSemana(){
   const domingo = new Date(_semanaBase);
   domingo.setDate(domingo.getDate() + 6);
   const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-  $('semana-label').textContent = `${fmt(lunes)} — ${fmt(domingo)}`;
+  document.getElementById('semana-label').textContent = `${fmt(lunes)} — ${fmt(domingo)}`;
 }
 
 function renderCalendarioSemanal(){
@@ -916,7 +916,7 @@ function renderCalendarioSemanal(){
   });
 
   parts.push('</div>');
-  $('calendario-grid').innerHTML = parts.join('');
+  document.getElementById('calendario-grid').innerHTML = parts.join('');
 }
 // ─────────────────────────────────────────────────────────────────────
 
@@ -1275,7 +1275,7 @@ function abrirFichaRes(id){
   const r = reservas.find(x=>x.id===id);
   if(!r) return;
   const noches = calcNights(r.checkin, r.checkout);
-  $('ficha-nombre').textContent = r.huesped;
+  document.getElementById('ficha-nombre').textContent = r.huesped;
   const campos = [
     ['Unidad', DN[r.depto]||r.depto],
     ['Check-in', fmtD(r.checkin)],
@@ -1290,23 +1290,23 @@ function abrirFichaRes(id){
     ['Teléfono', r.tel||'—'],
     ['Notas', r.notas||'—'],
   ];
-  $('ficha-body').innerHTML = campos.map(([k,v])=>`
+  document.getElementById('ficha-body').innerHTML = campos.map(([k,v])=>`
     <div>
       <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px">${k}</div>
       <div style="font-weight:500">${esc(String(v))}</div>
     </div>`).join('');
   const ia = cu==='admin';
-  $('ficha-actions').innerHTML = `
+  document.getElementById('ficha-actions').innerHTML = `
     <button class="btn btn-outline btn-sm" onclick="cerrarFichaRes()">Cerrar</button>
     ${ia?`<button class="btn btn-primary btn-sm" onclick="cerrarFichaRes();editRes('${r.id}')"><svg><use href="#i-edit"/></svg> Editar</button>`:''}
     ${r.tel&&ia?`<button class="btn btn-sm btn-wa" onclick="waMsgHuesped('${r.id}')"><svg><use href="#i-wa"/></svg> Huésped</button>`:''}
   `;
-  const modal = $('modal-ficha-res');
+  const modal = document.getElementById('modal-ficha-res');
   modal.style.display = 'flex';
 }
 
 function cerrarFichaRes(){
-  $('modal-ficha-res').style.display = 'none';
+  document.getElementById('modal-ficha-res').style.display = 'none';
 }
 // ─────────────────────────────────────────────────────────────────────
 
