@@ -121,6 +121,8 @@ textarea{resize:vertical;min-height:80px;}
 .btn-row{display:flex;gap:12px;margin-top:24px;justify-content:flex-end;flex-wrap:wrap;}
 
 .table-wrap{overflow-x:auto;}
+.table-scroll-mirror{overflow-x:auto;overflow-y:hidden;height:14px;position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--surface);border-top:2px solid var(--line-1);display:none;}
+.table-scroll-mirror-inner{height:1px;}
 table{width:100%;border-collapse:collapse;font-size:0.85rem;}
 thead tr{background:var(--green-dark);}
 thead th{color:var(--white);font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;padding:12px 14px;text-align:left;white-space:nowrap;}
@@ -514,15 +516,20 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
             <thead><tr><th class="res-sticky-1">#</th><th class="res-sticky-2">Cabaña</th><th class="res-sticky-3">Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Pax</th><th>$/N</th><th>Subtotal</th><th>Plus</th><th>Com.</th><th>Líquido</th><th>Seña</th><th>Saldo</th><th>Temp.</th><th>Estado</th><th>Plat.</th><th>Destino</th><th></th></tr></thead>
             <tbody id="tabla-reservas"></tbody>
           </table></div>
+          <div class="table-scroll-mirror" id="res-scroll-mirror"><div class="table-scroll-mirror-inner" id="res-scroll-inner"></div></div>
         </div>
       </div>
 
       <!-- OCUPACIÓN -->
       <div class="screen" id="screen-ocupacion">
         <div class="section-title">Ocupación</div>
-        <div class="section-sub">Calendario mes a mes</div>
+        <div class="section-sub">Calendario — <span id="cal-vista-label">vista mensual</span></div>
         <div class="card">
           <div class="cal-controls">
+            <div style="display:flex;gap:6px;margin-right:8px">
+              <button id="btn-vista-mes" class="btn btn-primary btn-sm" onclick="setVistaCalendario('mes')">Mensual</button>
+              <button id="btn-vista-sem" class="btn btn-outline btn-sm" onclick="setVistaCalendario('sem')">Semanal</button>
+            </div>
             <label>Mes:</label>
             <select id="cal-mes" onchange="renderCalendario()">
               <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option>
@@ -795,6 +802,124 @@ const NAV_META={
 };
 const MOBILE_NAV={admin:['nueva-reserva','reservas','ocupacion','rendimiento','avisos'],gabi:['nueva-reserva','reservas','ocupacion','rendimiento','avisos'],vol:['ocupacion','avisos']};
 const CABANAS=['C2','C3','C5','C6','C7','C8','C9'];
+let _vistaCalendario = 'mes'; // 'mes' | 'sem'
+let _semanaBase = null; // lunes de la semana activa
+
+function setVistaCalendario(v){
+  _vistaCalendario = v;
+  $('btn-vista-mes').className = 'btn btn-sm ' + (v==='mes' ? 'btn-primary' : 'btn-outline');
+  $('btn-vista-sem').className = 'btn btn-sm ' + (v==='sem' ? 'btn-primary' : 'btn-outline');
+  $('cal-vista-label').textContent = v==='mes' ? 'vista mensual' : 'vista semanal';
+  // Mostrar/ocultar controles
+  const showMes = v === 'mes';
+  document.querySelectorAll('#cal-mes, label[for="cal-mes"]').forEach(el=>el.style.display=showMes?'':'none');
+  document.querySelectorAll('#lbl-anio, #cal-anio').forEach(el=>el.style.display=showMes?'':'none');
+  $('nav-semana').style.display = showMes ? 'none' : 'flex';
+  if(v==='sem'){
+    if(!_semanaBase) _semanaBase = getLunes(new Date());
+    actualizarLabelSemana();
+  }
+  renderCalendario();
+}
+
+function getLunes(fecha){
+  const d = new Date(fecha);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function moverSemana(n){
+  if(!_semanaBase) _semanaBase = getLunes(new Date());
+  _semanaBase = new Date(_semanaBase);
+  _semanaBase.setDate(_semanaBase.getDate() + n * 7);
+  actualizarLabelSemana();
+  renderCalendario();
+}
+
+function irHoySemana(){
+  _semanaBase = getLunes(new Date());
+  actualizarLabelSemana();
+  renderCalendario();
+}
+
+function actualizarLabelSemana(){
+  if(!_semanaBase) return;
+  const lunes = new Date(_semanaBase);
+  const domingo = new Date(_semanaBase);
+  domingo.setDate(domingo.getDate() + 6);
+  const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+  $('semana-label').textContent = `${fmt(lunes)} — ${fmt(domingo)}`;
+}
+
+function renderCalendarioSemanal(){
+  if(!_semanaBase) _semanaBase = getLunes(new Date());
+  const dias = [];
+  const DIAS_NOMBRE = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  for(let i=0;i<7;i++){
+    const d = new Date(_semanaBase);
+    d.setDate(d.getDate() + i);
+    dias.push(d);
+  }
+
+  const parts = [`<div class="cal-grid" style="grid-template-columns:70px repeat(7,1fr)">`,
+    `<div class="cal-header cal-header-depto">Depto</div>`];
+
+  dias.forEach(d=>{
+    const dow = d.getDay();
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const esHoy = d.getTime() === hoy.getTime();
+    parts.push(`<div class="cal-header${dow===0||dow===6?' weekend':''}${esHoy?' cal-hoy':''}" style="${esHoy?'font-weight:700;background:var(--accent);color:white;':''}">${DIAS_NOMBRE[dow]} ${d.getDate()}/${d.getMonth()+1}</div>`);
+  });
+
+  const byDep={};DEPTOS.forEach(c=>byDep[c]={});
+  const byDepCO={};DEPTOS.forEach(c=>byDepCO[c]={});
+  reservas.forEach(r=>{
+    if(r.estado==='Cancelada'||!byDep[r.depto])return;
+    const s=new Date(r.checkin),e=new Date(r.checkout);
+    for(let d=new Date(s);d<e;d.setDate(d.getDate()+1)){
+      byDep[r.depto][d.toISOString().split('T')[0]]=r;
+    }
+    byDepCO[r.depto][r.checkout]=r;
+  });
+
+  DEPTOS.forEach(code=>{
+    parts.push(`<div class="cal-depto" style="background:${DC[code]}">${DN[code]}</div>`);
+    dias.forEach(d=>{
+      const ds = d.toISOString().split('T')[0];
+      const res = byDep[code][ds];
+      const resOut = byDepCO[code][ds];
+      const bloqInfo = !res && getBloqueo(code, ds);
+      const bloqLabel = bloqInfo ? bloqInfo.plat === 'Airbnb' ? 'A' : bloqInfo.plat === 'Booking' ? 'B' : 'X' : '';
+
+      if(res){
+        const isCI = res.checkin === ds, isCO = res.checkout === ds;
+        const nombre = res.huesped.split(' ')[0];
+        // En semanal tenemos más espacio — mostrar más info
+        const info = `${nombre}${isCI?' ✈':''}${isCO?' 🚪':''}`;
+        const plat = res.plataforma || '';
+        parts.push(`<div class="cal-cell occupied" style="background:${DC[code]}22;border-left:3px solid ${DC[code]};cursor:pointer;padding:4px 6px;font-size:11px;line-height:1.4" onclick="openCalPopup('${res.id}','${ds}')">
+          <div style="font-weight:600">${esc(nombre)}</div>
+          <div style="color:var(--muted)">${plat}${isCI?' CI':''}${resOut&&resOut.id!==res.id?' / CO':''}</div>
+        </div>`);
+      } else if(bloqInfo){
+        parts.push(`<div class="cal-cell blocked" title="${bloqInfo.plat}"><span class="cal-bloq-label">${bloqLabel}</span></div>`);
+      } else if(resOut){
+        // Same-day: checkout esta mañana, libre esta tarde
+        parts.push(`<div class="cal-cell same-day" onclick="openCalPopup('${resOut.id}','${ds}')"><span class="cal-checkout-label">CO</span></div>`);
+      } else {
+        parts.push(`<div class="cal-cell free"></div>`);
+      }
+    });
+  });
+
+  parts.push('</div>');
+  $('calendario-grid').innerHTML = parts.join('');
+}
+// ─────────────────────────────────────────────────────────────────────
+
 const DC={C2:'#3d7a25',C3:'#c55a11',C5:'#c00000',C6:'#1f4e79',C7:'#833c00',C8:'#1a5276',C9:'#7030a0',SA_big:'#9b1c1c',SA_tj:'#0e7490',SA_te:'#6d28d9'};
 const DN={C2:'Cabaña 2',C3:'Cabaña 3',C5:'Cabaña 5',C6:'Cabaña 6',C7:'Cabaña 7',C8:'Cabaña 8',C9:'Cabaña 9',SA_big:'Sin asignar (Big)',SA_tj:'Sin asignar (Tiny Jacuzzi)',SA_te:'Sin asignar (Tiny Estándar)'};
 // Sistema de tipos (Booking vende por tipo, no por cabaña física — se asigna unidad después)
@@ -1146,6 +1271,45 @@ function renderReservas(){
     <td><div style="display:flex;gap:6px">${esSinAsignar(r.depto)?`<button class="btn btn-gold btn-sm" onclick="asignarCabana('${r.id}')" title="Asignar cabaña">🏠</button>`:''}<button class="btn btn-outline btn-sm" onclick="editRes('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delRes('${r.id}')">✕</button></div></td></tr>`;
   }).join('');
 }
+function abrirFichaRes(id){
+  const r = reservas.find(x=>x.id===id);
+  if(!r) return;
+  const noches = calcNights(r.checkin, r.checkout);
+  $('ficha-nombre').textContent = r.huesped;
+  const campos = [
+    ['Unidad', DN[r.depto]||r.depto],
+    ['Check-in', fmtD(r.checkin)],
+    ['Check-out', fmtD(r.checkout)],
+    ['Noches', noches],
+    ['Plataforma', r.plataforma||'—'],
+    ['Estado', r.estado||'—'],
+    ['Precio', formatMoney(r.precio||0)],
+    ['Seña', r.senia ? formatMoney(r.senia) : '—'],
+    ['Saldo', r.saldo ? formatMoney(r.saldo) : '—'],
+    ['Nacionalidad', r.nac||'—'],
+    ['Teléfono', r.tel||'—'],
+    ['Notas', r.notas||'—'],
+  ];
+  $('ficha-body').innerHTML = campos.map(([k,v])=>`
+    <div>
+      <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px">${k}</div>
+      <div style="font-weight:500">${esc(String(v))}</div>
+    </div>`).join('');
+  const ia = cu==='admin';
+  $('ficha-actions').innerHTML = `
+    <button class="btn btn-outline btn-sm" onclick="cerrarFichaRes()">Cerrar</button>
+    ${ia?`<button class="btn btn-primary btn-sm" onclick="cerrarFichaRes();editRes('${r.id}')"><svg><use href="#i-edit"/></svg> Editar</button>`:''}
+    ${r.tel&&ia?`<button class="btn btn-sm btn-wa" onclick="waMsgHuesped('${r.id}')"><svg><use href="#i-wa"/></svg> Huésped</button>`:''}
+  `;
+  const modal = $('modal-ficha-res');
+  modal.style.display = 'flex';
+}
+
+function cerrarFichaRes(){
+  $('modal-ficha-res').style.display = 'none';
+}
+// ─────────────────────────────────────────────────────────────────────
+
 function delRes(id){
   if(!confirm('¿Eliminar reserva?'))return;
   reservas=reservas.filter(r=>r.id!==id);
@@ -2226,5 +2390,16 @@ Respondé basándote en los datos reales y en el conocimiento de la app. Si no s
   }
 }
 </script>
+<!-- Modal ficha detalle de reserva -->
+<div id="modal-ficha-res" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center" onclick="if(event.target===this)cerrarFichaRes()">
+  <div style="background:var(--surface);border-radius:12px;padding:28px;max-width:480px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 id="ficha-nombre" style="font-size:16px;font-weight:600;color:var(--accent)"></h3>
+      <button onclick="cerrarFichaRes()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted)">✕</button>
+    </div>
+    <div id="ficha-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:13px"></div>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end" id="ficha-actions"></div>
+  </div>
+</div>
 </body>
 </html>
