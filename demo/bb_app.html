@@ -1008,7 +1008,7 @@ async function loadFromBins(){
 
 async function saveWaConfig(wa){_sl('cn_wa',wa);}
 async function saveIcalConfig(ical){_sl('cn_ical',ical);}
-async function saveBloqueos(bloqueos){_sl('cn_bloqueos',bloqueos);}
+async function saveBloqueos(bloqueos){_sl('bb_bloqueos',bloqueos);}
 async function upsertReserva(r){_sl('bb_r',reservas);}
 async function deleteReservaRemota(id){_sl('bb_r',reservas);}
 async function updateDispBin(data){}
@@ -1556,7 +1556,7 @@ function openBloqPopup(code,ds){
 }
 function eliminarBloqueo(code,plat){
   if(!confirm('¿Eliminar todos los bloqueos de '+(plat==='Bk'?'Booking':'Airbnb')+' para '+DN[code]+'?'))return;
-  const bloqueos=_lo('cn_bloqueos',{});
+  const bloqueos=_lo('bb_bloqueos',{});
   bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat);
   saveBloqueos(bloqueos);
   renderCalendario();
@@ -1996,7 +1996,7 @@ function downloadBackup(){
     version:1,fecha:new Date().toISOString(),
     reservas:reservas,gastos:gastos,
     pins:_lo('bb_p',DEFAULT_PINS),wa:_lo('cn_wa',{admin_e:'',mant:''}),
-    ical:_lo('cn_ical',{}),bloqueos:_lo('cn_bloqueos',{}),propMap:_lo('cn_propMap',{})
+    ical:_lo('bb_ical',{}),bloqueos:_lo('bb_bloqueos',{}),propMap:_lo('cn_propMap',{})
   };
   const json=JSON.stringify(data,null,2);
   const blob=new Blob([json],{type:'application/json'});
@@ -2020,7 +2020,7 @@ function restoreBackup(file){
       if(data.pins)_sl('bb_p',data.pins);
       if(data.wa)_sl('cn_wa',data.wa);
       if(data.ical)_sl('cn_ical',data.ical);
-      if(data.bloqueos)_sl('cn_bloqueos',data.bloqueos);
+      if(data.bloqueos)_sl('bb_bloqueos',data.bloqueos);
       if(data.propMap)_sl('cn_propMap',data.propMap);
       if(data.reservas&&data.reservas.length>0){_sl('bb_r',data.reservas);for(const r of data.reservas)await upsertReserva(r);await updateDispBin(data.reservas);}
       if(data.gastos&&data.gastos.length>0)await saveToBin('gastos',data.gastos);
@@ -2058,8 +2058,8 @@ function checkBackupReminder(){
 
 // ── CONFIG ──
 function renderIcalConfig(){
-  const ical=_lo('cn_ical',{});
-  const icalBk=_lo('cn_ical_bk',{});
+  const ical=_lo('bb_ical',{});
+  const icalBk=_lo('bb_ical_bk',{});
   const sec=$('ical-config-section');
   if(!sec)return;
   sec.innerHTML=DEPTOS.map(code=>`
@@ -2081,13 +2081,13 @@ function guardarIcal(){
     const v=$('ical-'+code);if(v&&v.value.trim())ical[code]=v.value.trim();
     const vb=$('ical-bk-'+code);if(vb&&vb.value.trim())icalBk[code]=vb.value.trim();
   });
-  _sl('cn_ical_bk',icalBk);
+  _sl('bb_ical_bk',icalBk);
   saveIcalConfig(ical);
   toast('Links iCal guardados');
 }
 async function sincronizarIcal(){
-  const ical=_lo('cn_ical',{});
-  const icalBk=_lo('cn_ical_bk',{});
+  const ical=_lo('bb_ical',{});
+  const icalBk=_lo('bb_ical_bk',{});
   const toSync=[];
   DEPTOS.forEach(code=>{
     if(ical[code])toSync.push({code,url:ical[code],plat:'Air'});
@@ -2096,7 +2096,7 @@ async function sincronizarIcal(){
   if(!toSync.length){toast('No hay links iCal configurados',false);return;}
   const status=$('ical-status');
   if(status)status.textContent='Sincronizando...';
-  const bloqueos=_lo('cn_bloqueos',{});
+  const bloqueos=_lo('bb_bloqueos',{});
   let ok=0,err=0;
   const proxies=['https://icalproxy.huuventa.workers.dev/?url='];
   for(const {code,url,plat} of toSync){
@@ -2166,21 +2166,12 @@ function parseIcal(text,plat){
 }
 function icalDate(s){if(s.length===8)return s.substring(0,4)+'-'+s.substring(4,6)+'-'+s.substring(6,8);return s;}
 function isBlocked(code,dateStr){return!!getBloqueo(code,dateStr);}
-function getBloqueo(code,dateStr){const bloqueos=_lo('cn_bloqueos',{});const events=bloqueos[code]||[];return events.find(e=>e.start<=dateStr&&e.end>dateStr)||null;}
+function getBloqueo(code,dateStr){const bloqueos=_lo('bb_bloqueos',{});const events=bloqueos[code]||[];return events.find(e=>e.start<=dateStr&&e.end>dateStr)||null;}
 
 function renderConfig(){
   const monSel=$('cfg-moneda');if(monSel)monSel.value=monedaActual;
-  pins=_lo('bb_p',{...DEFAULT_PINS});
-  const us=[{k:'admin',n:'Admin (vos)',d:'Acceso total'},{k:'dueno',n:'Propietario',d:'Solo lectura'},{k:'admin_e',n:'Admin Edificio',d:'Ocupación + avisos'},{k:'mant',n:'Mantenimiento',d:'Avisos hoy y mañana'}];
-  $('pin-settings-grid').innerHTML=us.map(u=>`
-    <div class="pin-user-card">
-      <h4>${u.n}</h4><p>${u.d}</p>
-      <div class="pin-input-row">
-        <input type="password" id="pi-${u.k}" value="${esc(pins[u.k]||'')}" maxlength="4" placeholder="••••">
-        <button class="btn btn-outline btn-sm" onclick="tp('${u.k}')" aria-label="Mostrar"><svg><use href="#i-eye"/></svg></button>
-      </div>
-    </div>`).join('');
-  const wa=_lo('cn_wa',{admin_e:'',mant:''});
+  // PINs no aplica para B&B propietaria única
+
   renderIcalConfig();
   $('wa-config-section').innerHTML=`
     <div class="config-section">
@@ -2307,7 +2298,7 @@ function waMsg(rid,rol){
     +'*Plataforma:* '+r.plataforma+'\n'
     +(r.notas?'*Notas:* '+r.notas+'\n':'')
     +'\nConfirmar recepción.';
-  const wa=_lo('cn_wa',{admin_e:'',mant:''});
+
   const num=wa[rol];
   if(!num){toast('Configurá el número en Config.',false);return;}
   window.open('https://wa.me/'+num.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');
