@@ -14,7 +14,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231a1918'/><text y='68' x='50' font-family='serif' font-size='56' text-anchor='middle' fill='%23b8833d'>C</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js">
+// ── AUTO-LOGIN GREEN HOUSE B&B ──
+// Entrada directa sin PIN — una sola propietaria
+window.addEventListener('DOMContentLoaded', function(){
+  cu = 'admin';
+  const ls = document.getElementById('login-screen');
+  const app = document.getElementById('app');
+  if(ls) ls.style.display = 'none';
+  if(app) app.style.display = 'block';
+  const ubName = document.getElementById('ub-name');
+  const ubRole = document.getElementById('ub-role');
+  const mobileUser = document.getElementById('mobile-user');
+  const mcBtn = document.getElementById('mobile-config-btn');
+  if(ubName) ubName.textContent = 'Green House B&B';
+  if(ubRole) ubRole.textContent = 'Administrador';
+  if(mobileUser) mobileUser.textContent = 'Green House B&B';
+  if(mcBtn) mcBtn.style.display = NAV_CONFIG[cu].includes('config') ? 'flex' : 'none';
+  buildNav(); fillPlatformSelects();
+  const topbarDate = document.getElementById('topbar-date');
+  if(topbarDate) topbarDate.textContent = new Date().toLocaleDateString('es-AR', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  showScreen('dashboard');
+  loadFromBins();
+});
+</script>
 <style>
 :root{
   --ink:#1a1918;--ink-2:#2a2927;--muted:#6b6660;--muted-2:#9c968e;
@@ -886,63 +909,16 @@ const $=id=>document.getElementById(id);
 const qAll=s=>document.querySelectorAll(s);
 
 async function loadFromBins(){
-  // ── Reservas ──
-  try{
-    const res=await fetch(SB_URL+'/rest/v1/reservas?select=*&order=creado.asc',{headers:SB_HDR});
-    if(res.ok){
-      let remoto=await res.json();
-      const local=lo('gh_r',[]);
-      if(remoto.length===0&&local.length>0){
-        // Guard: la nube devolvió 0 pero hay datos locales — NO pisar el cache
-        console.warn('Supabase devolvió 0 reservas con '+local.length+' locales — se conserva el cache');
-        toast('⚠️ La nube devolvió 0 reservas. Usando datos locales — revisá Supabase.',false);
-        reservas=local;
-      } else {
-        const p=getPending();
-        // Reincorporar reservas locales pendientes de subir que aún no están en la nube
-        const faltan=local.filter(r=>p.up.includes(r.id)&&!remoto.some(x=>x.id===r.id));
-        // Excluir las marcadas para borrar que la nube todavía tiene
-        remoto=remoto.filter(r=>!p.del.includes(r.id));
-        reservas=remoto.concat(faltan);
-        sl('gh_r',reservas);
-        console.log('Supabase: '+remoto.length+' reservas cargadas'+(faltan.length?' + '+faltan.length+' pendientes locales':''));
-      }
-    } else {
-      console.log('Supabase error, usando localStorage');
-      reservas=lo('gh_r',[]);
-    }
-  }catch(e){
-    console.log('Supabase no disponible, usando localStorage',e.message);
-    reservas=lo('gh_r',[]);
-  }
-  // ── Gastos (Supabase con fallback a localStorage) ──
-  try{
-    const res=await fetch(SB_URL+'/rest/v1/gastos_catalinas?select=*&order=fecha.asc',{headers:SB_HDR});
-    if(res.ok){
-      let remoto=await res.json();
-      const local=lo('gh_g',[]);
-      if(remoto.length===0&&local.length>0){
-        // La nube no tiene gastos pero el local sí: migración inicial — subirlos
-        console.log('Migrando '+local.length+' gastos locales a Supabase');
-        gastos=local;
-        local.forEach(g=>upsertGasto(g));
-      } else {
-        const p=getPending();
-        const faltan=local.filter(g=>p.gup.includes(g.id)&&!remoto.some(x=>x.id===g.id));
-        remoto=remoto.filter(g=>!p.gdel.includes(g.id));
-        gastos=remoto.concat(faltan);
-        sl('gh_g',gastos);
-      }
-    } else {
-      gastos=lo('gh_g',[]);
-    }
-  }catch(e){
-    gastos=lo('gh_g',[]);
-  }
-  // Reintentar operaciones pendientes en background
-  retryPending();
-  // Config (iCal, WhatsApp, bloqueos) sigue en localStorage
+  // Green House B&B — solo localStorage, claves gh_
+  reservas = lo('gh_r', []);
+  gastos = lo('gh_g', []);
+  const ical = lo('gh_ical', {});
+  Object.assign(icalBlocksAb||{}, ical);
+  console.log('Green House: '+reservas.length+' reservas, '+gastos.length+' gastos');
+  renderHoy(); renderReservas(); renderCalendario(); renderGastos();
+  renderRendimiento(); renderAvisos(); renderHuespedes();
 }
+
 
 async function saveWaConfig(wa){sl('gh_wa',wa);}
 async function saveIcalConfig(ical){sl('gh_ical',ical);}
