@@ -446,7 +446,7 @@ html.dark .xenia-input{background:var(--paper-3);}
   <nav class="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-mark">C</div>
-      <div><h1>Mi Propiedad</h1><p>B&B</p></div>
+      <div><h1>Green House B&amp;B</h1><p>B&B</p></div>
     </div>
     <div class="user-badge">
       <div style="min-width:0;flex:1"><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
@@ -510,7 +510,7 @@ html.dark .xenia-input{background:var(--paper-3);}
               <select id="r-plataforma" onchange="calcNights();checkTemporada()"></select>
             </div>
             <div class="form-group"><label>Destino del cobro</label>
-              <select id="r-destino"><option value="">— Sin especificar —</option><option value="Airbnb">Airbnb</option><option value="Booking">Booking</option><option value="Efectivo">Efectivo</option><option value="Payoneer">Payoneer</option><option value="Billetera virtual">Billetera virtual</option></select>
+              <select id="r-destino"><option value="">— Sin especificar —</option><option value="Airbnb">Airbnb</option><option value="Booking">Booking</option><option value="Efectivo">Efectivo</option><option value="Payoneer">Payoneer</option><option value="PayPal">PayPal</option><option value="Billetera virtual">Billetera virtual</option></select>
             </div>
             <div class="form-group full"><label>Notas</label><textarea id="r-notas" placeholder="Llegada tardía, mascota, etc."></textarea></div>
           </div>
@@ -655,7 +655,7 @@ html.dark .xenia-input{background:var(--paper-3);}
 
       <div class="screen" id="screen-config">
         <div class="section-title">Configuración</div>
-        <div class="section-sub">PINs, WhatsApp y backup</div>
+        <div class="section-sub">Plataformas, precios y backup</div>
         <div class="card">
           <div class="card-title"><div class="dot"></div>Moneda</div>
           <div style="margin-bottom:16px;font-size:0.84rem;color:var(--muted)">Seleccioná la moneda en la que operás. Se aplicará en toda la app.</div>
@@ -680,12 +680,7 @@ html.dark .xenia-input{background:var(--paper-3);}
           </div>
           <div id="backup-status" style="margin-top:12px;font-size:0.78rem;color:var(--muted)"></div>
         </div>
-        <div class="card">
-          <div class="card-title"><div class="dot"></div>PINs de Acceso</div>
-          <div class="pin-settings-grid" id="pin-settings-grid"></div>
-          <div id="wa-config-section"></div>
-          <div class="btn-row"><button class="btn btn-primary" onclick="guardarConfig()">Guardar Configuración</button></div>
-        </div>
+
         <div class="card">
           <div class="card-title"><div class="dot"></div>Plataformas y Comisiones</div>
           <p style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;line-height:1.6">Configurá las plataformas que usás y sus comisiones. Com.% se descuenta del subtotal. Com.Canal% se activa solo en reservas con estado Shown.</p>
@@ -734,7 +729,7 @@ html.dark .xenia-input{background:var(--paper-3);}
         <select id="e-plataforma"></select>
         </div>
         <div class="form-group"><label>Destino del cobro</label>
-        <select id="e-destino"><option value="">— Sin especificar —</option><option value="Airbnb">Airbnb</option><option value="Booking">Booking</option><option value="Efectivo">Efectivo</option><option value="Payoneer">Payoneer</option><option value="Billetera virtual">Billetera virtual</option></select>
+        <select id="e-destino"><option value="">— Sin especificar —</option><option value="Airbnb">Airbnb</option><option value="Booking">Booking</option><option value="Efectivo">Efectivo</option><option value="Payoneer">Payoneer</option><option value="PayPal">PayPal</option><option value="Billetera virtual">Billetera virtual</option></select>
       </div>
       <div class="form-group full"><label>Notas</label><textarea id="e-notas"></textarea></div>
       <div id="e-calc-resumen" style="background:var(--ink);border-radius:var(--r);padding:14px 18px;margin-top:4px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;font-size:0.78rem">
