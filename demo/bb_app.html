@@ -2628,7 +2628,7 @@ window.addEventListener('DOMContentLoaded', function(){
   if(typeof fillPlatformSelects === 'function') fillPlatformSelects();
   var td = document.getElementById('topbar-date');
   if(td) td.textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  if(typeof showScreen === 'function') showScreen('hoy');
+  if(typeof showScreen === 'function') showScreen('dashboard');
   if(typeof loadFromBins === 'function') loadFromBins();
 });
 </script>
