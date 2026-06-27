@@ -686,11 +686,7 @@ html.dark .xenia-input{background:var(--paper-3);}
           <p style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;line-height:1.6">Configurá las plataformas que usás y sus comisiones. Com.% se descuenta del subtotal. Com.Canal% se activa solo en reservas con estado Shown.</p>
           <div id="plataformas-config-section"></div>
         </div>
-        <div class="card">
-          <div class="card-title"><div class="dot"></div>Temporadas — Precios Directos</div>
-          <p style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;line-height:1.6">Definí rangos de fechas con precio sugerido para reservas directas. Al cargar una reserva Directa, el sistema detecta la temporada y pre-rellena el precio — podés modificarlo.</p>
-          <div id="temporadas-config-section"></div>
-        </div>
+
         <div class="card">
           <div class="card-title"><div class="dot"></div>Sincronización Airbnb · iCal</div>
           <p style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;line-height:1.6">Pegá el link iCal de cada depto desde Airbnb → Calendario → Conectar con otro sitio web → Copiar enlace.</p>
@@ -1722,7 +1718,7 @@ function renderRendimiento(){
   $('rend-totals').innerHTML=`
     <div class="totals-item"><div class="tl">Ingresos Brutos</div><div class="tv">${fmt(ts)}</div></div>
     <div class="totals-item"><div class="tl">Com. Airbnb</div><div class="tv" style="color:var(--err)">${fmt(ta)}</div></div>
-    <div class="totals-item"><div class="tl">Com. Gestión 12%</div><div class="tv" style="color:var(--warn)">${fmt(tg)}</div></div>
+
     <div class="totals-item"><div class="tl">Líquido Propietario</div><div class="tv" style="color:var(--ok)">${fmt(tl)}</div></div>
     <div class="totals-item"><div class="tl">Gastos</div><div class="tv" style="color:var(--err)">${fmt(tgas)}</div></div>
     <div class="totals-item"><div class="tl">Noches Ocupadas</div><div class="tv">${tno}</div></div>
@@ -1748,7 +1744,7 @@ function exportRendimiento(){
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
   const EXCLUIR_X=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
   const fil=reservas.filter(r=>{if(EXCLUIR_X.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
-  const h=['Depto','Reservas','Noches','Subtotal','Com.Airbnb','Neto','Com.Gestión','Líquido','Ticket Prom.'];
+  const h=['Depto','Reservas','Noches','Subtotal','Com.Airbnb','Neto','Líquido','Ticket Prom.'];
   const rows=DEPTOS.map(code=>{
     const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
     dr.forEach(r=>{const c=calc(r);s+=c.sub;a+=c.air;n+=c.net;g+=c.ges;l+=c.liq;no+=c.n;});
@@ -1781,7 +1777,7 @@ function exportRendimientoPDF(){
     startY:44,
     body:[
       ['Ingresos Brutos','USD '+fmtN(ts),'Com. Airbnb','USD '+fmtN(ta)],
-      ['Com. Gestión 12%','USD '+fmtN(tg),'Líquido Propietario','USD '+fmtN(tl)],
+      ['Líquido Propietario','USD '+fmtN(tl)],
       ['Gastos','USD '+fmtN(tgas),'RESULTADO NETO','USD '+fmtN(tl-tgas)]
     ],
     theme:'plain',
@@ -2528,7 +2524,7 @@ async function xeniaSend(){
   const input=$('xenia-input');
   const q=input.value.trim();
   if(!q)return;
-  if(!cu){xeniaAddMsg('bot','Primero ingresá tu PIN para que pueda ayudarte 🔐');return;}
+  
   input.value='';
   $('xenia-sugs').style.display='none';
   xeniaAddMsg('user',q);
@@ -2545,29 +2541,33 @@ async function xeniaSend(){
   const ingMes=em.reduce((s,r)=>s+calc(r).liq,0);
   const pendientes=reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkin>=today).filter(r=>{const c=calc(r);return(r.senia||0)+(r.saldo||0)<c.sub;});
 
-  const ctx=`Sos Xenia, asistente de hospitalidad de CheckInn para esta propiedad demo. Respondé siempre en español rioplatense, de forma concisa y cálida. Usá emojis con moderación. La propiedad tiene 7 unidades de alojamiento.
+  const ctx=`Sos Xenia, asistente de hospitalidad de CheckInn para Green House B&B, Villa La Angostura. Respondé siempre en español rioplatense, de forma concisa y cálida. Usá emojis con moderación.
+
+La propiedad tiene 6 habitaciones: Membrillo, Maitén, Radal, Amancay, Frambuesa y Nogal.
+El destino del cobro puede ser: Airbnb, Booking, Efectivo, Payoneer, PayPal o Billetera virtual.
+No hay comisión de gestión — el líquido es el neto menos la comisión de la plataforma.
 
 CÓMO USAR LA APP — conocimiento específico de CheckInn:
-- Nueva reserva: menú lateral o botón "+" → completar depto, huésped, check-in, check-out, precio/noche, plataforma, estado → Guardar.
+- Nueva reserva: menú lateral o botón "+" → completar habitación, huésped, check-in, check-out, precio/noche, plataforma, estado → Guardar.
 - Editar reserva: en Reservas tocar el lápiz ✏️. O desde el calendario tocar la celda ocupada → popup → botón Editar.
-- Convertir bloqueo en reserva: en el calendario, tocar una celda bloqueada (Airbnb/Booking) → popup → botón "Convertir en reserva". Se abre Nueva Reserva con las fechas precargadas.
 - Cancelar reserva: editar y cambiar estado a "Cancelada".
 - Estados: Confirmada, Pendiente, Stand by, Shown, Non show, Cancelada, Cortesía, Devolución.
-- Calendario: vista mensual. Celdas de color = ocupado. Celdas con rayas = bloqueo iCal (Airbnb/Booking). Celda partida = mismo día cambia huésped.
+- Calendario: vista mensual y semanal. Celdas de color = ocupado. Celdas con rayas = bloqueo iCal.
 - Sincronización iCal: en Configuración pegar URLs de Airbnb y Booking. Se sincroniza al entrar y manualmente.
-- Rendimiento: ingresos por mes o año, por depto y plataforma. Exportable a CSV y PDF.
+- Rendimiento: ingresos por mes o año, por habitación y plataforma. Exportable a CSV y PDF.
 - Seña y saldo: campos en el formulario para registrar pagos parciales.
 - Early check-in / Late checkout: casillas debajo de las fechas al crear/editar.
+- Destino del cobro: indica cómo pagó el huésped (Efectivo, Payoneer, PayPal, Billetera virtual, Airbnb, Booking).
 
 DATOS DE HOY (${today}):
-- Deptos ocupados ahora: ${act.length} de 7 — ${act.map(r=>DN[r.depto]+'('+r.huesped.split(' ')[0]+')').join(', ')||'ninguno'}
+- Habitaciones ocupadas ahora: ${act.length} de 6 — ${act.map(r=>DN[r.depto]+'('+r.huesped.split(' ')[0]+')').join(', ')||'ninguna'}
 - Próximos check-ins (7 días): ${prox.length} — ${prox.map(r=>r.checkin+' '+DN[r.depto]+' '+r.huesped.split(' ')[0]).join(', ')||'ninguno'}
-- Ingresos del mes (líquido prop.): USD ${ingMes.toFixed(0)}
+- Ingresos del mes (líquido): USD ${ingMes.toFixed(0)}
 - Con saldo pendiente: ${pendientes.length}
 - Total reservas activas/futuras: ${reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkout>=today).length}
 
 RESERVAS FUTURAS:
-${reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkout>=today).slice(0,20).map(r=>{const c=calc(r);return r.checkin+' al '+r.checkout+' | '+DN[r.depto]+' | '+r.huesped+' | '+r.estado+' | Líquido: USD '+c.liq.toFixed(0);}).join('\n')||'Sin reservas futuras'}
+${reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkout>=today).slice(0,20).map(r=>{const c=calc(r);return r.checkin+' al '+r.checkout+' | '+DN[r.depto]+' | '+r.huesped+' | '+r.estado+' | Líquido: USD '+c.liq.toFixed(0);}).join('\n')||'Sin reservas futuras.'}
 
 Respondé basándote en los datos reales y en el conocimiento de la app.`;
 
