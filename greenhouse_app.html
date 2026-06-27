@@ -843,7 +843,7 @@ const BIN_DISP='6a12d6a86610dd3ae899184c';
 const lo=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d;}catch{return d;}};
 const sl=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const sd=(k,v)=>sl(k,v);
-let reservas=[],gastos=[],pins=lo('cn_p',{...DEFAULT_PINS}),cu=null,pb='';
+let reservas=[],gastos=[],pins=lo('gh_p',{...DEFAULT_PINS}),cu=null,pb='';
 
 // Estados que NO bloquean fechas (paridad con Los Bananos)
 const ESTADOS_LIBRES=['Cancelada','Non show','Devolución'];
@@ -851,8 +851,8 @@ const bloqueaFechas=r=>!ESTADOS_LIBRES.includes(r.estado);
 
 // ── COLA DE SINCRONIZACIÓN PENDIENTE ──
 // Si un upsert/delete a Supabase falla, queda registrado acá y se reintenta al cargar
-const getPending=()=>lo('cn_pending',{up:[],del:[],gup:[],gdel:[]});
-const setPending=p=>sl('cn_pending',p);
+const getPending=()=>lo('gh_pending',{up:[],del:[],gup:[],gdel:[]});
+const setPending=p=>sl('gh_pending',p);
 function markPending(tipo,id){const p=getPending();if(!p[tipo].includes(id))p[tipo].push(id);setPending(p);}
 function clearPending(tipo,id){const p=getPending();p[tipo]=p[tipo].filter(x=>x!==id);setPending(p);}
 async function retryPending(){
@@ -874,8 +874,8 @@ function savePlatformas(p){sl('gh_plataformas',p);}
 function getPlatforma(nombre){return getPlatformas().find(p=>p.id===nombre)||{id:nombre,nombre,comision:0,comisionBooking:0};}
 
 // ── TEMPORADAS ──
-function getTemporadas(){return lo('cn_temporadas',[]);}
-function saveTemporadas(t){sl('cn_temporadas',t);}
+function getTemporadas(){return lo('gh_temporadas',[]);}
+function saveTemporadas(t){sl('gh_temporadas',t);}
 function detectarTemporada(fecha){
   if(!fecha)return null;
   return getTemporadas().find(t=>t.desde&&t.hasta&&fecha>=t.desde&&fecha<=t.hasta)||null;
@@ -944,9 +944,9 @@ async function loadFromBins(){
   // Config (iCal, WhatsApp, bloqueos) sigue en localStorage
 }
 
-async function saveWaConfig(wa){sl('cn_wa',wa);}
-async function saveIcalConfig(ical){sl('cn_ical',ical);}
-async function saveBloqueos(bloqueos){sl('cn_bloqueos',bloqueos);}
+async function saveWaConfig(wa){sl('gh_wa',wa);}
+async function saveIcalConfig(ical){sl('gh_ical',ical);}
+async function saveBloqueos(bloqueos){sl('gh_bloqueos',bloqueos);}
 
 // Upsert de una sola reserva (INSERT o UPDATE por id)
 async function upsertReserva(r){
