@@ -14,30 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231a1918'/><text y='68' x='50' font-family='serif' font-size='56' text-anchor='middle' fill='%23b8833d'>C</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js">
-// ── AUTO-LOGIN GREEN HOUSE B&B ──
-// Entrada directa sin PIN — una sola propietaria
-window.addEventListener('DOMContentLoaded', function(){
-  cu = 'admin';
-  const ls = document.getElementById('login-screen');
-  const app = document.getElementById('app');
-  if(ls) ls.style.display = 'none';
-  if(app) app.style.display = 'block';
-  const ubName = document.getElementById('ub-name');
-  const ubRole = document.getElementById('ub-role');
-  const mobileUser = document.getElementById('mobile-user');
-  const mcBtn = document.getElementById('mobile-config-btn');
-  if(ubName) ubName.textContent = 'Green House B&B';
-  if(ubRole) ubRole.textContent = 'Administrador';
-  if(mobileUser) mobileUser.textContent = 'Green House B&B';
-  if(mcBtn) mcBtn.style.display = NAV_CONFIG[cu].includes('config') ? 'flex' : 'none';
-  buildNav(); fillPlatformSelects();
-  const topbarDate = document.getElementById('topbar-date');
-  if(topbarDate) topbarDate.textContent = new Date().toLocaleDateString('es-AR', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  showScreen('dashboard');
-  loadFromBins();
-});
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
   --ink:#1a1918;--ink-2:#2a2927;--muted:#6b6660;--muted-2:#9c968e;
@@ -874,8 +851,8 @@ const bloqueaFechas=r=>!ESTADOS_LIBRES.includes(r.estado);
 
 // ── COLA DE SINCRONIZACIÓN PENDIENTE ──
 // Si un upsert/delete a Supabase falla, queda registrado acá y se reintenta al cargar
-const getPending=()=>lo('gh_pending',{up:[],del:[],gup:[],gdel:[]});
-const setPending=p=>sl('gh_pending',p);
+const getPending=()=>lo('cn_pending',{up:[],del:[],gup:[],gdel:[]});
+const setPending=p=>sl('cn_pending',p);
 function markPending(tipo,id){const p=getPending();if(!p[tipo].includes(id))p[tipo].push(id);setPending(p);}
 function clearPending(tipo,id){const p=getPending();p[tipo]=p[tipo].filter(x=>x!==id);setPending(p);}
 async function retryPending(){
@@ -892,13 +869,13 @@ const DEFAULT_PLATAFORMAS=[
   {id:'Booking',nombre:'Booking',comision:0,comisionBooking:15},
   {id:'Directo',nombre:'Directo',comision:0,comisionBooking:0},
 ];
-function getPlatformas(){return lo('gh_plataformas',DEFAULT_PLATAFORMAS);}
-function savePlatformas(p){sl('gh_plataformas',p);}
+function getPlatformas(){return lo('cn_plataformas',DEFAULT_PLATAFORMAS);}
+function savePlatformas(p){sl('cn_plataformas',p);}
 function getPlatforma(nombre){return getPlatformas().find(p=>p.id===nombre)||{id:nombre,nombre,comision:0,comisionBooking:0};}
 
 // ── TEMPORADAS ──
-function getTemporadas(){return lo('gh_temporadas',[]);}
-function saveTemporadas(t){sl('gh_temporadas',t);}
+function getTemporadas(){return lo('cn_temporadas',[]);}
+function saveTemporadas(t){sl('cn_temporadas',t);}
 function detectarTemporada(fecha){
   if(!fecha)return null;
   return getTemporadas().find(t=>t.desde&&t.hasta&&fecha>=t.desde&&fecha<=t.hasta)||null;
@@ -909,20 +886,67 @@ const $=id=>document.getElementById(id);
 const qAll=s=>document.querySelectorAll(s);
 
 async function loadFromBins(){
-  // Green House B&B — solo localStorage, claves gh_
-  reservas = lo('gh_r', []);
-  gastos = lo('gh_g', []);
-  const ical = lo('gh_ical', {});
-  Object.assign(icalBlocksAb||{}, ical);
-  console.log('Green House: '+reservas.length+' reservas, '+gastos.length+' gastos');
-  renderHoy(); renderReservas(); renderCalendario(); renderGastos();
-  renderRendimiento(); renderAvisos(); renderHuespedes();
+  // ── Reservas ──
+  try{
+    const res=await fetch(SB_URL+'/rest/v1/reservas?select=*&order=creado.asc',{headers:SB_HDR});
+    if(res.ok){
+      let remoto=await res.json();
+      const local=lo('gh_r',[]);
+      if(remoto.length===0&&local.length>0){
+        // Guard: la nube devolvió 0 pero hay datos locales — NO pisar el cache
+        console.warn('Supabase devolvió 0 reservas con '+local.length+' locales — se conserva el cache');
+        toast('⚠️ La nube devolvió 0 reservas. Usando datos locales — revisá Supabase.',false);
+        reservas=local;
+      } else {
+        const p=getPending();
+        // Reincorporar reservas locales pendientes de subir que aún no están en la nube
+        const faltan=local.filter(r=>p.up.includes(r.id)&&!remoto.some(x=>x.id===r.id));
+        // Excluir las marcadas para borrar que la nube todavía tiene
+        remoto=remoto.filter(r=>!p.del.includes(r.id));
+        reservas=remoto.concat(faltan);
+        sl('gh_r',reservas);
+        console.log('Supabase: '+remoto.length+' reservas cargadas'+(faltan.length?' + '+faltan.length+' pendientes locales':''));
+      }
+    } else {
+      console.log('Supabase error, usando localStorage');
+      reservas=lo('gh_r',[]);
+    }
+  }catch(e){
+    console.log('Supabase no disponible, usando localStorage',e.message);
+    reservas=lo('gh_r',[]);
+  }
+  // ── Gastos (Supabase con fallback a localStorage) ──
+  try{
+    const res=await fetch(SB_URL+'/rest/v1/gastos_catalinas?select=*&order=fecha.asc',{headers:SB_HDR});
+    if(res.ok){
+      let remoto=await res.json();
+      const local=lo('gh_g',[]);
+      if(remoto.length===0&&local.length>0){
+        // La nube no tiene gastos pero el local sí: migración inicial — subirlos
+        console.log('Migrando '+local.length+' gastos locales a Supabase');
+        gastos=local;
+        local.forEach(g=>upsertGasto(g));
+      } else {
+        const p=getPending();
+        const faltan=local.filter(g=>p.gup.includes(g.id)&&!remoto.some(x=>x.id===g.id));
+        remoto=remoto.filter(g=>!p.gdel.includes(g.id));
+        gastos=remoto.concat(faltan);
+        sl('gh_g',gastos);
+      }
+    } else {
+      gastos=lo('gh_g',[]);
+    }
+  }catch(e){
+    gastos=lo('gh_g',[]);
+  }
+  // Reintentar operaciones pendientes en background
+  retryPending();
+  // Config (iCal, WhatsApp, bloqueos) sigue en localStorage
 }
 
-
-async function saveWaConfig(wa){sl('gh_wa',wa);}
-async function saveIcalConfig(ical){sl('gh_ical',ical);}
-async function saveBloqueos(bloqueos){sl('gh_bloqueos',bloqueos);}
+async function saveWaConfig(wa){sl('cn_wa',wa);}
+async function saveIcalConfig(ical){sl('cn_ical',ical);}
+async function saveBloqueos(bloqueos){sl('cn_bloqueos',bloqueos);}
 
 // Upsert de una sola reserva (INSERT o UPDATE por id)
 async function upsertReserva(r){
@@ -983,8 +1007,1809 @@ async function updateDispBin(data){
 }
 
 async function saveToBin(binId,data){
-  // Green House B&B — solo localStorage
-  if(binId==='reservas'||binId===undefined){ sl('gh_r',data); }
-  else if(binId==='gastos'){ sl('gh_g',data); }
+  if(binId==='reservas'||binId===undefined){
+    // Guard: no sobreescribir con menos registros que los actuales
+    const current=lo('gh_r',[]);
+    if(Array.isArray(data)&&Array.isArray(current)&&data.length<current.length){
+      console.warn('saveToBin(reservas): bloqueado — intento de guardar '+data.length+' registros sobre '+current.length+' existentes');
+      return;
+    }
+    sl('gh_r',data);
+    reservas=data;
+  } else {
+    // Guard: no sobreescribir gastos con menos registros
+    const currentG=lo('gh_g',[]);
+    if(Array.isArray(data)&&Array.isArray(currentG)&&data.length<currentG.length){
+      console.warn('saveToBin(gastos): bloqueado — intento de guardar '+data.length+' registros sobre '+currentG.length+' existentes');
+      return;
+    }
+    sl('gh_g',data);gastos=data;
+  }
+}
+function saveToSheets(sheet,data){saveToBin(sheet==='reservas'?'reservas':'gastos',data);}
+
+// saveOneReserva: upsert individual + actualizar cache local + dispBin
+// Usar en guardarReserva, saveEdit, smartPasteSave, toggleLimpio, importarCSV
+async function saveOneReserva(r){
+  sl('gh_r',reservas);
+  upsertReserva(r);// no await — fire and forget para no bloquear UI
+  updateDispBin(reservas);
+}
+// deleteOneReserva: elimina una reserva remota sin tocar las demás
+async function deleteOneReserva(id){
+  sl('gh_r',reservas);
+  deleteReservaRemota(id);
+  updateDispBin(reservas);
 }
 
+// ── PIN LOGIN ──
+const ud=()=>{for(let i=0;i<4;i++)$('dot-'+i).classList.toggle('filled',i<pb.length);};
+function pinPress(n){if(pb.length>=4)return;pb+=n;ud();if(pb.length===4)setTimeout(pinEnter,180);}
+function pinClear(){pb=pb.slice(0,-1);ud();}
+function pinEnter(){
+  pins=lo('gh_p',{...DEFAULT_PINS});
+  const m=Object.entries(pins).find(([,p])=>p===pb);
+  if(m){cu=m[0];$('login-error').textContent='';sessionStorage.setItem('cn_cu',cu);loginOk();}
+  else{$('login-error').textContent='PIN incorrecto';pb='';ud();setTimeout(()=>$('login-error').textContent='',2000);}
+}
+async function loginOk(){
+  $('login-screen').style.display='none';
+  $('app').style.display='block';
+  $('ub-name').textContent=USER_META[cu].name;
+  $('ub-role').textContent=USER_META[cu].role;
+  $('mobile-user').textContent=USER_META[cu].name;
+  $('mobile-config-btn').style.display=NAV_CONFIG[cu].includes('config')?'flex':'none';
+  buildNav();fillPlatformSelects();
+  $('topbar-date').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  initSelects();
+  const ol=document.createElement('div');
+  ol.id='loading-overlay';
+  ol.innerHTML='<div class="loader-card"><div class="loader-title">Cargando datos</div><div class="loader-sub">Sincronizando con la nube</div><div class="loader-dots"><span></span><span></span><span></span></div></div>';
+  document.body.appendChild(ol);
+  await loadFromBins();
+  ol.remove();
+  buildBottomNav();
+  showScreen(NAV_CONFIG[cu][0]);
+  if(cu==='admin'){setTimeout(()=>sincronizarIcal(),2000);}
+  checkBackupReminder();
+}
+function logout(){cu=null;pb='';sessionStorage.removeItem('cn_cu');$('app').style.display='none';$('login-screen').style.display='flex';ud();}
+
+// ── NAV ──
+function buildNav(){
+  let h='',ls='';
+  NAV_CONFIG[cu].forEach(s=>{
+    const m=NAV_META[s];
+    if(m.sec!==ls){h+=`<div class="nav-label">${m.sec}</div>`;ls=m.sec;}
+    h+=`<div class="nav-item" id="nav-${s}" onclick="showScreen('${s}')"><svg><use href="#${m.icon}"/></svg>${m.label}</div>`;
+  });
+  $('nav-menu').innerHTML=h;
+}
+function buildBottomNav(){
+  const items=MOBILE_NAV[cu];
+  const wrap=document.createElement('div');
+  wrap.className='bottom-nav-items';
+  items.forEach(s=>{
+    const btn=document.createElement('button');
+    btn.className='bn-item';btn.id='bn-'+s;
+    btn.innerHTML=`<svg><use href="#${NAV_META[s].icon}"/></svg><span class="bn-label">${NAV_META[s].label}</span>`;
+    btn.addEventListener('click',function(){showScreen(s);});
+    btn.addEventListener('touchend',function(e){e.preventDefault();showScreen(s);},{passive:false});
+    wrap.appendChild(btn);
+  });
+  const nav=$('bottom-nav');nav.innerHTML='';nav.appendChild(wrap);
+}
+function showScreen(id){
+  if(!NAV_CONFIG[cu].includes(id))return;
+  qAll('.screen').forEach(s=>s.classList.remove('active'));
+  qAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  qAll('.bn-item').forEach(n=>n.classList.remove('active'));
+  $('screen-'+id).classList.add('active');
+  const nav=$('nav-'+id);if(nav)nav.classList.add('active');
+  const bn=$('bn-'+id);if(bn)bn.classList.add('active');
+  $('topbar-title').textContent=NAV_META[id]?.label||id;
+  const R={dashboard:renderHoy,reservas:renderReservas,ocupacion:renderCalendario,gastos:renderGastos,rendimiento:renderRendimiento,avisos:renderAvisos,config:renderConfig,huespedes:renderHuespedes};
+  if(R[id])R[id]();
+  window.scrollTo(0,0);
+}
+function fillPlatformSelects(){
+  const plats=getPlatformas();
+  const opts=plats.map(p=>`<option value="${p.id}">${p.nombre} (${p.comision}%)</option>`).join('');
+  ['r-plataforma','e-plataforma'].forEach(id=>{const s=$(id);if(s){const v=s.value;s.innerHTML=opts;if(v)s.value=v;}});
+}
+function initSelects(){
+  const y=new Date().getFullYear();
+  ['cal-anio','rend-anio'].forEach(id=>{
+    const s=$(id);if(!s)return;s.innerHTML='';
+    [y-1,y,y+1].forEach(yr=>{const o=document.createElement('option');o.value=yr;o.textContent=yr;if(yr===y)o.selected=true;s.appendChild(o);});
+  });
+  const cm=$('cal-mes');if(cm)cm.value=new Date().getMonth();
+  const gf=$('g-fecha');if(gf)gf.value=new Date().toISOString().split('T')[0];
+}
+
+// ── UTILS ──
+const fmt=n=>isNaN(n)||n===''?'—':'USD '+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtN=n=>isNaN(n)||n===''?'—':Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p[0]}`;};
+const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function calc(r){
+  const n=nights(r.checkin,r.checkout);
+  const sub=n*r.precio;
+  const plat=getPlatforma(r.plataforma);
+  const air=sub*(plat.comision/100);
+  const net=sub-air;
+  const ges=net*0.12;
+  const liq=net-ges;
+  // Comisión canal: % sobre líquido, solo si estado=Shown
+  const bkCom=plat.comisionBooking>0&&r.estado==='Shown'?liq*(plat.comisionBooking/100):0;
+  return{n,sub,air,net,ges,liq,bkCom};
+}
+function toast(msg,ok=true){const t=$('toast');$('toast-msg').textContent=msg;$('toast-icon').firstElementChild.setAttribute('href',ok?'#i-check':'#i-alert');t.classList.toggle('err',!ok);t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function csvDown(rows,filename){
+  const content='sep=;\n'+rows.join('\n');
+  const bom='\uFEFF';
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+content);
+  a.download=filename;a.click();
+}
+function csvRow(arr){return arr.map(v=>typeof v==='string'&&(v.includes(';')||v.includes('"'))?'"'+v.replace(/"/g,'""')+'"':v).join(';');}
+
+// ── PDF UTILS ──
+function pdfHeader(doc,title,subtitle){
+  doc.setFillColor(26,25,24);
+  doc.rect(0,0,doc.internal.pageSize.getWidth(),22,'F');
+  doc.setTextColor(184,131,61);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.text('CATALINAS NORTE',14,10);
+  doc.setTextColor(250,248,243);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.text('Sistema de Gestión · CABA',14,16);
+  doc.setTextColor(26,25,24);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(15);
+  doc.text(title,14,32);
+  if(subtitle){
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setTextColor(107,102,96);
+    doc.text(subtitle,14,38);
+  }
+  doc.setFontSize(8);
+  doc.setTextColor(107,102,96);
+  const dateStr='Generado: '+new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})+' '+new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  doc.text(dateStr,doc.internal.pageSize.getWidth()-14,32,{align:'right'});
+}
+function pdfFooter(doc){
+  const pages=doc.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    doc.setPage(i);
+    doc.setFontSize(7);
+    doc.setTextColor(156,150,142);
+    doc.text(`Green House B&amp;B · ${i}/${pages}`,doc.internal.pageSize.getWidth()/2,doc.internal.pageSize.getHeight()-7,{align:'center'});
+  }
+}
+
+// ── NUEVA RESERVA ──
+function calcNights(){
+  const ci=$('r-checkin').value,co=$('r-checkout').value;
+  const p=parseFloat($('r-precio').value)||0,pl=$('r-plataforma').value;
+  if(!ci||!co||!p){['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-gestion','cp-liquido'].forEach(id=>$(id).textContent='—');return;}
+  const plat=getPlatforma(pl);
+  const lbl=$('cp-airbnb-label');if(lbl)lbl.textContent='Com. '+pl+' '+plat.comision+'%';
+  const c=calc({checkin:ci,checkout:co,precio:p,plataforma:pl});
+  $('cp-noches').textContent=c.n;$('cp-subtotal').textContent=fmt(c.sub);$('cp-airbnb').textContent=fmt(c.air);
+  $('cp-neto').textContent=fmt(c.net);$('cp-gestion').textContent=fmt(c.ges);$('cp-liquido').textContent=fmt(c.liq);
+}
+function checkTemporada(){
+  const ci=$('r-checkin').value,pl=$('r-plataforma').value;
+  const badge=$('temporada-badge');
+  if(!badge)return;
+  if(pl!=='Directo'){badge.style.display='none';return;}
+  const t=detectarTemporada(ci);
+  if(t){
+    badge.style.display='inline-flex';
+    badge.textContent='📅 '+t.nombre+' — Precio sugerido: USD '+t.precio;
+    const precioInput=$('r-precio');
+    if(precioInput&&!precioInput.dataset.modified){precioInput.value=t.precio;calcNights();}
+  } else {
+    badge.style.display='none';
+  }
+}
+function guardarReserva(){
+  const dep=$('r-depto').value,hue=$('r-huesped').value.trim();
+  const ci=$('r-checkin').value,co=$('r-checkout').value;
+  const pre=parseFloat($('r-precio').value);
+  if(!dep||!hue||!ci||!co||isNaN(pre)){toast('Completá todos los campos obligatorios',false);return;}
+  if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
+  const conf=reservas.find(r=>r.depto===dep&&bloqueaFechas(r)&&!(co<=r.checkin||ci>=r.checkout));
+  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast(`Superposición con ${conf.huesped} en ${DN[dep]}`,false);return;}
+  const nr={id:uid(),depto:dep,huesped:hue,nac:$('r-nac').value.trim(),tel:($('r-tel')?.value.trim()||''),checkin:ci,checkout:co,precio:pre,plataforma:$('r-plataforma').value,destino:$('r-destino').value,estado:$('r-estado').value,notas:$('r-notas').value.trim(),early:$('r-early').checked,late:$('r-late').checked,creado:new Date().toISOString()};
+  reservas.push(nr);
+  saveOneReserva(nr);
+  // Eliminar bloqueos iCal que se superpongan con la nueva reserva
+  const bloqueos=lo('cn_bloqueos',{});
+  if(bloqueos[dep]&&bloqueos[dep].length){
+    bloqueos[dep]=bloqueos[dep].filter(b=>!(b.start<co&&b.end>ci));
+    saveBloqueos(bloqueos);
+  }
+  clearReservaForm();toast('Reserva guardada');
+}
+function clearReservaForm(){['r-depto','r-huesped','r-nac','r-tel','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=$(id);if(e){e.value='';delete e.dataset.modified;}});['r-early','r-late'].forEach(id=>{const e=$(id);if(e)e.checked=false;});['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-gestion','cp-liquido'].forEach(id=>$(id).textContent='—');const b=$('temporada-badge');if(b)b.style.display='none';}
+
+// ── RESERVAS ──
+function badgeClass(estado){
+  return estado==='Confirmada'?'badge-ok':
+    estado==='Pendiente'?'badge-warn':
+    estado==='Stand by'?'badge-warn':
+    estado==='Shown'?'badge-ok':
+    estado==='Non show'?'badge-err':
+    estado==='Cortesía'?'badge-purple':
+    estado==='Devolución'?'badge-err':'badge-err';
+}
+function renderReservas(){
+  const ia=cu==='admin',fd=$('fil-depto').value,fe=$('fil-estado').value;
+  const fn=($('fil-nombre')?.value||'').toLowerCase().trim();
+  const data=reservas.filter(r=>(!fd||r.depto===fd)&&(!fe||r.estado===fe)&&(!fn||r.huesped.toLowerCase().includes(fn))).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
+  const tb=$('tabla-reservas');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="16" style="text-align:center;padding:40px;color:var(--muted)">Sin reservas</td></tr>`;return;}
+  tb.innerHTML=data.map((r,i)=>{const c=calc(r);const senia=r.senia||0,saldo=r.saldo||0,pend=Math.max(0,c.sub-senia-saldo);
+    return`<tr>
+      <td class="res-sticky-1" style="color:var(--muted);font-weight:600">${i+1}</td>
+      <td class="res-sticky-2"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span></td>
+      <td class="res-sticky-3" style="font-weight:500">${esc(r.huesped)}</td>
+      <td>${fmtD(r.checkin)}</td><td>${fmtD(r.checkout)}</td>
+      <td style="text-align:center;font-weight:600">${c.n}</td>
+      <td>${fmt(r.precio)}</td><td>${fmt(c.sub)}</td>
+      <td style="color:var(--err)">${fmt(c.air)}</td><td>${fmt(c.net)}</td>
+      <td style="color:var(--warn)">${fmt(c.ges)}</td>
+      <td style="font-weight:700;color:var(--ok)">${fmt(c.liq)}</td>
+      <td><span class="badge ${badgeClass(r.estado)}">${esc(r.estado)}</span></td>
+      <td style="font-size:0.78rem;color:var(--muted)">${esc(r.destino||'—')}</td>
+      <td style="font-weight:600;color:var(--ok)">${senia?fmt(senia):'—'}</td>
+      <td style="font-weight:600;color:${saldo?(pend<0.01?'var(--ok)':'var(--err)'):'var(--muted)'}">${saldo?fmt(saldo)+(pend<0.01?' ✓':''):'—'}</td>
+      <td>${ia?`<div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="abrirFichaRes('${r.id}')" title="Ver ficha" style="padding:3px 7px;font-size:11px">📋</button><button class="btn-icon-sm" onclick="editRes('${r.id}')" aria-label="Editar"><svg><use href="#i-edit"/></svg></button><button class="btn-icon-sm danger" onclick="delRes('${r.id}')" aria-label="Eliminar"><svg><use href="#i-close"/></svg></button>${r.tel?`<button class="btn-icon-sm btn-wa" onclick="waMsgHuesped('${r.id}')" title="WhatsApp al huésped" style="background:#128c5e;border-color:#128c5e"><svg><use href="#i-wa"/></svg></button>`:''}</div>`:''}</td>
+    </tr>`;
+  }).join('');
+}
+// ── FICHA DETALLE DE RESERVA ──────────────────────────────────────────
+function abrirFichaRes(id){
+  const r = reservas.find(x=>x.id===id);
+  if(!r) return;
+  const noches = calcNights(r.checkin, r.checkout);
+  $('ficha-nombre').textContent = r.huesped;
+  const campos = [
+    ['Unidad', DN[r.depto]||r.depto],
+    ['Check-in', fmtD(r.checkin)],
+    ['Check-out', fmtD(r.checkout)],
+    ['Noches', noches],
+    ['Plataforma', r.plataforma||'—'],
+    ['Estado', r.estado||'—'],
+    ['Precio', formatMoney(r.precio||0)],
+    ['Seña', r.senia ? formatMoney(r.senia) : '—'],
+    ['Saldo', r.saldo ? formatMoney(r.saldo) : '—'],
+    ['Nacionalidad', r.nac||'—'],
+    ['Teléfono', r.tel||'—'],
+    ['Notas', r.notas||'—'],
+  ];
+  $('ficha-body').innerHTML = campos.map(([k,v])=>`
+    <div>
+      <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px">${k}</div>
+      <div style="font-weight:500">${esc(String(v))}</div>
+    </div>`).join('');
+  const ia = cu==='admin';
+  $('ficha-actions').innerHTML = `
+    <button class="btn btn-outline btn-sm" onclick="cerrarFichaRes()">Cerrar</button>
+    ${ia?`<button class="btn btn-primary btn-sm" onclick="cerrarFichaRes();editRes('${r.id}')"><svg><use href="#i-edit"/></svg> Editar</button>`:''}
+    ${r.tel&&ia?`<button class="btn btn-sm btn-wa" onclick="waMsgHuesped('${r.id}')"><svg><use href="#i-wa"/></svg> Huésped</button>`:''}
+  `;
+  const modal = $('modal-ficha-res');
+  modal.style.display = 'flex';
+}
+
+function cerrarFichaRes(){
+  $('modal-ficha-res').style.display = 'none';
+}
+// ─────────────────────────────────────────────────────────────────────
+
+function delRes(id){if(cu!=='admin')return;if(!confirm('¿Eliminar reserva?'))return;reservas=reservas.filter(r=>r.id!==id);deleteOneReserva(id);renderReservas();toast('Reserva eliminada');}
+function exportReservas(){
+  const h=['Depto','Huésped','Nacionalidad','Check-in','Check-out','Noches','USD/Noche','Subtotal','Com.Airbnb','Neto','Com.Gestión','Líquido','Estado','Plataforma','Destino cobro','Notas','Seña','Saldo'];
+  const rows=reservas.map(r=>{const c=calc(r);return csvRow([DN[r.depto],r.huesped,r.nac||'',r.checkin,r.checkout,c.n,r.precio,c.sub.toFixed(2),c.air.toFixed(2),c.net.toFixed(2),c.ges.toFixed(2),c.liq.toFixed(2),r.estado,r.plataforma,r.destino||'',r.notas||'',r.senia||0,r.saldo||0]);});
+  csvDown([csvRow(h),...rows],'reservas_catalinas.csv');
+}
+function exportReservasPDF(){
+  const fd=$('fil-depto').value,fe=$('fil-estado').value;
+  const data=reservas.filter(r=>(!fd||r.depto===fd)&&(!fe||r.estado===fe)).sort((a,b)=>a.checkin.localeCompare(b.checkin));
+  if(!data.length){toast('No hay reservas para exportar',false);return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  let sub=`${data.length} reservas`;
+  if(fd)sub+=` · Depto ${DN[fd]}`;
+  if(fe)sub+=` · ${fe}`;
+  pdfHeader(doc,'Reservas',sub);
+  const body=data.map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,fmtD(r.checkin),fmtD(r.checkout),c.n,fmtN(r.precio),fmtN(c.sub),fmtN(c.air),fmtN(c.ges),fmtN(c.liq),r.estado];});
+  const totSub=data.reduce((s,r)=>s+calc(r).sub,0);
+  const totLiq=data.filter(r=>r.estado!=='Cancelada'&&r.estado!=='Cortesía').reduce((s,r)=>s+calc(r).liq,0);
+  doc.autoTable({
+    startY:44,head:[['Depto','Huésped','Check-in','Check-out','Noches','USD/N','Subtotal','Airbnb','Gestión','Líquido','Estado']],
+    body:body,
+    foot:[['','TOTAL','','','','','USD '+fmtN(totSub),'','','USD '+fmtN(totLiq),'']],
+    theme:'plain',
+    headStyles:{fillColor:[26,25,24],textColor:[250,248,243],fontStyle:'bold',fontSize:8,cellPadding:3},
+    bodyStyles:{fontSize:8,cellPadding:2.5,lineColor:[230,225,212],lineWidth:0.1},
+    footStyles:{fillColor:[26,25,24],textColor:[143,189,160],fontStyle:'bold',fontSize:9,cellPadding:3},
+    alternateRowStyles:{fillColor:[247,243,234]},
+    columnStyles:{0:{halign:'center',fontStyle:'bold'},4:{halign:'center'},5:{halign:'right'},6:{halign:'right'},7:{halign:'right'},8:{halign:'right'},9:{halign:'right',fontStyle:'bold',textColor:[79,122,90]},10:{halign:'center'}},
+    margin:{left:14,right:14}
+  });
+  pdfFooter(doc);
+  doc.save(`reservas_catalinas_${new Date().toISOString().split('T')[0]}.pdf`);
+  toast('PDF generado');
+}
+
+// ── OCUPACIÓN ──
+// Parser CSV que respeta campos entrecomillados (con separador o comillas escapadas adentro)
+function parseCsvLine(line,sep){
+  const out=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(inQ){
+      if(ch==='"'){if(line[i+1]==='"'){cur+='"';i++;}else inQ=false;}
+      else cur+=ch;
+    } else {
+      if(ch==='"'&&cur==='')inQ=true;
+      else if(ch===sep){out.push(cur);cur='';}
+      else cur+=ch;
+    }
+  }
+  out.push(cur);
+  return out.map(c=>c.trim());
+}
+function importarCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    const sep=text.indexOf(';')>text.indexOf(',')&&text.indexOf(';')!==-1?';':',';
+    const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim()&&!l.startsWith('sep='));
+    if(lines.length<2){toast('El archivo no tiene datos',false);return;}
+    const headers=parseCsvLine(lines[0],sep).map(h=>h.toLowerCase());
+    const col=(names)=>{for(const n of names){const i=headers.findIndex(h=>h.includes(n));if(i>=0)return i;}return -1;};
+    const iDepto=col(['depto','departamento','apt','unidad']);
+    const iHuesped=col(['huesped','huésped','nombre','guest','pasajero']);
+    const iCheckin=col(['checkin','check-in','entrada','llegada','from']);
+    const iCheckout=col(['checkout','check-out','salida','hasta','to']);
+    const iPrecio=col(['precio','price','tarifa','rate','usd/n','$/n']);
+    const iEstado=col(['estado','status']);
+    const iPlat=col(['plataforma','platform','canal']);
+    const iNotas=col(['notas','notes','comentario']);
+    if(iHuesped<0||iCheckin<0||iCheckout<0){toast('Necesitás columnas: Huésped, Check-in, Check-out',false);input.value='';return;}
+    const parseDate=(s)=>{
+      if(!s)return'';s=s.replace(/"/g,'').trim();
+      if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){const[d,m,y]=s.split('/');return`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+      if(/^\d{1,2}-\d{1,2}-\d{4}$/.test(s)){const[d,m,y]=s.split('-');return`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+      return s.substring(0,10);
+    };
+    const ESTADOS_VALIDOS=['Confirmada','Pendiente','Stand by','Shown','Non show','Cancelada','Cortesía','Devolución'];
+    const normEstado=(s)=>{if(!s)return'Confirmada';const m=ESTADOS_VALIDOS.find(e=>e.toLowerCase()===s.trim().toLowerCase());return m||'Confirmada';};
+    const deptoMap={};
+    Object.entries(DN).forEach(([k,v])=>{deptoMap[v.toLowerCase()]=k;deptoMap[k.toLowerCase()]=k;});
+    const nuevas=[];const errores=[];
+    for(let i=1;i<lines.length;i++){
+      const cells=parseCsvLine(lines[i],sep);
+      const huesped=iHuesped>=0?cells[iHuesped]||'':'';
+      const ci=parseDate(iCheckin>=0?cells[iCheckin]:'');
+      const co=parseDate(iCheckout>=0?cells[iCheckout]:'');
+      if(!huesped||!ci||!co){errores.push(i+1);continue;}
+      const deptoRaw=iDepto>=0?cells[iDepto]||'':'';
+      const depto=deptoMap[deptoRaw.toLowerCase()]||DEPTOS[0];
+      nuevas.push({id:uid(),depto,huesped,nac:'',checkin:ci,checkout:co,
+        precio:iPrecio>=0?parseFloat(cells[iPrecio])||0:0,
+        estado:normEstado(iEstado>=0?cells[iEstado]:''),
+        plataforma:iPlat>=0?cells[iPlat]||'Importado':'Importado',
+        notas:iNotas>=0?cells[iNotas]||'':'',
+        early:false,late:false,senia:0,saldo:0,creado:new Date().toISOString()});
+    }
+    if(!nuevas.length){toast('Sin reservas válidas en el archivo',false);input.value='';return;}
+    const msg=`Importar ${nuevas.length} reservas${errores.length?` (${errores.length} filas ignoradas)`:''}?\n\n¿Agregar a las existentes?`;
+    if(confirm(msg)){reservas=[...reservas,...nuevas];sl('gh_r',reservas);nuevas.forEach(r=>upsertReserva(r));updateDispBin(reservas);renderReservas();toast(`${nuevas.length} reservas importadas ✓`);}
+    input.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// ── VISTA SEMANAL DEL CALENDARIO ──────────────────────────────────────
+let _vistaCalendario = 'mes'; // 'mes' | 'sem'
+let _semanaBase = null; // lunes de la semana activa
+
+function setVistaCalendario(v){
+  _vistaCalendario = v;
+  $('btn-vista-mes').className = 'btn btn-sm ' + (v==='mes' ? 'btn-primary' : 'btn-outline');
+  $('btn-vista-sem').className = 'btn btn-sm ' + (v==='sem' ? 'btn-primary' : 'btn-outline');
+  $('cal-vista-label').textContent = v==='mes' ? 'vista mensual' : 'vista semanal';
+  // Mostrar/ocultar controles
+  const showMes = v === 'mes';
+  document.querySelectorAll('#cal-mes, label[for="cal-mes"]').forEach(el=>el.style.display=showMes?'':'none');
+  document.querySelectorAll('#lbl-anio, #cal-anio').forEach(el=>el.style.display=showMes?'':'none');
+  $('nav-semana').style.display = showMes ? 'none' : 'flex';
+  if(v==='sem'){
+    if(!_semanaBase) _semanaBase = getLunes(new Date());
+    actualizarLabelSemana();
+  }
+  renderCalendario();
+}
+
+function getLunes(fecha){
+  const d = new Date(fecha);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function moverSemana(n){
+  if(!_semanaBase) _semanaBase = getLunes(new Date());
+  _semanaBase = new Date(_semanaBase);
+  _semanaBase.setDate(_semanaBase.getDate() + n * 7);
+  actualizarLabelSemana();
+  renderCalendario();
+}
+
+function irHoySemana(){
+  _semanaBase = getLunes(new Date());
+  actualizarLabelSemana();
+  renderCalendario();
+}
+
+function actualizarLabelSemana(){
+  if(!_semanaBase) return;
+  const lunes = new Date(_semanaBase);
+  const domingo = new Date(_semanaBase);
+  domingo.setDate(domingo.getDate() + 6);
+  const fmt = d => `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+  $('semana-label').textContent = `${fmt(lunes)} — ${fmt(domingo)}`;
+}
+
+function renderCalendarioSemanal(){
+  if(!_semanaBase) _semanaBase = getLunes(new Date());
+  const dias = [];
+  const DIAS_NOMBRE = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  for(let i=0;i<7;i++){
+    const d = new Date(_semanaBase);
+    d.setDate(d.getDate() + i);
+    dias.push(d);
+  }
+
+  const parts = [`<div class="cal-grid" style="grid-template-columns:70px repeat(7,1fr)">`,
+    `<div class="cal-header cal-header-depto">Depto</div>`];
+
+  dias.forEach(d=>{
+    const dow = d.getDay();
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const esHoy = d.getTime() === hoy.getTime();
+    parts.push(`<div class="cal-header${dow===0||dow===6?' weekend':''}${esHoy?' cal-hoy':''}" style="${esHoy?'font-weight:700;background:var(--accent);color:white;':''}">${DIAS_NOMBRE[dow]} ${d.getDate()}/${d.getMonth()+1}</div>`);
+  });
+
+  const byDep={};DEPTOS.forEach(c=>byDep[c]={});
+  const byDepCO={};DEPTOS.forEach(c=>byDepCO[c]={});
+  reservas.forEach(r=>{
+    if(r.estado==='Cancelada'||!byDep[r.depto])return;
+    const s=new Date(r.checkin),e=new Date(r.checkout);
+    for(let d=new Date(s);d<e;d.setDate(d.getDate()+1)){
+      byDep[r.depto][d.toISOString().split('T')[0]]=r;
+    }
+    byDepCO[r.depto][r.checkout]=r;
+  });
+
+  DEPTOS.forEach(code=>{
+    parts.push(`<div class="cal-depto" style="background:${DC[code]}">${DN[code]}</div>`);
+    dias.forEach(d=>{
+      const ds = d.toISOString().split('T')[0];
+      const res = byDep[code][ds];
+      const resOut = byDepCO[code][ds];
+      const bloqInfo = !res && getBloqueo(code, ds);
+      const bloqLabel = bloqInfo ? bloqInfo.plat === 'Airbnb' ? 'A' : bloqInfo.plat === 'Booking' ? 'B' : 'X' : '';
+
+      if(res){
+        const isCI = res.checkin === ds, isCO = res.checkout === ds;
+        const nombre = res.huesped.split(' ')[0];
+        // En semanal tenemos más espacio — mostrar más info
+        const info = `${nombre}${isCI?' ✈':''}${isCO?' 🚪':''}`;
+        const plat = res.plataforma || '';
+        parts.push(`<div class="cal-cell occupied" style="background:${DC[code]}22;border-left:3px solid ${DC[code]};cursor:pointer;padding:4px 6px;font-size:11px;line-height:1.4" onclick="openCalPopup('${res.id}','${ds}')">
+          <div style="font-weight:600">${esc(nombre)}</div>
+          <div style="color:var(--muted)">${plat}${isCI?' CI':''}${resOut&&resOut.id!==res.id?' / CO':''}</div>
+        </div>`);
+      } else if(bloqInfo){
+        parts.push(`<div class="cal-cell blocked" title="${bloqInfo.plat}"><span class="cal-bloq-label">${bloqLabel}</span></div>`);
+      } else if(resOut){
+        // Same-day: checkout esta mañana, libre esta tarde
+        parts.push(`<div class="cal-cell same-day" onclick="openCalPopup('${resOut.id}','${ds}')"><span class="cal-checkout-label">CO</span></div>`);
+      } else {
+        parts.push(`<div class="cal-cell free"></div>`);
+      }
+    });
+  });
+
+  parts.push('</div>');
+  $('calendario-grid').innerHTML = parts.join('');
+}
+// ─────────────────────────────────────────────────────────────────────
+
+function renderCalendario(){
+  if(_vistaCalendario === 'sem'){ renderCalendarioSemanal(); return; }
+  const mes=parseInt($('cal-mes').value),anio=parseInt($('cal-anio').value);
+  const dim=new Date(anio,mes+1,0).getDate();
+  const parts=[`<div class="cal-grid" style="grid-template-columns:70px repeat(${dim},1fr)">`,`<div class="cal-header cal-header-depto">Depto</div>`];
+  for(let d=1;d<=dim;d++){const dow=new Date(anio,mes,d).getDay();parts.push(`<div class="cal-header${dow===0||dow===6?' weekend':''}">${d}</div>`);}
+  const byDep={};DEPTOS.forEach(c=>byDep[c]={});
+  // Mapear reservas por depto/día — para same-day también necesitamos checkouts
+  const byDepCO={};DEPTOS.forEach(c=>byDepCO[c]={});
+  reservas.forEach(r=>{
+    if(r.estado==='Cancelada'||!byDep[r.depto])return;
+    const s=new Date(r.checkin),e=new Date(r.checkout);
+    for(let d=new Date(s);d<e;d.setDate(d.getDate()+1)){
+      const k=d.toISOString().split('T')[0];
+      byDep[r.depto][k]=r;
+    }
+    // Registrar también el día de checkout para detectar same-day
+    byDepCO[r.depto][r.checkout]=r;
+  });
+  DEPTOS.forEach(code=>{
+    parts.push(`<div class="cal-depto" style="background:${DC[code]}">${DN[code]}</div>`);
+    for(let d=1;d<=dim;d++){
+      const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const res=byDep[code][ds];       // reserva que ocupa este día (CI..CO-1)
+      const resOut=byDepCO[code][ds];  // reserva que hace checkout este día
+      const bloqInfo=!res&&getBloqueo(code,ds);
+      const bloqLabel=bloqInfo?bloqInfo.plat==='Bk'?'Bk':'Air':null;
+      const bloqStyle=bloqInfo?bloqInfo.plat==='Bk'?'background:repeating-linear-gradient(45deg,#003580,#003580 4px,#0057b8 4px,#0057b8 8px)':'background:repeating-linear-gradient(45deg,#d68b3f,#d68b3f 4px,#e9a85d 4px,#e9a85d 8px)':null;
+
+      if(res&&resOut&&res.id!==resOut.id){
+        // Same-day: checkout de resOut + checkin de res en el mismo día
+        // Triángulo superior-izq = quien sale, inferior-der = quien entra
+        const nmOut=resOut.huesped.split(' ')[0].substr(0,3);
+        const nmIn=res.huesped.split(' ')[0].substr(0,3);
+        const popOut=`openCalPopup('${resOut.id}')`;
+        const popIn=`openCalPopup('${res.id}')`;
+        parts.push(`<div class="cal-cell split" title="${esc(resOut.huesped)} → ${esc(res.huesped)}">
+          <div class="split-top" style="background:${DC[code]}" onclick="${popOut}">${esc(nmOut)}</div>
+          <div class="split-bot" style="background:${DC[code]}" onclick="${popIn}">${esc(nmIn)}</div>
+          <div class="split-line"></div>
+        </div>`);
+      } else if(res){
+        // Día normal ocupado — verificar si es el día de CI con early, o el día anterior al CO con late
+        const isEarlyDay=res.early&&ds===res.checkin;
+        const isLateDay=res.late&&ds===res.checkout;// no puede pasar (CO excluido del loop), pero por si acaso
+        // Late checkout: el día del checkout no está en byDep, lo mostramos como semi-ocupado
+        const extraClass=(isEarlyDay?' early-ci':'');
+        parts.push(`<div class="cal-cell occupied${extraClass}" style="background:${DC[code]};cursor:pointer" onclick="openCalPopup('${res.id}')" title="${esc(res.huesped)}">${esc(res.huesped.split(' ')[0].substr(0,4))}</div>`);
+      } else if(resOut&&resOut.late){
+        // El día de checkout pero la reserva tiene late checkout → mostrar semi-ocupado
+        parts.push(`<div class="cal-cell occupied late-co" style="background:${DC[code]};cursor:pointer;opacity:0.6" onclick="openCalPopup('${resOut.id}')" title="${esc(resOut.huesped)} (late CO)">${esc(resOut.huesped.split(' ')[0].substr(0,4))}</div>`);
+      } else if(bloqInfo){
+        const platLabel=bloqInfo.plat==='Bk'?'Booking':'Airbnb';
+        parts.push(`<div class="cal-cell blocked" style="${bloqStyle};cursor:pointer" onclick="openBloqPopup('${code}','${ds}')" title="Bloqueado ${platLabel}">${bloqLabel}</div>`);
+      } else {
+        parts.push(`<div class="cal-cell"></div>`);
+      }
+    }
+  });
+  parts.push('</div>');
+  $('calendario-grid').innerHTML=parts.join('');
+  $('cal-legend').innerHTML=DEPTOS.map(c=>`<span class="cal-legend-item"><span class="sw" style="background:${DC[c]}"></span>${DN[c]}</span>`).join('')
+    +`<span class="cal-legend-item"><span class="sw" style="background:repeating-linear-gradient(45deg,#d68b3f,#d68b3f 4px,#e9a85d 4px,#e9a85d 8px)"></span>Airbnb</span>`
+    +`<span class="cal-legend-item"><span class="sw" style="background:repeating-linear-gradient(45deg,#003580,#003580 4px,#0057b8 4px,#0057b8 8px)"></span>Booking</span>`
+    +`<span class="cal-legend-item"><span class="sw" style="background:linear-gradient(to bottom right,var(--paper-2) 50%,#7a9a6a 50%);border:1px solid var(--line-2)"></span>Día compartido</span>`
+    +`<span class="cal-legend-item"><span class="sw" style="background:var(--paper-2);border:1px solid var(--line-2)"></span>Libre</span>`;
+}
+function openCalPopup(id){
+  const r=reservas.find(x=>x.id===id);if(!r)return;
+  const c=calc(r);
+  const pop=$('cal-popup');
+  $('cal-popup-header').style.background=DC[r.depto];
+  $('cal-popup-nombre').textContent=r.huesped+(r.nac?' · '+r.nac:'');
+  const senia=r.senia||0,saldo=r.saldo||0,pend=Math.max(0,c.sub-senia-saldo);
+  $('cal-popup-body').innerHTML=`
+    <div class="cal-popup-field"><div class="cal-popup-label">Depto</div><div class="cal-popup-value"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Estado</div><div class="cal-popup-value"><span class="badge ${badgeClass(r.estado)}">${r.estado}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Check-in</div><div class="cal-popup-value">${fmtD(r.checkin)}${r.early?' <span style="font-size:0.7rem;color:var(--accent);font-weight:700">Early</span>':''}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Check-out</div><div class="cal-popup-value">${fmtD(r.checkout)}${r.late?' <span style="font-size:0.7rem;color:var(--accent);font-weight:700">Late</span>':''}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Noches</div><div class="cal-popup-value" style="font-family:'Fraunces',serif;font-size:1.2rem">${c.n}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Plataforma</div><div class="cal-popup-value">${esc(r.plataforma)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Líquido Prop.</div><div class="cal-popup-value" style="color:var(--ok);font-weight:700">${fmt(c.liq)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Pendiente</div><div class="cal-popup-value" style="color:${pend>0?'var(--err)':'var(--ok)'};font-weight:600">${pend>0?fmt(pend):'✓ Saldado'}</div></div>
+    ${r.tel?`<div class="cal-popup-field"><div class="cal-popup-label">Teléfono</div><div class="cal-popup-value" style="font-size:0.84rem">${esc(r.tel)}</div></div>`:''}
+    ${r.notas?`<div class="cal-popup-field" style="grid-column:1/-1"><div class="cal-popup-label">Notas</div><div class="cal-popup-value" style="font-size:0.84rem;white-space:normal">${esc(r.notas)}</div></div>`:''}
+  `;
+  $('cal-popup-footer').innerHTML=cu==='admin'
+    ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();editRes('${r.id}')"><svg><use href="#i-edit"/></svg>Editar</button>${r.tel?`<button class="btn btn-sm btn-wa" onclick="waMsgHuesped('${r.id}')"><svg><use href="#i-wa"/></svg>Huésped</button>`:''}`
+    :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
+  pop.classList.add('show');
+}
+function closeCalPopup(){$('cal-popup').classList.remove('show');}
+function openBloqPopup(code,ds){
+  const b=getBloqueo(code,ds);if(!b)return;
+  const platLabel=b.plat==='Bk'?'Booking':'Airbnb';
+  const platColor=b.plat==='Bk'?'#003580':'#d68b3f';
+  const n=Math.max(0,Math.round((new Date(b.end)-new Date(b.start))/86400000));
+  $('cal-popup-header').style.background=platColor;
+  $('cal-popup-nombre').textContent='Bloqueado · '+platLabel;
+  $('cal-popup-body').innerHTML=`
+    <div class="cal-popup-field"><div class="cal-popup-label">Depto</div><div class="cal-popup-value"><span class="depto-tag" style="background:${DC[code]}">${DN[code]}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Plataforma</div><div class="cal-popup-value"><span style="background:${platColor};color:white;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700">${platLabel}</span></div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Desde</div><div class="cal-popup-value">${fmtD(b.start)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Hasta</div><div class="cal-popup-value">${fmtD(b.end)}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Noches</div><div class="cal-popup-value" style="font-family:'Fraunces',serif;font-size:1.2rem">${n}</div></div>
+    <div class="cal-popup-field"><div class="cal-popup-label">Descripción</div><div class="cal-popup-value" style="font-size:0.82rem">${esc(b.summary||'—')}</div></div>
+  `;
+  $('cal-popup-footer').innerHTML=cu==='admin'
+    ?`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button><button class="btn btn-primary btn-sm" onclick="closeCalPopup();convertirBloqueo('${code}','${b.start}','${b.end}')"><svg><use href="#i-edit"/></svg>Convertir en reserva</button><button class="btn btn-outline btn-sm" onclick="closeCalPopup();eliminarBloqueo('${code}','${b.plat}')" style="color:var(--err);border-color:var(--err)">✕ Eliminar</button>`
+    :`<button class="cal-popup-close" onclick="closeCalPopup()">Cerrar</button>`;
+  $('cal-popup').classList.add('show');
+}
+function eliminarBloqueo(code,plat){
+  if(!confirm('¿Eliminar todos los bloqueos de '+(plat==='Bk'?'Booking':'Airbnb')+' para '+DN[code]+'?'))return;
+  const bloqueos=lo('cn_bloqueos',{});
+  bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat);
+  saveBloqueos(bloqueos);
+  renderCalendario();
+  toast('Bloqueos eliminados ✓');
+}
+function convertirBloqueo(code,ci,co){
+  // Navegar a nueva reserva con datos precargados
+  showScreen('nueva-reserva');
+  setTimeout(()=>{
+    $('r-depto').value=code;
+    $('r-checkin').value=ci;
+    $('r-checkout').value=co;
+    // Trigger calcNights para que se actualice el preview
+    calcNights();
+    // Scroll al top del form
+    $('screen-nueva-reserva').scrollTop=0;
+    toast('Fechas precargadas — completá los datos del huésped');
+  },80);
+}
+function exportOcupacion(){
+  const mes=parseInt($('cal-mes').value),anio=parseInt($('cal-anio').value);
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dim=new Date(anio,mes+1,0).getDate();
+  const days=Array.from({length:dim},(_,i)=>i+1);
+  const header=['Depto',...days.map(d=>String(d))];
+  const rows=DEPTOS.map(code=>{
+    const cells=days.map(d=>{
+      const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);
+      return res?res.huesped.split(' ')[0]:'';
+    });
+    return csvRow([DN[code],...cells]);
+  });
+  csvDown([`Ocupación ${meses[mes]} ${anio}`,csvRow(header),...rows],`ocupacion_${meses[mes]}_${anio}.csv`);
+}
+function exportOcupacionPDF(){
+  const mes=parseInt($('cal-mes').value),anio=parseInt($('cal-anio').value);
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dim=new Date(anio,mes+1,0).getDate();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  pdfHeader(doc,`Ocupación · ${meses[mes]} ${anio}`,`Calendario de los 7 departamentos`);
+  const head=[['Depto',...Array.from({length:dim},(_,i)=>String(i+1))]];
+  const body=DEPTOS.map(code=>{
+    const cells=Array.from({length:dim},(_,i)=>{
+      const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`;
+      const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);
+      const bloq=!res&&isBlocked(code,ds);
+      return res?res.huesped.split(' ')[0].substr(0,3):bloq?'X':'';
+    });
+    return [DN[code],...cells];
+  });
+  doc.autoTable({
+    startY:44,head:head,body:body,theme:'grid',
+    headStyles:{fillColor:[26,25,24],textColor:[250,248,243],fontStyle:'bold',fontSize:6.5,cellPadding:1.5,halign:'center'},
+    bodyStyles:{fontSize:6,cellPadding:1.2,halign:'center',lineColor:[230,225,212],lineWidth:0.1},
+    columnStyles:{0:{fillColor:[26,25,24],textColor:[250,248,243],fontStyle:'bold',fontSize:7}},
+    margin:{left:8,right:8},
+    didParseCell:function(d){
+      if(d.section!=='body'||d.column.index===0)return;
+      const code=DEPTOS[d.row.index];
+      const dayIdx=d.column.index;
+      const ds=`${anio}-${String(mes+1).padStart(2,'0')}-${String(dayIdx).padStart(2,'0')}`;
+      const res=reservas.find(r=>r.depto===code&&r.estado!=='Cancelada'&&r.checkin<=ds&&r.checkout>ds);
+      const bloq=!res&&isBlocked(code,ds);
+      if(res){const hex=DC[code].replace('#','');d.cell.styles.fillColor=[parseInt(hex.substr(0,2),16),parseInt(hex.substr(2,2),16),parseInt(hex.substr(4,2),16)];d.cell.styles.textColor=[255,255,255];d.cell.styles.fontStyle='bold';}
+      else if(bloq){d.cell.styles.fillColor=[214,139,63];d.cell.styles.textColor=[255,255,255];}
+    }
+  });
+  pdfFooter(doc);
+  doc.save(`ocupacion_${meses[mes]}_${anio}.pdf`);
+  toast('PDF generado');
+}
+
+// ── GASTOS ──
+function renderGastos(){
+  const can=cu==='admin';
+  $('gastos-form-card').style.display=can?'block':'none';
+  $('gastos-badge').style.display=can?'none':'inline-block';
+  const tb=$('tabla-gastos');
+  const data=[...gastos].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  if(!data.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sin gastos</td></tr>`;return;}
+  tb.innerHTML=data.map(g=>`<tr>
+    <td>${fmtD(g.fecha)}</td>
+    <td><span class="depto-tag" style="background:${DC[g.depto]||'#6b6660'}">${g.depto==='General'?'General':DN[g.depto]||g.depto}</span></td>
+    <td><span class="badge badge-ink">${esc(g.categoria)}</span></td>
+    <td>${esc(g.descripcion)}</td>
+    <td style="font-weight:600;color:var(--err)">${fmt(g.monto)}</td>
+    <td style="color:var(--muted);font-size:.8rem">${esc(g.comprobante||'—')}</td>
+    <td>${can?`<button class="btn-icon-sm danger" onclick="delGas('${g.id}')" aria-label="Eliminar"><svg><use href="#i-close"/></svg></button>`:''}</td>
+  </tr>`).join('');
+}
+function guardarGasto(){
+  if(cu!=='admin')return;
+  const f=$('g-fecha').value,d=$('g-desc').value.trim(),m=parseFloat($('g-monto').value);
+  if(!f||!d||!m){toast('Completá fecha, descripción y monto',false);return;}
+  const ng={id:uid(),fecha:f,depto:$('g-depto').value,categoria:$('g-categoria').value,descripcion:d,monto:m,comprobante:$('g-comprobante').value.trim()};
+  gastos.push(ng);
+  sl('gh_g',gastos);
+  upsertGasto(ng);// fire and forget, con cola de reintento
+  ['g-desc','g-monto','g-comprobante'].forEach(id=>$(id).value='');
+  $('g-fecha').value=new Date().toISOString().split('T')[0];
+  renderGastos();toast('Gasto registrado');
+}
+function delGas(id){
+  if(cu!=='admin')return;if(!confirm('¿Eliminar?'))return;
+  gastos=gastos.filter(g=>g.id!==id);
+  // Escritura directa: el guard de saveToBin bloqueaba las eliminaciones legítimas
+  sl('gh_g',gastos);
+  deleteGastoRemoto(id);
+  renderGastos();toast('Eliminado');
+}
+function exportGastos(){
+  const h=['Fecha','Depto','Categoría','Descripción','Monto USD','Comprobante'];
+  const rows=gastos.map(g=>csvRow([g.fecha,g.depto==='General'?'General':(DN[g.depto]||g.depto),g.categoria,g.descripcion,g.monto.toFixed(2),g.comprobante||'']));
+  csvDown([csvRow(h),...rows],'gastos_catalinas.csv');
+}
+function exportGastosPDF(){
+  if(!gastos.length){toast('No hay gastos para exportar',false);return;}
+  const data=[...gastos].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const tot=data.reduce((s,g)=>s+g.monto,0);
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  pdfHeader(doc,'Gastos Operativos',`${data.length} registros · Total USD ${fmtN(tot)}`);
+  const body=data.map(g=>[fmtD(g.fecha),g.depto==='General'?'General':(DN[g.depto]||g.depto),g.categoria,g.descripcion,'USD '+fmtN(g.monto),g.comprobante||'—']);
+  doc.autoTable({
+    startY:44,head:[['Fecha','Depto','Categoría','Descripción','Monto','Comprobante']],
+    body:body,
+    foot:[['','','','TOTAL','USD '+fmtN(tot),'']],
+    theme:'plain',
+    headStyles:{fillColor:[26,25,24],textColor:[250,248,243],fontStyle:'bold',fontSize:9,cellPadding:3},
+    bodyStyles:{fontSize:9,cellPadding:3,lineColor:[230,225,212],lineWidth:0.1},
+    footStyles:{fillColor:[26,25,24],textColor:[233,156,140],fontStyle:'bold',fontSize:10,cellPadding:3},
+    alternateRowStyles:{fillColor:[247,243,234]},
+    columnStyles:{1:{halign:'center'},4:{halign:'right',fontStyle:'bold',textColor:[168,66,46]}},
+    margin:{left:14,right:14}
+  });
+  pdfFooter(doc);
+  doc.save(`gastos_catalinas_${new Date().toISOString().split('T')[0]}.pdf`);
+  toast('PDF generado');
+}
+
+// ── RENDIMIENTO ──
+function renderRendimiento(){
+  const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
+  const hm=mv!=='',mes=hm?parseInt(mv):-1;
+  const EXCLUIR_R=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const fil=reservas.filter(r=>{if(EXCLUIR_R.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  let ts=0,ta=0,tn=0,tg=0,tl=0,tno=0;
+  const rows=DEPTOS.map(code=>{
+    const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
+    dr.forEach(r=>{const c=calc(r);s+=c.sub;a+=c.air;n+=c.net;g+=c.ges;l+=c.liq;no+=c.n;});
+    ts+=s;ta+=a;tn+=n;tg+=g;tl+=l;tno+=no;
+    return`<tr>
+      <td><span class="depto-tag" style="background:${DC[code]}">${DN[code]}</span></td>
+      <td style="text-align:center">${dr.length}</td><td style="text-align:center;font-weight:600">${no}</td>
+      <td>${fmt(s)}</td><td style="color:var(--err)">${fmt(a)}</td><td>${fmt(n)}</td>
+      <td style="color:var(--warn)">${fmt(g)}</td><td style="font-weight:700;color:var(--ok)">${fmt(l)}</td>
+      <td>${dr.length?fmt(s/dr.length):'—'}</td></tr>`;
+  });
+  rows.push(`<tr class="total-row">
+    <td colspan="2">TOTAL</td><td style="text-align:center">${tno}</td>
+    <td>${fmt(ts)}</td><td>${fmt(ta)}</td><td>${fmt(tn)}</td><td>${fmt(tg)}</td>
+    <td style="color:#8fbda0!important">${fmt(tl)}</td>
+    <td>${fil.length?fmt(ts/fil.length):'—'}</td></tr>`);
+  $('tabla-rendimiento').innerHTML=rows.join('');
+  const gf=gastos.filter(g=>{const d=new Date(g.fecha);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const tgas=gf.reduce((s,g)=>s+g.monto,0);
+  $('rend-totals').innerHTML=`
+    <div class="totals-item"><div class="tl">Ingresos Brutos</div><div class="tv">${fmt(ts)}</div></div>
+    <div class="totals-item"><div class="tl">Com. Airbnb</div><div class="tv" style="color:var(--err)">${fmt(ta)}</div></div>
+
+    <div class="totals-item"><div class="tl">Líquido Propietario</div><div class="tv" style="color:var(--ok)">${fmt(tl)}</div></div>
+    <div class="totals-item"><div class="tl">Gastos</div><div class="tv" style="color:var(--err)">${fmt(tgas)}</div></div>
+    <div class="totals-item"><div class="tl">Noches Ocupadas</div><div class="tv">${tno}</div></div>
+    <div class="totals-item"><div class="tl">Reservas</div><div class="tv">${fil.length}</div></div>
+    <div class="totals-item highlight"><div class="tl">Resultado Neto</div><div class="tv">${fmt(tl-tgas)}</div></div>
+    ${(()=>{
+      const bkShown=fil.filter(r=>r.plataforma==='Booking'&&r.estado==='Shown');
+      const bkDeuda=bkShown.reduce((s,r)=>s+calc(r).bkCom,0);
+      if(!bkDeuda)return'';
+      return`<div class="totals-item" style="border-left:3px solid #f59e0b;padding-left:12px;margin-top:8px"><div class="tl">⚠️ Deuda Booking (15%)</div><div class="tv" style="color:#f59e0b">${fmt(bkDeuda)}</div></div><div style="font-size:0.72rem;color:var(--muted);margin-top:4px">${bkShown.length} reserva${bkShown.length>1?'s':''} con estado Shown</div>`;
+    })()}
+    ${(()=>{
+      const destinos={};
+      fil.forEach(r=>{const d=r.destino||'Sin especificar';if(!destinos[d])destinos[d]=0;destinos[d]+=calc(r).liq;});
+      const keys=Object.keys(destinos);
+      if(!keys.length)return'';
+      return'<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--cream2)"><div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Líquido por destino de cobro</div>'+
+      keys.map(k=>`<div class="totals-item"><div class="tl">${k}</div><div class="tv" style="color:var(--navy)">${fmt(destinos[k])}</div></div>`).join('')+'</div>';
+    })()}`;
+}
+function exportRendimiento(){
+  const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
+  const hm=mv!=='',mes=hm?parseInt(mv):-1;
+  const EXCLUIR_X=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const fil=reservas.filter(r=>{if(EXCLUIR_X.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const h=['Depto','Reservas','Noches','Subtotal','Com.Airbnb','Neto','Com.Gestión','Líquido','Ticket Prom.'];
+  const rows=DEPTOS.map(code=>{
+    const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
+    dr.forEach(r=>{const c=calc(r);s+=c.sub;a+=c.air;n+=c.net;g+=c.ges;l+=c.liq;no+=c.n;});
+    return csvRow([DN[code],dr.length,no,s.toFixed(2),a.toFixed(2),n.toFixed(2),g.toFixed(2),l.toFixed(2),dr.length?(s/dr.length).toFixed(2):'0']);
+  });
+  csvDown([csvRow(h),...rows],'rendimiento_catalinas.csv');
+}
+function exportRendimientoPDF(){
+  const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
+  const hm=mv!=='',mes=hm?parseInt(mv):-1;
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const EXCLUIR_P=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const fil=reservas.filter(r=>{if(EXCLUIR_P.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  if(!fil.length){toast('No hay reservas en el período',false);return;}
+  let ts=0,ta=0,tn=0,tg=0,tl=0,tno=0;
+  const body=DEPTOS.map(code=>{
+    const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
+    dr.forEach(r=>{const c=calc(r);s+=c.sub;a+=c.air;n+=c.net;g+=c.ges;l+=c.liq;no+=c.n;});
+    ts+=s;ta+=a;tn+=n;tg+=g;tl+=l;tno+=no;
+    return[DN[code],dr.length,no,'USD '+fmtN(s),'USD '+fmtN(a),'USD '+fmtN(n),'USD '+fmtN(g),'USD '+fmtN(l),dr.length?'USD '+fmtN(s/dr.length):'—'];
+  });
+  const gf=gastos.filter(g=>{const d=new Date(g.fecha);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const tgas=gf.reduce((s,g)=>s+g.monto,0);
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const periodo=hm?`${meses[mes]} ${ay}`:`Año ${ay}`;
+  pdfHeader(doc,`Rendimiento · ${periodo}`,`${fil.length} reservas · ${tno} noches ocupadas`);
+  // Resumen
+  doc.autoTable({
+    startY:44,
+    body:[
+      ['Ingresos Brutos','USD '+fmtN(ts),'Com. Airbnb','USD '+fmtN(ta)],
+      ['Líquido Propietario','USD '+fmtN(tl)],
+      ['Gastos','USD '+fmtN(tgas),'RESULTADO NETO','USD '+fmtN(tl-tgas)]
+    ],
+    theme:'plain',
+    bodyStyles:{fontSize:10,cellPadding:4,lineColor:[230,225,212],lineWidth:0.1},
+    columnStyles:{0:{fontStyle:'bold',textColor:[107,102,96],fillColor:[247,243,234]},1:{halign:'right',fontStyle:'bold'},2:{fontStyle:'bold',textColor:[107,102,96],fillColor:[247,243,234]},3:{halign:'right',fontStyle:'bold'}},
+    didParseCell:function(d){
+      if(d.row.index===2&&(d.column.index===2||d.column.index===3)){d.cell.styles.fillColor=[26,25,24];d.cell.styles.textColor=d.column.index===2?[250,248,243]:[143,189,160];d.cell.styles.fontSize=11;}
+    },
+    margin:{left:14,right:14}
+  });
+  // Tabla por depto
+  doc.autoTable({
+    startY:doc.lastAutoTable.finalY+8,
+    head:[['Depto','Reservas','Noches','Subtotal','Airbnb','Neto','Gestión','Líquido','Ticket Prom.']],
+    body:body,
+    foot:[['TOTAL',fil.length,tno,'USD '+fmtN(ts),'USD '+fmtN(ta),'USD '+fmtN(tn),'USD '+fmtN(tg),'USD '+fmtN(tl),fil.length?'USD '+fmtN(ts/fil.length):'—']],
+    theme:'plain',
+    headStyles:{fillColor:[26,25,24],textColor:[250,248,243],fontStyle:'bold',fontSize:9,cellPadding:3},
+    bodyStyles:{fontSize:9,cellPadding:2.5,lineColor:[230,225,212],lineWidth:0.1},
+    footStyles:{fillColor:[26,25,24],textColor:[143,189,160],fontStyle:'bold',fontSize:10,cellPadding:3},
+    alternateRowStyles:{fillColor:[247,243,234]},
+    columnStyles:{0:{halign:'center',fontStyle:'bold'},1:{halign:'center'},2:{halign:'center'},3:{halign:'right'},4:{halign:'right',textColor:[168,66,46]},5:{halign:'right'},6:{halign:'right',textColor:[168,108,43]},7:{halign:'right',fontStyle:'bold',textColor:[79,122,90]},8:{halign:'right'}},
+    margin:{left:14,right:14}
+  });
+  pdfFooter(doc);
+  doc.save(`rendimiento_catalinas_${periodo.replace(' ','_').toLowerCase()}.pdf`);
+  toast('PDF generado');
+}
+
+// ── AVISOS ──
+function renderAvisos(){
+  const today=new Date().toISOString().split('T')[0];
+  const isMant=cu==='mant';
+  let prox;
+  if(isMant){
+    const tom=new Date();tom.setDate(tom.getDate()+1);
+    prox=reservas.filter(r=>r.estado!=='Cancelada'&&(r.checkin===today||r.checkin===tom.toISOString().split('T')[0]));
+    $('avisos-sub').textContent='Check-ins de hoy y mañana';
+  } else {
+    const in7=new Date();in7.setDate(in7.getDate()+7);
+    prox=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin>=today&&r.checkin<=in7.toISOString().split('T')[0]);
+    $('avisos-sub').textContent='Check-ins en los próximos 7 días';
+  }
+  prox.sort((a,b)=>a.checkin.localeCompare(b.checkin));
+  const cont=$('avisos-list');
+  if(!prox.length){cont.innerHTML=`<div class="empty-state"><svg><use href="#i-inbox"/></svg><p>${isMant?'Sin check-ins hoy ni mañana':'Sin check-ins próximos'}</p></div>`;return;}
+  const sf=cu==='admin'||cu==='dueno';
+  cont.innerHTML=prox.map(r=>{
+    const c=calc(r),diff=Math.round((new Date(r.checkin)-new Date())/86400000);
+    const cls=diff<=0?'urg':diff<=2?'soon':'';
+    return`<div class="aviso-card">
+      <div class="aviso-header">
+        <div class="aviso-header-left">
+          <span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span>
+          <strong>${esc(r.huesped)}</strong>
+        </div>
+        <div class="aviso-when ${cls}"><div class="d1">${fmtD(r.checkin)}</div><div class="d2">${diff<=0?'¡HOY!':diff===1?'Mañana':'En '+diff+' días'}</div></div>
+      </div>
+      <div class="aviso-body">
+        <div><div class="af-label">Check-out</div><div class="af-value">${fmtD(r.checkout)}</div></div>
+        <div><div class="af-label">Noches</div><div class="af-value">${c.n}</div></div>
+        <div><div class="af-label">Plataforma</div><div class="af-value">${esc(r.plataforma)}</div></div>
+        <div><div class="af-label">Nacionalidad</div><div class="af-value">${esc(r.nac||'—')}</div></div>
+        ${sf?`<div><div class="af-label">Líquido Prop.</div><div class="af-value" style="color:var(--ok);font-weight:600">${fmt(c.liq)}</div></div>`:'<div></div>'}
+        <div><div class="af-label">Notas</div><div class="af-value" style="font-size:.82rem">${esc(r.notas||'—')}</div></div>
+      </div>
+      <div class="aviso-footer">
+        <span class="aviso-footer-label">Checklist:</span>
+        <label class="aviso-check"><input type="checkbox"> Admin</label>
+        <label class="aviso-check"><input type="checkbox"> Mant.</label>
+        <label class="aviso-check"><input type="checkbox"> Limpieza</label>
+        <label class="aviso-check"><input type="checkbox"> Acceso</label>
+        <div class="wa-btns">
+          <button class="btn btn-sm btn-wa" onclick="waMsg('${r.id}','admin_e')"><svg><use href="#i-wa"/></svg>Admin</button>
+          <button class="btn btn-sm btn-wa" onclick="waMsg('${r.id}','mant')"><svg><use href="#i-wa"/></svg>Mant.</button>
+          ${r.tel?`<button class="btn btn-sm" style="background:#128c5e;color:white;border-color:#128c5e" onclick="waMsgHuesped('${r.id}')"><svg><use href="#i-wa"/></svg>Huésped</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── HOY (ex Dashboard) ──
+function renderHoy(){
+  const today=new Date().toISOString().split('T')[0];
+  const act=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
+  const m=new Date().getMonth(),y=new Date().getFullYear();
+  const EXCLUIR_REND=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const em=reservas.filter(r=>{const d=new Date(r.checkin);return !EXCLUIR_REND.includes(r.estado)&&d.getMonth()===m&&d.getFullYear()===y;});
+  const ing=em.reduce((s,r)=>s+calc(r).liq,0);
+  const nochesM=em.reduce((s,r)=>s+calc(r).n,0);
+  const promNoches=em.length?Math.round(nochesM/em.length*10)/10:0;
+  const in7=new Date(Date.now()+7*86400000).toISOString().split('T')[0];
+  const pr=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin>=today&&r.checkin<=in7);
+  const ciHoy=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin===today).sort((a,b)=>a.depto.localeCompare(b.depto));
+  const coHoy=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkout===today).sort((a,b)=>a.depto.localeCompare(b.depto));
+  const fiveAgo=new Date(Date.now()-5*86400000).toISOString().split('T')[0];
+  const aLimpiar=reservas.filter(r=>r.estado!=='Cancelada'&&!r.limpio&&r.checkout>=fiveAgo&&r.checkout<=today).sort((a,b)=>a.checkout.localeCompare(b.checkout));
+  $('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Ocupados Hoy</div><div class="stat-value">${act.length}<span style="font-size:1rem;color:var(--muted-2);font-weight:400;margin-left:2px">/7</span></div><div class="stat-sub">Deptos activos</div></div>
+    <div class="stat-card"><div class="stat-label">Ingresos Mes</div><div class="stat-value sm">${fmt(ing)}</div><div class="stat-sub">Líquido prop. mes actual</div></div>
+    <div class="stat-card"><div class="stat-label">Noches Mes</div><div class="stat-value">${nochesM}<span style="font-size:.85rem;color:var(--muted);margin-left:6px;font-weight:400">~${promNoches}x</span></div><div class="stat-sub">Vendidas · prom. por reserva</div></div>
+    <div class="stat-card"><div class="stat-label">Check-ins 7d</div><div class="stat-value">${pr.length}</div><div class="stat-sub">Próximas llegadas</div></div>`;
+  const isAdm=cu==='admin';
+  const colCI=ciHoy.length?ciHoy.map(r=>`<div class="dash-item"><div class="dash-item-left"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span><span class="dash-item-name">${esc(r.huesped)}</span></div><button class="btn btn-sm btn-wa" onclick="waMsg('${r.id}','admin_e')" title="Avisar"><svg><use href="#i-wa"/></svg></button></div>`).join(''):`<div class="empty-state" style="padding:18px"><p style="font-size:.82rem">Sin check-ins</p></div>`;
+  const colCO=coHoy.length?coHoy.map(r=>`<div class="dash-item"><div class="dash-item-left"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span><span class="dash-item-name">${esc(r.huesped)}</span></div>${isAdm?`<button class="btn btn-sm btn-outline" onclick="toggleLimpio('${r.id}')" style="padding:5px 10px;font-size:.72rem"><svg><use href="#i-check"/></svg>Limpio</button>`:''}</div>`).join(''):`<div class="empty-state" style="padding:18px"><p style="font-size:.82rem">Sin check-outs</p></div>`;
+  const colLimp=aLimpiar.length?aLimpiar.map(r=>`<div class="dash-item"><div class="dash-item-left"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span><span class="dash-item-name">${fmtD(r.checkout)} · ${esc(r.huesped.split(' ')[0])}</span></div>${isAdm?`<button class="btn btn-sm btn-primary" onclick="toggleLimpio('${r.id}')" style="padding:5px 10px;font-size:.72rem"><svg><use href="#i-check"/></svg>Limpio</button>`:''}</div>`).join(''):`<div class="empty-state" style="padding:18px"><p style="font-size:.82rem">Todo limpio</p></div>`;
+  $('hoy-cols').innerHTML=`
+    <div class="card"><div class="card-title"><div class="dot" style="background:var(--ok)"></div>Check-ins HOY · ${ciHoy.length}</div>${colCI}</div>
+    <div class="card"><div class="card-title"><div class="dot" style="background:var(--accent)"></div>Check-outs HOY · ${coHoy.length}</div>${colCO}</div>
+    <div class="card"><div class="card-title"><div class="dot" style="background:var(--err)"></div>A Limpiar · ${aLimpiar.length}</div>${colLimp}</div>`;
+  const ps=[...pr].sort((a,b)=>a.checkin.localeCompare(b.checkin)).slice(0,5);
+  $('proximos-checkins').innerHTML=ps.length
+    ?ps.map(r=>`<div class="dash-item"><div class="dash-item-left"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span><span class="dash-item-name">${esc(r.huesped)}</span></div><span class="dash-item-meta">${fmtD(r.checkin)}</span></div>`).join('')
+    :`<div class="empty-state" style="padding:24px"><svg><use href="#i-inbox"/></svg><p>Sin check-ins próximos</p></div>`;
+  const ul=[...reservas].sort((a,b)=>b.creado.localeCompare(a.creado)).slice(0,5);
+  $('ultimas-reservas').innerHTML=ul.length
+    ?ul.map(r=>`<div class="dash-item"><div class="dash-item-left"><span class="depto-tag" style="background:${DC[r.depto]}">${DN[r.depto]}</span><span class="dash-item-name">${esc(r.huesped)}</span></div><span class="badge ${badgeClass(r.estado)}">${r.estado}</span></div>`).join('')
+    :`<div class="empty-state" style="padding:24px"><svg><use href="#i-inbox"/></svg><p>Cargá tu primera reserva</p></div>`;
+}
+function toggleLimpio(id){
+  if(cu!=='admin')return;
+  const r=reservas.find(x=>x.id===id);if(!r)return;
+  reservas=reservas.map(x=>x.id===id?{...x,limpio:!x.limpio}:x);
+  const rl=reservas.find(x=>x.id===id);sl('gh_r',reservas);if(rl)saveOneReserva(rl);
+  if($('screen-dashboard').classList.contains('active'))renderHoy();
+  if($('screen-reservas').classList.contains('active'))renderReservas();
+  toast(r.limpio?'Marcado como sucio':'Marcado como limpio');
+}
+
+// ── SMART PASTE AIRBNB ──
+function openSmartPaste(){$('sp-modal').classList.add('show');$('sp-input').value='';$('sp-detected').innerHTML='';setTimeout(()=>$('sp-input').focus(),100);}
+function closeSmartPaste(){$('sp-modal').classList.remove('show');}
+function smartPasteDetect(){
+  const text=$('sp-input').value;
+  if(!text.trim()){toast('Pegá la notificación primero',false);return;}
+  const months={ene:0,feb:1,mar:2,abr:3,may:4,jun:5,jul:6,ago:7,sep:8,sept:8,oct:9,nov:10,dic:11};
+  const r={plataforma:'Airbnb',estado:'Confirmada'};
+  if(/cancelad/i.test(text))r.estado='Cancelada';
+  else if(/pendiente|en espera/i.test(text))r.estado='Pendiente';
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+  const idIdx=lines.findIndex(l=>/identidad verificada/i.test(l));
+  if(idIdx>0)r.huesped=lines[idIdx-1];
+  else{const mt=text.match(/^(.+?)\s+llega el/m);if(mt){r.huesped=mt[1].replace(/^[¡!]?[A-Za-záéíóúñ\s]+!\s*/i,'').trim();}}
+  const propIdx=lines.findIndex(l=>/casa\/apto|casa entera|apartamento entero|departamento entero/i.test(l));
+  if(propIdx>0){let prop=lines[propIdx-1];prop=prop.replace(/\.\s*\d+\s*$/,'').trim();r.property=prop;}
+  function parseDate(label,year){
+    const re=new RegExp(label+'[\\s\\S]{0,80}?(\\d{1,2})\\s+(\\w+)','i');
+    const mt=text.match(re);if(!mt)return null;
+    const day=parseInt(mt[1]);const ms=mt[2].toLowerCase().substring(0,3);const mo=months[ms];
+    if(mo===undefined)return null;
+    return`${year}-${String(mo+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  }
+  const yr=new Date().getFullYear();
+  r.checkin=parseDate('Llegada',yr);
+  r.checkout=parseDate('Salida',yr);
+  if(r.checkin&&r.checkout&&r.checkout<r.checkin){r.checkout=parseDate('Salida',yr+1);}
+  if(r.checkin){
+    const ago3m=new Date(Date.now()-90*86400000).toISOString().split('T')[0];
+    if(r.checkin<ago3m){r.checkin=parseDate('Llegada',yr+1);r.checkout=parseDate('Salida',yr+1);if(r.checkin&&r.checkout&&r.checkout<r.checkin)r.checkout=parseDate('Salida',yr+2);}
+  }
+  const trav=text.match(/(\d+\s+adultos?(?:[\s,]+\d+\s+(?:niños?|menores?))?)/i);
+  if(trav)r.notas=trav[1];
+  const propMap=lo('cn_propMap',{});
+  if(r.property&&propMap[r.property])r.depto=propMap[r.property];
+  let h='<div style="border-top:1px solid var(--line);margin-top:18px;padding-top:18px"><div style="font-size:0.78rem;color:var(--muted);font-weight:600;margin-bottom:12px;letter-spacing:0.04em;text-transform:uppercase">Datos detectados — completá lo que falte</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  h+=`<div class="form-group"><label>Huésped</label><input type="text" id="sp-huesped" value="${esc(r.huesped||'')}"></div>`;
+  h+=`<div class="form-group"><label>Estado</label><select id="sp-estado"><option value="Confirmada"${r.estado==='Confirmada'?' selected':''}>Confirmada</option><option value="Pendiente"${r.estado==='Pendiente'?' selected':''}>Pendiente</option><option value="Cancelada"${r.estado==='Cancelada'?' selected':''}>Cancelada</option></select></div>`;
+  h+=`<div class="form-group"><label>Check-in</label><input type="date" id="sp-checkin" value="${r.checkin||''}"></div>`;
+  h+=`<div class="form-group"><label>Check-out</label><input type="date" id="sp-checkout" value="${r.checkout||''}"></div>`;
+  h+=`<div class="form-group"><label>Depto ${r.property?`<span style="color:var(--accent);font-weight:600;text-transform:none;letter-spacing:0">("${esc(r.property)}")</span>`:''}</label><select id="sp-depto"><option value="">— Elegí —</option>${DEPTOS.map(c=>`<option value="${c}"${r.depto===c?' selected':''}>${DN[c]}</option>`).join('')}</select></div>`;
+  h+=`<div class="form-group"><label>USD / Noche</label><input type="number" id="sp-precio" placeholder="120" step="0.01" autofocus></div>`;
+  h+=`<div class="form-group" style="grid-column:1/-1"><label>Notas</label><textarea id="sp-notas" style="min-height:50px">${esc(r.notas||'')}</textarea></div>`;
+  h+='</div>';
+  h+=`<input type="hidden" id="sp-property" value="${esc(r.property||'')}">`;
+  h+=`<div class="btn-row" style="margin-top:18px"><button class="btn btn-outline" onclick="closeSmartPaste()">Cancelar</button><button class="btn btn-primary" onclick="smartPasteSave()">Guardar Reserva</button></div></div>`;
+  $('sp-detected').innerHTML=h;
+  setTimeout(()=>{const p=$('sp-precio');if(p)p.focus();},100);
+  toast('Datos detectados');
+}
+function smartPasteSave(){
+  const dep=$('sp-depto').value,hue=$('sp-huesped').value.trim();
+  const ci=$('sp-checkin').value,co=$('sp-checkout').value;
+  const pre=parseFloat($('sp-precio').value);
+  if(!dep||!hue||!ci||!co||isNaN(pre)){toast('Faltan: depto, huésped, fechas o USD/noche',false);return;}
+  if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
+  const conf=reservas.find(r=>r.depto===dep&&bloqueaFechas(r)&&!(co<=r.checkin||ci>=r.checkout));
+  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' en '+DN[dep],false);return;}
+  const nrs={id:uid(),depto:dep,huesped:hue,nac:'',checkin:ci,checkout:co,precio:pre,plataforma:'Airbnb',estado:$('sp-estado').value,notas:$('sp-notas').value.trim(),creado:new Date().toISOString()};
+  reservas.push(nrs);
+  const property=$('sp-property').value;
+  if(property){const pm=lo('cn_propMap',{});pm[property]=dep;sl('cn_propMap',pm);}
+  saveOneReserva(nrs);
+  closeSmartPaste();
+  toast('Reserva guardada');
+  if($('screen-reservas').classList.contains('active'))renderReservas();
+  if($('screen-dashboard').classList.contains('active'))renderHoy();
+}
+
+// ── BACKUP ──
+function downloadBackup(){
+  const data={
+    version:2,fecha:new Date().toISOString(),
+    reservas:reservas,gastos:gastos,
+    pins:lo('gh_p',DEFAULT_PINS),wa:lo('cn_wa',{admin_e:'',mant:''}),
+    ical:lo('cn_ical',{}),icalBk:lo('cn_ical_bk',{}),bloqueos:lo('cn_bloqueos',{}),propMap:lo('cn_propMap',{}),
+    plataformas:lo('cn_plataformas',DEFAULT_PLATAFORMAS),temporadas:lo('cn_temporadas',[])
+  };
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`backup_catalinas_${new Date().toISOString().split('T')[0]}.json`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),100);
+  sl('cn_lastBackup',new Date().toISOString());
+  updateBackupStatus();
+  toast('Backup descargado');
+}
+function restoreBackup(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.reservas||!Array.isArray(data.reservas)){toast('Archivo inválido',false);return;}
+      const fecha=data.fecha?new Date(data.fecha).toLocaleString('es-AR'):'?';
+      if(!confirm(`¿Restaurar backup del ${fecha}?\n\n${data.reservas.length} reservas · ${(data.gastos||[]).length} gastos.\n\nReemplazará TODA la data actual (local y nube).`)){$('backup-file').value='';return;}
+      reservas=data.reservas;gastos=data.gastos||[];
+      if(data.pins)sl('gh_p',data.pins);
+      if(data.wa)sl('cn_wa',data.wa);
+      if(data.ical)sl('cn_ical',data.ical);
+      if(data.icalBk)sl('cn_ical_bk',data.icalBk);
+      if(data.bloqueos)sl('cn_bloqueos',data.bloqueos);
+      if(data.propMap)sl('cn_propMap',data.propMap);
+      if(data.plataformas)sl('cn_plataformas',data.plataformas);
+      if(data.temporadas)sl('cn_temporadas',data.temporadas);
+      if(data.reservas&&data.reservas.length>0){
+        sl('gh_r',data.reservas);
+        for(const r of data.reservas)await upsertReserva(r);
+        // Borrar de la nube las reservas que NO están en el backup (restauración completa real)
+        try{
+          const res=await fetch(SB_URL+'/rest/v1/reservas?select=id',{headers:SB_HDR});
+          if(res.ok){
+            const remotas=await res.json();
+            const ids=new Set(data.reservas.map(r=>r.id));
+            for(const x of remotas)if(!ids.has(x.id))await deleteReservaRemota(x.id);
+          }
+        }catch(e){console.log('No se pudieron limpiar reservas huérfanas en la nube:',e);}
+      }
+      if(data.gastos&&data.gastos.length>0){
+        // Escritura directa: restauración explícita confirmada por el usuario
+        sl('gh_g',data.gastos);
+        for(const g of data.gastos)await upsertGasto(g);
+        try{
+          const res=await fetch(SB_URL+'/rest/v1/gastos_catalinas?select=id',{headers:SB_HDR});
+          if(res.ok){
+            const remotos=await res.json();
+            const ids=new Set(data.gastos.map(g=>g.id));
+            for(const x of remotos)if(!ids.has(x.id))await deleteGastoRemoto(x.id);
+          }
+        }catch(e){console.log('No se pudieron limpiar gastos huérfanos en la nube:',e);}
+      }
+      await updateDispBin(data.reservas||[]);
+      if(data.wa||data.ical||data.bloqueos)await saveWaConfig(data.wa||lo('cn_wa',{admin_e:'',mant:''}));
+      toast('Backup restaurado');
+      setTimeout(()=>location.reload(),1200);
+    }catch(err){toast('Error al leer el archivo',false);console.error(err);}
+    $('backup-file').value='';
+  };
+  reader.readAsText(file);
+}
+function updateBackupStatus(){
+  const last=lo('cn_lastBackup',null);
+  const el=$('backup-status');if(!el)return;
+  if(!last){el.innerHTML='Nunca descargaste un backup local.';el.style.color='var(--err)';return;}
+  const days=Math.floor((Date.now()-new Date(last))/86400000);
+  el.innerHTML=`Último backup: ${new Date(last).toLocaleDateString('es-AR')} (hace ${days===0?'hoy':days===1?'1 día':days+' días'})`;
+  el.style.color=days>=15?'var(--err)':days>=7?'var(--warn)':'var(--muted)';
+}
+function checkBackupReminder(){
+  if(cu!=='admin')return;
+  const last=lo('cn_lastBackup',null);
+  const days=last?Math.floor((Date.now()-new Date(last))/86400000):999;
+  if(days>=15){
+    setTimeout(()=>{
+      const msg=last?`Hace ${days} días que no descargás backup. ¿Querés bajar uno ahora?`:'No descargaste ningún backup todavía. ¿Querés bajar uno ahora?';
+      if(confirm(msg+'\n\nSe guarda solo en tu dispositivo. La nube ya tiene una copia automática.')){
+        downloadBackup();
+      } else {
+        sl('cn_lastBackup',new Date(Date.now()-7*86400000).toISOString());
+      }
+    },2500);
+  }
+}
+
+// ── CONFIG ──
+function renderIcalConfig(){
+  const ical=lo('cn_ical',{});
+  const icalBk=lo('cn_ical_bk',{});
+  const sec=$('ical-config-section');
+  if(!sec)return;
+  sec.innerHTML=DEPTOS.map(code=>`
+    <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="depto-tag" style="background:${DC[code]};min-width:48px;justify-content:center">${DN[code]}</span>
+        <span style="font-size:0.7rem;color:var(--muted);font-weight:600;letter-spacing:0.05em">AIRBNB</span>
+        <input type="url" id="ical-${code}" value="${esc(ical[code]||'')}" placeholder="https://www.airbnb.com.ar/calendar/ical/..." style="flex:1;min-width:200px;font-size:0.78rem">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-left:58px">
+        <span style="font-size:0.7rem;color:var(--muted);font-weight:600;letter-spacing:0.05em">BOOKING</span>
+        <input type="url" id="ical-bk-${code}" value="${esc(icalBk[code]||'')}" placeholder="https://ical.booking.com/v1/export?t=..." style="flex:1;min-width:200px;font-size:0.78rem">
+      </div>
+    </div>`).join('');
+}
+function guardarIcal(){
+  const ical={};const icalBk={};
+  DEPTOS.forEach(code=>{
+    const v=$('ical-'+code);if(v&&v.value.trim())ical[code]=v.value.trim();
+    const vb=$('ical-bk-'+code);if(vb&&vb.value.trim())icalBk[code]=vb.value.trim();
+  });
+  sl('cn_ical_bk',icalBk);
+  saveIcalConfig(ical);
+  toast('Links iCal guardados');
+}
+let icalSyncing=false;
+async function sincronizarIcal(){
+  if(icalSyncing){console.log('iCal: sync ya en curso, se ignora');return;}
+  icalSyncing=true;
+  try{
+  const ical=lo('cn_ical',{});
+  const icalBk=lo('cn_ical_bk',{});
+  const toSync=[];
+  DEPTOS.forEach(code=>{
+    if(ical[code])toSync.push({code,url:ical[code],plat:'Air'});
+    if(icalBk[code])toSync.push({code,url:icalBk[code],plat:'Bk'});
+  });
+  if(!toSync.length){toast('No hay links iCal configurados',false);return;}
+  const status=$('ical-status');
+  if(status)status.textContent='Sincronizando...';
+  // Backup antes de tocar nada
+  const bloqueos=lo('cn_bloqueos',{});
+  const bloqueosBkp=JSON.parse(JSON.stringify(bloqueos));
+  let ok=0,err=0;
+  const proxies=['https://icalproxy.huuventa.workers.dev/?url='];
+  for(const {code,url,plat} of toSync){
+    let exito=false;
+    for(const proxyBase of proxies){
+      try{
+        const res=await fetch(proxyBase+encodeURIComponent(url));
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        const text=await res.text();
+        if(!text||!text.includes('BEGIN:VCALENDAR')){
+          // Respuesta inválida del proxy (HTML de error, vacío, etc.):
+          // NO borrar bloqueos — un calendario legítimamente vacío igual trae BEGIN:VCALENDAR
+          throw new Error('Respuesta sin VCALENDAR');
+        }
+        const eventos=parseIcal(text,plat).map(e=>({...e,plat}));
+        // Filtrar eventos que ya tienen reserva activa en esas fechas
+        const eventosFiltrados=eventos.filter(ev=>
+          !reservas.some(r=>r.depto===code&&bloqueaFechas(r)&&r.checkin<ev.end&&r.checkout>ev.start)
+        );
+        bloqueos[code]=(bloqueos[code]||[]).filter(e=>e.plat!==plat).concat(eventosFiltrados);
+        console.log('iCal '+code+' ('+plat+'): '+eventosFiltrados.length+' eventos ('+eventos.length+' recibidos, '+(eventos.length-eventosFiltrados.length)+' ignorados por reserva existente)');
+        ok++;exito=true;break;
+      }catch(e){console.log('iCal error '+code+' '+plat,e);}
+    }
+    if(!exito)err++;
+  }
+  // Rollback si todos fallaron
+  if(ok===0&&err>0){
+    await saveBloqueos(bloqueosBkp);
+    renderCalendario();
+    if(status)status.textContent='Error al sincronizar — se restauró la versión anterior';
+    toast('Error al sincronizar — calendario sin cambios',false);
+    return;
+  }
+  await saveBloqueos(bloqueos);
+  renderCalendario();
+  if(status)status.textContent=`Última sincronización: ${new Date().toLocaleString('es-AR')} · ${ok} OK${err?' · '+err+' error(es)':''}`;
+  toast(ok>0?'Calendarios sincronizados ✓':'Error al sincronizar',ok>0);
+  }finally{icalSyncing=false;}
+}
+function parseIcal(text,plat){
+  const events=[];
+  if(!text||!text.includes('BEGIN:VCALENDAR'))return events;
+  const unfolded=text.replace(/\r\n[ \t]/g,'').replace(/\r/g,'');
+  const lines=unfolded.split('\n');
+  let inEvent=false,dtstart='',dtend='',summary='',status='',uid='';
+  for(const line of lines){
+    if(line==='BEGIN:VEVENT'){inEvent=true;dtstart='';dtend='';summary='';status='';uid='';}
+    else if(line==='END:VEVENT'){
+      if(dtstart&&dtend){
+        const s=icalDate(dtstart),e=icalDate(dtend);
+        const hoy=new Date().toISOString().split('T')[0];
+        // Ignorar eventos cancelados
+        if(status==='CANCELLED'){inEvent=false;continue;}
+        if(plat==='Air'){
+          // Airbnb: filtrar bloqueos automáticos, eventos de un día y pasados
+          const esBloqueoAuto=summary.toLowerCase().includes('not available')||summary.toLowerCase().includes('no disponible')||summary.toLowerCase().includes('bloqueado');
+          const esUnDia=s===e||(new Date(e)-new Date(s))<=86400000;
+          const esPasado=e<=hoy;
+          if(esBloqueoAuto||esUnDia||esPasado){inEvent=false;continue;}
+        } else {
+          // Booking y otros: solo filtrar completamente pasados
+          if(e<=hoy){inEvent=false;continue;}
+        }
+        events.push({start:s,end:e,summary,uid});
+      }
+      inEvent=false;
+    }
+    else if(inEvent){
+      const propName=line.split(/[:;]/)[0];
+      // Booking usa DTSTART;VALUE=DATE:20260725 — tomar solo lo que está después del último ':'
+      const propVal=line.includes(':')?line.substring(line.lastIndexOf(':')+1).trim():'';
+      const propValDate=propVal.split('T')[0];
+      if(propName==='DTSTART')dtstart=propValDate;
+      else if(propName==='DTEND')dtend=propValDate;
+      else if(propName==='SUMMARY')summary=propVal.trim();
+      else if(propName==='STATUS')status=propVal.trim().toUpperCase();
+      else if(propName==='UID')uid=propVal.trim();
+    }
+  }
+  return events;
+}
+function icalDate(s){if(s.length===8)return s.substring(0,4)+'-'+s.substring(4,6)+'-'+s.substring(6,8);return s;}
+function isBlocked(code,dateStr){return!!getBloqueo(code,dateStr);}
+function getBloqueo(code,dateStr){const bloqueos=lo('cn_bloqueos',{});const events=bloqueos[code]||[];return events.find(e=>e.start<=dateStr&&e.end>dateStr)||null;}
+
+function renderConfig(){
+  pins=lo('gh_p',{...DEFAULT_PINS});
+  const us=[{k:'admin',n:'Admin (vos)',d:'Acceso total'},{k:'dueno',n:'Propietario',d:'Solo lectura'},{k:'admin_e',n:'Admin Edificio',d:'Ocupación + avisos'},{k:'mant',n:'Mantenimiento',d:'Avisos hoy y mañana'}];
+  $('pin-settings-grid').innerHTML=us.map(u=>`
+    <div class="pin-user-card">
+      <h4>${u.n}</h4><p>${u.d}</p>
+      <div class="pin-input-row">
+        <input type="password" id="pi-${u.k}" value="${esc(pins[u.k]||'')}" maxlength="4" placeholder="••••">
+        <button class="btn btn-outline btn-sm" onclick="tp('${u.k}')" aria-label="Mostrar"><svg><use href="#i-eye"/></svg></button>
+      </div>
+    </div>`).join('');
+  const wa=lo('cn_wa',{admin_e:'',mant:''});
+  renderIcalConfig();
+  $('wa-config-section').innerHTML=`
+    <div class="config-section">
+      <div class="config-section-title">WhatsApp para Avisos</div>
+      <div class="config-section-sub">Número con código de país, sin espacios. Ej: 5491112345678</div>
+      <div class="pin-settings-grid">
+        <div class="pin-user-card"><h4>Admin Edificio</h4><p>Aviso 24hs antes del check-in</p><input type="tel" id="wa-admin_e" value="${esc(wa.admin_e)}" placeholder="5491112345678"></div>
+        <div class="pin-user-card"><h4>Mantenimiento</h4><p>Aviso 24hs antes del check-in</p><input type="tel" id="wa-mant" value="${esc(wa.mant)}" placeholder="5491112345678"></div>
+      </div>
+    </div>`;
+  updateBackupStatus();
+  renderPlatformasConfig();
+  renderTemporadasConfig();
+}
+function renderTemporadasConfig(){
+  const sec=$('temporadas-config-section');if(!sec)return;
+  const temps=getTemporadas();
+  if(!temps.length){
+    sec.innerHTML='<p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px">No hay temporadas configuradas. Agrega una para que el sistema sugiera precios en reservas directas.</p><button class="btn btn-outline btn-sm" onclick="addTemporada()">+ Agregar temporada</button>';
+    return;
+  }
+  sec.innerHTML=temps.map((t,i)=>
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:center;margin-bottom:10px">'+
+    '<div class="form-group" style="margin:0"><label style="font-size:0.68rem">Nombre</label><input type="text" value="'+esc(t.nombre)+'" id="temp-nombre-'+i+'" placeholder="Ej: Alta temporada" style="font-size:0.82rem"></div>'+
+    '<div class="form-group" style="margin:0"><label style="font-size:0.68rem">Desde</label><input type="date" value="'+t.desde+'" id="temp-desde-'+i+'" style="font-size:0.82rem"></div>'+
+    '<div class="form-group" style="margin:0"><label style="font-size:0.68rem">Hasta</label><input type="date" value="'+t.hasta+'" id="temp-hasta-'+i+'" style="font-size:0.82rem"></div>'+
+    '<div class="form-group" style="margin:0"><label style="font-size:0.68rem">USD/Noche</label><input type="number" value="'+t.precio+'" id="temp-precio-'+i+'" min="0" step="1" style="font-size:0.82rem;width:80px"></div>'+
+    '<button class="btn-icon-sm danger" onclick="deleteTemporada('+i+')" title="Eliminar" style="margin-top:18px"><svg><use href="#i-close"/></svg></button>'+
+    '</div>'
+  ).join('')+
+  '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
+  '<button class="btn btn-outline btn-sm" onclick="addTemporada()">+ Agregar temporada</button>'+
+  '<button class="btn btn-primary btn-sm" onclick="guardarTemporadas()">Guardar temporadas</button>'+
+  '</div>'+
+  '<p style="font-size:0.72rem;color:var(--muted);margin-top:8px;line-height:1.6">Solo aplica a reservas <strong>Directas</strong>. El precio es una sugerencia, podes cambiarlo al cargar la reserva.</p>';
+}
+function addTemporada(){
+  const temps=getTemporadas();
+  temps.push({nombre:'Nueva temporada',desde:'',hasta:'',precio:0});
+  saveTemporadas(temps);renderTemporadasConfig();
+}
+function deleteTemporada(i){
+  const temps=getTemporadas();temps.splice(i,1);
+  saveTemporadas(temps);renderTemporadasConfig();
+}
+function guardarTemporadas(){
+  const temps=getTemporadas();
+  temps.forEach((t,i)=>{
+    const n=$('temp-nombre-'+i),d=$('temp-desde-'+i),h=$('temp-hasta-'+i),p=$('temp-precio-'+i);
+    if(n)t.nombre=n.value.trim();
+    if(d)t.desde=d.value;
+    if(h)t.hasta=h.value;
+    if(p)t.precio=parseFloat(p.value)||0;
+  });
+  saveTemporadas(temps);toast('Temporadas guardadas');
+}
+function renderPlatformasConfig(){
+  const sec=$('plataformas-config-section');if(!sec)return;
+  const plats=getPlatformas();
+  sec.innerHTML=plats.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+      <input type="text" value="${esc(p.nombre)}" id="plat-nombre-${i}" placeholder="Nombre" style="flex:1;min-width:120px;font-size:0.82rem">
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <label style="font-size:0.72rem;color:var(--muted);font-weight:600">Com.%</label>
+        <input type="number" value="${p.comision}" id="plat-com-${i}" min="0" max="100" step="0.1" style="width:70px;font-size:0.82rem">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <label style="font-size:0.72rem;color:var(--muted);font-weight:600">Com.Canal%</label>
+        <input type="number" value="${p.comisionBooking}" id="plat-bk-${i}" min="0" max="100" step="0.1" style="width:70px;font-size:0.82rem">
+      </div>
+      ${plats.length>1?`<button class="btn-icon-sm danger" onclick="deletePlataforma(${i})" title="Eliminar"><svg><use href="#i-close"/></svg></button>`:''}
+    </div>`).join('')+`
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-outline btn-sm" onclick="addPlataforma()">+ Agregar plataforma</button>
+    <button class="btn btn-primary btn-sm" onclick="guardarPlataformas()">Guardar plataformas</button>
+  </div>
+  <p style="font-size:0.72rem;color:var(--muted);margin-top:8px;line-height:1.6">Com.% = comisión que cobra la plataforma sobre el subtotal. Com.Canal% = comisión adicional que se activa solo en estado <strong>Shown</strong>.</p>`;
+}
+function addPlataforma(){
+  const plats=getPlatformas();
+  plats.push({id:'nueva-'+Date.now(),nombre:'Nueva',comision:0,comisionBooking:0});
+  savePlatformas(plats);renderPlatformasConfig();fillPlatformSelects();
+}
+function deletePlataforma(i){
+  const plats=getPlatformas();plats.splice(i,1);
+  savePlatformas(plats);renderPlatformasConfig();fillPlatformSelects();
+}
+function guardarPlataformas(){
+  const plats=getPlatformas();
+  plats.forEach((p,i)=>{
+    const n=$('plat-nombre-'+i);const c=$('plat-com-'+i);const b=$('plat-bk-'+i);
+    if(n){p.nombre=n.value.trim();p.id=p.nombre;}
+    if(c)p.comision=parseFloat(c.value)||0;
+    if(b)p.comisionBooking=parseFloat(b.value)||0;
+  });
+  savePlatformas(plats);fillPlatformSelects();toast('Plataformas guardadas');
+}
+function tp(k){const i=$('pi-'+k);i.type=i.type==='password'?'text':'password';}
+function guardarConfig(){
+  const ks=['admin','dueno','admin_e','mant'],np={};
+  for(const k of ks){const v=$('pi-'+k).value.trim();if(!/^\d{4}$/.test(v)){toast('Cada PIN debe tener 4 dígitos',false);return;}np[k]=v;}
+  const vals=Object.values(np);if(new Set(vals).size!==vals.length){toast('Los PINs deben ser distintos',false);return;}
+  sd('gh_p',np);pins=np;
+  saveWaConfig({admin_e:$('wa-admin_e').value.trim(),mant:$('wa-mant').value.trim()});
+  toast('Configuración guardada');
+}
+// ── WHATSAPP ──
+function waMsg(rid,rol){
+  const r=reservas.find(x=>x.id===rid);if(!r){toast('Reserva no encontrada',false);return;}
+  const c=calc(r),diff=Math.round((new Date(r.checkin)-new Date())/86400000);
+  const cuando=diff<=0?'HOY':diff===1?'mañana':'en '+diff+' días';
+  const msg='*AVISO CHECK-IN — Green House B&amp;B*\n\n'
+    +'*Depto:* '+DN[r.depto]+'\n'
+    +'*Huésped:* '+r.huesped+(r.nac?' ('+r.nac+')':'')+'\n'
+    +'*Check-in:* '+fmtD(r.checkin)+' ('+cuando+')\n'
+    +'*Check-out:* '+fmtD(r.checkout)+'\n'
+    +'*Noches:* '+c.n+'\n'
+    +'*Plataforma:* '+r.plataforma+'\n'
+    +(r.notas?'*Notas:* '+r.notas+'\n':'')
+    +'\nConfirmar recepción.';
+  const wa=lo('cn_wa',{admin_e:'',mant:''});
+  const num=wa[rol];
+  if(!num){toast('Configurá el número en Config.',false);return;}
+  window.open('https://wa.me/'+num.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+function waMsgHuesped(rid){
+  const r=reservas.find(x=>x.id===rid);if(!r){toast('Reserva no encontrada',false);return;}
+  const tel=(r.tel||'').replace(/\D/g,'');
+  if(!tel){toast('Esta reserva no tiene teléfono cargado.',false);return;}
+  const msg='Hola '+r.huesped+', te confirmamos tu reserva en Green House B&amp;B.\n'
+    +'Check-in: '+fmtD(r.checkin)+' · Check-out: '+fmtD(r.checkout)+' · Depto: '+DN[r.depto]+'\n'
+    +'Para consultas antes y durante tu estadía: catalinas.checkinn.com.ar/info';
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ── EDITAR RESERVA ──
+let editingId=null;
+function editRes(id){
+  if(cu!=='admin')return;
+  const r=reservas.find(x=>x.id===id);if(!r)return;
+  editingId=id;
+  $('e-depto').value=r.depto;$('e-huesped').value=r.huesped;$('e-nac').value=r.nac||'';if($('e-tel'))$('e-tel').value=r.tel||'';
+  $('e-estado').value=r.estado;$('e-checkin').value=r.checkin;$('e-checkout').value=r.checkout;
+  $('e-precio').value=r.precio;$('e-plataforma').value=r.plataforma;$('e-notas').value=r.notas||'';
+  if($('e-destino'))$('e-destino').value=r.destino||'';
+  if($('e-early'))$('e-early').checked=r.early||false;
+  if($('e-late'))$('e-late').checked=r.late||false;
+  $('e-senia').value=r.senia||'';$('e-saldo').value=r.saldo||'';
+  const updCalc=()=>{
+    const ci=$('e-checkin').value,co=$('e-checkout').value,pre=parseFloat($('e-precio').value)||0,pl=$('e-plataforma').value;
+    if(ci&&co&&pre&&new Date(co)>new Date(ci)){
+      const c=calc({checkin:ci,checkout:co,precio:pre,plataforma:pl,estado:$('e-estado').value});
+      $('e-resumen-noches').textContent=c.n;
+      $('e-resumen-sub').textContent=fmt(c.sub);
+
+      $('e-resumen-liq').textContent=fmt(c.liq);
+      const senia=parseFloat($('e-senia').value)||0,saldo=parseFloat($('e-saldo').value)||0;
+      const pend=Math.max(0,c.sub-senia-saldo);
+      $('e-pago-resumen').innerHTML=`Total: <b>${fmt(c.sub)}</b> · Seña: <b>${fmt(senia)}</b> · Saldo: <b>${fmt(saldo)}</b> · <span style="color:${pend>0?'var(--err)':'var(--ok)'}">Pendiente: <b>${fmt(pend)}</b></span>`;
+    } else {
+      ['e-resumen-noches','e-resumen-sub','e-resumen-liq'].forEach(i=>$(i).textContent='—');
+    }
+  };
+  ['e-checkin','e-checkout','e-precio','e-plataforma','e-estado','e-senia','e-saldo'].forEach(id=>{const el=$(id);if(el)el.oninput=updCalc;});
+  updCalc();
+  $('edit-modal').classList.add('show');
+}
+function closeEdit(){$('edit-modal').classList.remove('show');editingId=null;}
+function saveEdit(){
+  const dep=$('e-depto').value,ci=$('e-checkin').value,co=$('e-checkout').value;
+  const pre=parseFloat($('e-precio').value);const hue=$('e-huesped').value.trim();
+  if(!hue||!ci||!co||isNaN(pre)){toast('Completá todos los campos',false);return;}
+  if(new Date(co)<=new Date(ci)){toast('Check-out debe ser posterior al check-in',false);return;}
+  const conf=reservas.find(r=>r.id!==editingId&&r.depto===dep&&bloqueaFechas(r)&&!(co<=r.checkin||ci>=r.checkout));
+  if(conf&&!(ci===conf.checkout||co===conf.checkin)){toast('Superposición con '+conf.huesped+' en '+DN[dep],false);return;}
+  reservas=reservas.map(r=>{
+    if(r.id!==editingId)return r;
+    return{...r,depto:dep,huesped:hue,nac:$('e-nac').value.trim(),tel:($('e-tel')?.value.trim()||''),checkin:ci,checkout:co,precio:pre,plataforma:$('e-plataforma').value,destino:$('e-destino')?$('e-destino').value:'',estado:$('e-estado').value,notas:$('e-notas').value.trim(),early:$('e-early')?$('e-early').checked:r.early||false,late:$('e-late')?$('e-late').checked:r.late||false,senia:parseFloat($('e-senia').value)||0,saldo:parseFloat($('e-saldo').value)||0};
+  });
+  const updated=reservas.find(r=>r.id===editingId);
+  sl('gh_r',reservas);
+  if(updated)saveOneReserva(updated);closeEdit();renderReservas();toast('Reserva actualizada');
+}
+
+// ── HUESPEDES CRM ──
+function renderHuespedes(){
+  const q=($('hues-search')?.value||'').toLowerCase().trim();
+  const map={};
+  reservas.forEach(r=>{
+    if(r.estado==='Cancelada')return;
+    const key=r.huesped.trim().toLowerCase();
+    if(q&&!key.includes(q))return;
+    if(!map[key])map[key]={nombre:r.huesped,tel:r.tel||'',nac:r.nac||'',estadias:[],deptos:new Set()};
+    map[key].estadias.push(r);
+    map[key].deptos.add(r.depto);
+    if(r.tel)map[key].tel=r.tel;
+  });
+  const list=Object.values(map).sort((a,b)=>{
+    const la=a.estadias[a.estadias.length-1]?.checkin||'';
+    const lb=b.estadias[b.estadias.length-1]?.checkin||'';
+    return lb.localeCompare(la);
+  });
+  const cont=$('huespedes-list');
+  if(!list.length){cont.innerHTML='<div class="empty-state"><svg><use href="#i-inbox"/></svg><p>Sin huéspedes</p></div>';return;}
+  cont.innerHTML=list.map(h=>{
+    const sorted=[...h.estadias].sort((a,b)=>b.checkin.localeCompare(a.checkin));
+    const ultima=sorted[0];
+    const deptos=[...h.deptos].map(d=>'<span class="depto-tag" style="background:'+DC[d]+'">'+DN[d]+'</span>').join(' ');
+    const waBtn=h.tel?'<a href="https://wa.me/'+h.tel.replace(/\D/g,'')+'" target="_blank" class="btn btn-sm btn-wa"><svg><use href="#i-wa"/></svg>WhatsApp</a>':'';
+    return'<div class="card" style="padding:18px 22px;margin-bottom:12px">'+
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+    '<div>'+
+    '<div style="font-weight:700;font-size:0.95rem;color:var(--ink)">'+esc(h.nombre)+'</div>'+
+    (h.nac?'<div style="font-size:0.75rem;color:var(--muted);margin-top:2px">'+esc(h.nac)+'</div>':'')+
+    (h.tel?'<div style="font-size:0.78rem;color:var(--muted);margin-top:2px">☎️ '+esc(h.tel)+'</div>':'')+
+    '</div>'+
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+waBtn+'</div>'+
+    '</div>'+
+    '<div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;font-size:0.8rem;color:var(--muted)">'+
+    '<span><strong style="color:var(--ink)">'+h.estadias.length+'</strong> estadía'+(h.estadias.length!==1?'s':'')+'</span>'+
+    '<span>Deptos: '+deptos+'</span>'+
+    '<span>Última visita: <strong style="color:var(--ink)">'+fmtD(ultima.checkin)+'</strong></span>'+
+    '</div>'+
+    (sorted.length>1?'<details style="margin-top:10px"><summary style="font-size:0.78rem;color:var(--accent);cursor:pointer;font-weight:600">Ver historial</summary>'+
+    '<div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">'+
+    sorted.map(r=>'<div style="font-size:0.78rem;color:var(--muted);display:flex;gap:8px;align-items:center">'+
+    '<span class="depto-tag" style="background:'+DC[r.depto]+';font-size:0.65rem">'+DN[r.depto]+'</span>'+
+    '<span>'+fmtD(r.checkin)+' → '+fmtD(r.checkout)+'</span>'+
+    '<span class="badge '+badgeClass(r.estado)+'">'+esc(r.estado)+'</span>'+
+    '</div>').join('')+
+    '</div></details>':'')+
+    '</div>';
+  }).join('');
+}
+
+// ── EVENT LISTENERS ──
+// ── DARK MODE ──
+function toggleDark(){
+  const isDark=document.documentElement.classList.toggle('dark');
+  localStorage.setItem('cn_dark',isDark?'1':'0');
+  const icon=isDark?'☀️':'🌙';
+  const btn=document.getElementById('dark-toggle');if(btn)btn.textContent=icon;
+  const btnM=document.getElementById('dark-toggle-mobile');if(btnM)btnM.textContent=icon;
+}
+(function(){
+  const saved=localStorage.getItem('cn_dark');
+  const prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  if(saved==='1'||(saved===null&&prefersDark)){
+    document.documentElement.classList.add('dark');
+    document.addEventListener('DOMContentLoaded',()=>{
+      const b=document.getElementById('dark-toggle');if(b)b.textContent='☀️';
+      const bm=document.getElementById('dark-toggle-mobile');if(bm)bm.textContent='☀️';
+    });
+  }
+})();
+document.addEventListener('DOMContentLoaded',()=>{
+  // Sesión persistente: si hay usuario en sessionStorage, re-login sin PIN
+  const savedCu=sessionStorage.getItem('cn_cu');
+  if(savedCu&&USER_META[savedCu]){cu=savedCu;loginOk();}
+  document.querySelector('.pin-pad').addEventListener('click',e=>{
+    const b=e.target.closest('.pin-btn');if(!b)return;
+    const v=b.dataset.pin;
+    if(v==='clear')pinClear();else if(v==='enter')pinEnter();else pinPress(v);
+  });
+  document.addEventListener('keydown',e=>{
+    if($('login-screen').style.display==='none')return;
+    if(/^[0-9]$/.test(e.key))pinPress(e.key);
+    else if(e.key==='Backspace')pinClear();
+    else if(e.key==='Enter')pinEnter();
+  });
+  ['r-checkin','r-checkout','r-precio','r-plataforma'].forEach(id=>{
+    const el=$(id);if(el){el.addEventListener('input',calcNights);el.addEventListener('change',calcNights);}
+  });
+  ['fil-depto','fil-estado'].forEach(id=>$(id).addEventListener('change',renderReservas));
+  ['cal-mes','cal-anio'].forEach(id=>$(id).addEventListener('change',renderCalendario));
+  ['rend-mes','rend-anio'].forEach(id=>$(id).addEventListener('change',renderRendimiento));
+  $('edit-modal').addEventListener('click',e=>{if(e.target===$('edit-modal'))closeEdit();});
+});
+// ── XENIA ──
+let xeniaOpen=false;
+let xeniaHistory=[];
+// Fix Enter en mobile
+document.addEventListener('DOMContentLoaded',function(){
+  const xi=document.getElementById('xenia-input');
+  if(xi)xi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();xeniaSend();}});
+});
+
+function toggleXenia(){
+  xeniaOpen=!xeniaOpen;
+  $('xenia-panel').classList.toggle('open',xeniaOpen);
+  if(xeniaOpen&&!xeniaHistory.length){
+    const today=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+    if(!cu){
+      xeniaAddMsg('bot','¡Hola! Soy Xenia 🌿\nPara poder ayudarte con los datos de tu propiedad, primero ingresá tu PIN. ¡Te espero!');
+    } else if(!reservas||!reservas.length){
+      xeniaAddMsg('bot','¡Hola! Soy Xenia 🌿\nHoy es '+today+'. Estoy cargando los datos de los 7 deptos de Green House B&amp;B, CABA... Dame un segundo y preguntame lo que necesitás 😊');
+    } else {
+      xeniaAddMsg('bot','¡Hola! Soy Xenia, tu asistente de hospitalidad 🌿\nHoy es '+today+'. ¿En qué te puedo ayudar?');
+    }
+  }
+}
+
+function xeniaAddMsg(role,text){
+  const msgs=$('xenia-messages');
+  const div=document.createElement('div');
+  div.className='xenia-msg '+role;
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function xeniaTyping(){
+  const msgs=$('xenia-messages');
+  const div=document.createElement('div');
+  div.className='xenia-msg typing';
+  div.innerHTML='<div class="xenia-dots"><span></span><span></span><span></span></div>';
+  div.id='xenia-typing';
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function xeniaStopTyping(){
+  const t=$('xenia-typing');
+  if(t)t.remove();
+}
+
+function xeniaAsk(q){
+  $('xenia-input').value=q;
+  xeniaSend();
+}
+
+async function xeniaSend(){
+  const input=$('xenia-input');
+  const q=input.value.trim();
+  if(!q)return;
+  if(!cu){xeniaAddMsg('bot','Primero ingresá tu PIN para que pueda ayudarte 🔐');return;}
+  input.value='';
+  $('xenia-sugs').style.display='none';
+  xeniaAddMsg('user',q);
+  xeniaHistory.push({role:'user',content:q});
+  xeniaTyping();
+
+  const today=new Date().toISOString().split('T')[0];
+  const in7=new Date();in7.setDate(in7.getDate()+7);
+  const prox=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin>=today&&r.checkin<=in7.toISOString().split('T')[0]);
+  const act=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
+  const m=new Date().getMonth(),y=new Date().getFullYear();
+  const EXCL=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
+  const em=reservas.filter(r=>{const d=new Date(r.checkin);return!EXCL.includes(r.estado)&&d.getMonth()===m&&d.getFullYear()===y;});
+  const ingMes=em.reduce((s,r)=>s+calc(r).liq,0);
+  const pendientes=reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkin>=today).filter(r=>{const c=calc(r);return(r.senia||0)+(r.saldo||0)<c.sub;});
+
+  const ctx=`Sos Xenia, asistente de hospitalidad de CheckInn para Green House B&amp;B, Buenos Aires. Respondé siempre en español rioplatense, de forma concisa y cálida. Usá emojis con moderación. La propiedad tiene 7 departamentos en Green House B&amp;B, CABA, cerca de Retiro y Puerto Madero.
+
+CÓMO USAR LA APP — conocimiento específico de CheckInn:
+- Nueva reserva: menú lateral o botón "+" → completar depto, huésped, check-in, check-out, precio/noche, plataforma, estado → Guardar.
+- Editar reserva: en Reservas tocar el lápiz ✏️. O desde el calendario tocar la celda ocupada → popup → botón Editar.
+- Convertir bloqueo en reserva: en el calendario, tocar una celda bloqueada (Airbnb/Booking) → popup → botón "Convertir en reserva". Se abre Nueva Reserva con las fechas precargadas.
+- Cancelar reserva: editar y cambiar estado a "Cancelada".
+- Estados: Confirmada, Pendiente, Stand by, Shown, Non show, Cancelada, Cortesía, Devolución.
+- Calendario: vista mensual. Celdas de color = ocupado. Celdas con rayas = bloqueo iCal (Airbnb/Booking). Celda partida = mismo día cambia huésped.
+- Sincronización iCal: en Configuración pegar URLs de Airbnb y Booking. Se sincroniza al entrar y manualmente.
+- Rendimiento: ingresos por mes o año, por depto y plataforma. Exportable a CSV y PDF.
+- Seña y saldo: campos en el formulario para registrar pagos parciales.
+- Early check-in / Late checkout: casillas debajo de las fechas al crear/editar.
+- Teléfono del huésped: campo "Teléfono" en Nueva Reserva y en Editar, debajo de Nacionalidad. Es opcional. Se usa para el botón WhatsApp al huésped y aparece en el CRM.
+- WhatsApp al huésped: botón verde en la tabla de Reservas, en Avisos y en el popup del calendario. Solo aparece si la reserva tiene teléfono cargado. Abre WhatsApp con un mensaje de confirmación pre-armado que incluye check-in, check-out, depto y el link a catalinas.checkinn.com.ar/info.
+- CRM de Huéspedes: sección en el menú (Reportes → Huéspedes). Muestra todos los huéspedes agrupados por nombre con historial de estadías, teléfono y botón WhatsApp directo. Buscador por nombre en tiempo real.
+- Plataformas configurables: en Configuración → Plataformas y Comisiones. Se pueden agregar plataformas nuevas y editar los porcentajes de comisión. Com.% se descuenta del subtotal. Com.Canal% se activa solo en reservas con estado Shown.
+- Tarifas por temporada: en Configuración → Temporadas. Solo aplica a reservas Directas. Al elegir check-in + plataforma Directo, el sistema detecta si cae en una temporada y sugiere el precio automáticamente. El precio es editable.
+
+DATOS DE HOY (${today}):
+- Deptos ocupados ahora: ${act.length} de 7 — ${act.map(r=>DN[r.depto]+'('+r.huesped.split(' ')[0]+')').join(', ')||'ninguno'}
+- Próximos check-ins (7 días): ${prox.length} — ${prox.map(r=>r.checkin+' '+DN[r.depto]+' '+r.huesped.split(' ')[0]).join(', ')||'ninguno'}
+- Ingresos del mes (líquido prop.): USD ${ingMes.toFixed(0)}
+- Con saldo pendiente: ${pendientes.length}
+- Total reservas activas/futuras: ${reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkout>=today).length}
+
+RESERVAS FUTURAS:
+${reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkout>=today).slice(0,20).map(r=>{const c=calc(r);return r.checkin+' al '+r.checkout+' | '+DN[r.depto]+' | '+r.huesped+' | '+r.estado+' | Líquido: USD '+c.liq.toFixed(0);}).join('\n')||'Sin reservas futuras'}
+
+Respondé basándote en los datos reales y en el conocimiento de la app.`;
+
+  try{
+    const resp=await fetch('https://xenia-proxy.huuventa.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5',
+        max_tokens:400,
+        system:ctx,
+        messages:xeniaHistory
+      })
+    });
+    const data=await resp.json();
+    xeniaStopTyping();
+    const answer=data.content?.[0]?.text||'No pude procesar tu consulta.';
+    xeniaAddMsg('bot',answer);
+    xeniaHistory.push({role:'assistant',content:answer});
+    if(xeniaHistory.length>20)xeniaHistory=xeniaHistory.slice(-20);
+  }catch(e){
+    xeniaStopTyping();
+    xeniaAddMsg('bot','Ups, algo salió mal. Intentá de nuevo en un momento.');
+    console.error('Xenia error:',e);
+  }
+}
+
+// ── SCROLL HORIZONTAL FIJO EN TABLA DE RESERVAS ──────────────────────
+(function(){
+  function initScrollMirror(){
+    const wrap = document.getElementById('res-table-wrap');
+    const mirror = document.getElementById('res-scroll-mirror');
+    const inner = document.getElementById('res-scroll-inner');
+    if(!wrap||!mirror||!inner) return;
+
+    function syncWidth(){
+      inner.style.width = wrap.scrollWidth + 'px';
+      // Alinear mirror con el wrap horizontalmente
+      const rect = wrap.getBoundingClientRect();
+      mirror.style.left = rect.left + 'px';
+      mirror.style.right = (window.innerWidth - rect.right) + 'px';
+      mirror.style.width = (rect.right - rect.left) + 'px';
+    }
+
+    function checkVisibility(){
+      const rect = wrap.getBoundingClientRect();
+      const visible = rect.top < window.innerHeight && rect.bottom > 0;
+      const needsScroll = wrap.scrollWidth > wrap.clientWidth;
+      mirror.style.display = (visible && needsScroll) ? 'block' : 'none';
+      if(visible) syncWidth();
+    }
+
+    syncWidth();
+    wrap.addEventListener('scroll', ()=>{ mirror.scrollLeft = wrap.scrollLeft; });
+    mirror.addEventListener('scroll', ()=>{ wrap.scrollLeft = mirror.scrollLeft; });
+    window.addEventListener('scroll', checkVisibility);
+    window.addEventListener('resize', ()=>{ syncWidth(); checkVisibility(); });
+    const ro = new ResizeObserver(()=>{ syncWidth(); checkVisibility(); });
+    ro.observe(wrap);
+    checkVisibility();
+  }
+  document.addEventListener('DOMContentLoaded', initScrollMirror);
+})();
+// ─────────────────────────────────────────────────────────────────────
+</script>
+
+<!-- Modal ficha detalle de reserva -->
+<div id="modal-ficha-res" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center" onclick="if(event.target===this)cerrarFichaRes()">
+  <div style="background:var(--surface);border-radius:12px;padding:28px;max-width:480px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 id="ficha-nombre" style="font-size:16px;font-weight:600;color:var(--accent)"></h3>
+      <button onclick="cerrarFichaRes()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted)">✕</button>
+    </div>
+    <div id="ficha-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:13px"></div>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end" id="ficha-actions"></div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  cu = 'admin';
+  var ls = document.getElementById('login-screen');
+  var app = document.getElementById('app');
+  if(ls) ls.style.display = 'none';
+  if(app) app.style.display = 'block';
+  var ubName = document.getElementById('ub-name');
+  var ubRole = document.getElementById('ub-role');
+  var mobileUser = document.getElementById('mobile-user');
+  var mcBtn = document.getElementById('mobile-config-btn');
+  if(ubName) ubName.textContent = 'Propietaria';
+  if(ubRole) ubRole.textContent = 'Administrador';
+  if(mobileUser) mobileUser.textContent = 'Green House';
+  if(mcBtn) mcBtn.style.display = 'flex';
+  if(typeof buildNav === 'function') buildNav();
+  if(typeof fillPlatformSelects === 'function') fillPlatformSelects();
+  var td = document.getElementById('topbar-date');
+  if(td) td.textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  if(typeof initSelects === 'function') initSelects();
+  if(typeof showScreen === 'function') showScreen('dashboard');
+  if(typeof loadFromBins === 'function') loadFromBins();
+});
+</script>
+</body>
+</html>
