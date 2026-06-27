@@ -530,13 +530,23 @@ html.dark .xenia-sug{background:#2a3024;border-color:rgba(255,255,255,0.1);color
               <button id="btn-vista-mes" class="btn btn-primary btn-sm" onclick="setVistaCalendario('mes')">Mensual</button>
               <button id="btn-vista-sem" class="btn btn-outline btn-sm" onclick="setVistaCalendario('sem')">Semanal</button>
             </div>
+            <div style="display:flex;gap:6px;margin-right:8px">
+              <button id="btn-vista-mes" class="btn btn-primary btn-sm" onclick="setVistaCalendario('mes')">Mensual</button>
+              <button id="btn-vista-sem" class="btn btn-outline btn-sm" onclick="setVistaCalendario('sem')">Semanal</button>
+            </div>
             <label>Mes:</label>
             <select id="cal-mes" onchange="renderCalendario()">
               <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option><option value="3">Abril</option>
               <option value="4">Mayo</option><option value="5">Junio</option><option value="6">Julio</option><option value="7">Agosto</option>
               <option value="8">Septiembre</option><option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
             </select>
-            <label>Año:</label><select id="cal-anio" onchange="renderCalendario()"></select>
+            <label id="lbl-anio">Año:</label><select id="cal-anio" onchange="renderCalendario()"></select>
+            <div id="nav-semana" style="display:none;align-items:center;gap:6px">
+              <button class="btn btn-outline btn-sm" onclick="moverSemana(-1)">◀</button>
+              <span id="semana-label" style="font-size:12px;font-weight:500;min-width:160px;text-align:center"></span>
+              <button class="btn btn-outline btn-sm" onclick="moverSemana(1)">▶</button>
+              <button class="btn btn-outline btn-sm" onclick="irHoySemana()">Hoy</button>
+            </div>
             <button class="btn btn-outline btn-sm" onclick="exportOcupacion()">↓ CSV</button>
             <button class="btn btn-outline btn-sm" onclick="exportOcupacionPDF()">↓ PDF</button>
           </div>
