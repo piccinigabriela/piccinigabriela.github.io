@@ -1694,7 +1694,7 @@ function renderRendimiento(){
   const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
   const EXCLUIR_R=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
-  const fil=reservas.filter(r=>{if(EXCLUIR_R.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const fil=reservas.filter(r=>{if(EXCLUIR_R.includes(r.estado))return false;const [dy,dm,dd]=r.checkin.split('-').map(Number);if(hm&&(dm-1!==mes||dy!==ay))return false;if(!hm&&dy!==ay)return false;return true;});
   let ts=0,ta=0,tn=0,tg=0,tl=0,tno=0;
   const rows=DEPTOS.map(code=>{
     const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
@@ -1743,7 +1743,7 @@ function exportRendimiento(){
   const mv=$('rend-mes').value,ay=parseInt($('rend-anio').value);
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
   const EXCLUIR_X=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
-  const fil=reservas.filter(r=>{if(EXCLUIR_X.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const fil=reservas.filter(r=>{if(EXCLUIR_X.includes(r.estado))return false;const [dy,dm,dd]=r.checkin.split('-').map(Number);if(hm&&(dm-1!==mes||dy!==ay))return false;if(!hm&&dy!==ay)return false;return true;});
   const h=['Depto','Reservas','Noches','Subtotal','Com.Airbnb','Neto','Líquido','Ticket Prom.'];
   const rows=DEPTOS.map(code=>{
     const dr=fil.filter(r=>r.depto===code);let s=0,a=0,n=0,g=0,l=0,no=0;
@@ -1757,7 +1757,7 @@ function exportRendimientoPDF(){
   const hm=mv!=='',mes=hm?parseInt(mv):-1;
   const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const EXCLUIR_P=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
-  const fil=reservas.filter(r=>{if(EXCLUIR_P.includes(r.estado))return false;const d=new Date(r.checkin);if(hm&&(d.getMonth()!==mes||d.getFullYear()!==ay))return false;if(!hm&&d.getFullYear()!==ay)return false;return true;});
+  const fil=reservas.filter(r=>{if(EXCLUIR_P.includes(r.estado))return false;const [dy,dm,dd]=r.checkin.split('-').map(Number);if(hm&&(dm-1!==mes||dy!==ay))return false;if(!hm&&dy!==ay)return false;return true;});
   if(!fil.length){toast('No hay reservas en el período',false);return;}
   let ts=0,ta=0,tn=0,tg=0,tl=0,tno=0;
   const body=DEPTOS.map(code=>{
@@ -1866,7 +1866,7 @@ function renderHoy(){
   const act=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
   const m=new Date().getMonth(),y=new Date().getFullYear();
   const EXCLUIR_REND=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
-  const em=reservas.filter(r=>{const d=new Date(r.checkin);return !EXCLUIR_REND.includes(r.estado)&&d.getMonth()===m&&d.getFullYear()===y;});
+  const em=reservas.filter(r=>{const [ry,rm]=r.checkin.split('-').map(Number);return !EXCLUIR_REND.includes(r.estado)&&rm-1===m&&ry===y;});
   const ing=em.reduce((s,r)=>s+calc(r).liq,0);
   const nochesM=em.reduce((s,r)=>s+calc(r).n,0);
   const promNoches=em.length?Math.round(nochesM/em.length*10)/10:0;
@@ -2528,7 +2528,7 @@ async function xeniaSend(){
   const act=reservas.filter(r=>r.estado!=='Cancelada'&&r.checkin<=today&&r.checkout>today);
   const m=new Date().getMonth(),y=new Date().getFullYear();
   const EXCL=['Cancelada','Cortesía','Non show','Stand by','Devolución'];
-  const em=reservas.filter(r=>{const d=new Date(r.checkin);return!EXCL.includes(r.estado)&&d.getMonth()===m&&d.getFullYear()===y;});
+  const em=reservas.filter(r=>{const [ry,rm]=r.checkin.split('-').map(Number);return!EXCL.includes(r.estado)&&rm-1===m&&ry===y;});
   const ingMes=em.reduce((s,r)=>s+calc(r).liq,0);
   const pendientes=reservas.filter(r=>!EXCL.includes(r.estado)&&r.checkin>=today).filter(r=>{const c=calc(r);return(r.senia||0)+(r.saldo||0)<c.sub;});
 
