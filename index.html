@@ -12,667 +12,177 @@
 <meta property="og:image" content="https://piccinigabriela.github.io/demo/xenia.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 <title>CheckInn · Gestión para cabañas, apartamentos y B&B</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+    --bg:#ece0c6;
+    --surface:#fcf4e1;
+    --surface-2:#f6ecd6;
+    --text:#2a1f0e;
+    --text-light:#7d6c49;
+    --accent:#d2502a;
+    --accent-dark:#b53f1d;
+    --accent-soft:#f6e0d2;
+    --espresso:#241c10;
+    --espresso-2:#352a18;
+    --ok:#3f8a4a;
+    --border:#e0cfa8;
+    --line:#dfc491;
+    --shadow:0 4px 18px -10px rgba(120,80,20,.4), 0 1px 2px rgba(120,80,20,.05);
+    --shadow-lg:0 22px 48px -20px rgba(90,60,20,.5);
+    --fd:'Sora',sans-serif;
+    --fb:'Hanken Grotesk',sans-serif;
   }
 
-  :root {
-    --bg: #faf8f5;
-    --surface: #ffffff;
-    --text: #1a2e2a;
-    --text-light: #5a6e66;
-    --accent: #c6a43b;
-    --accent-dark: #a8862a;
-    --accent-soft: #f5efe3;
-    --green: #2a5e4a;
-    --green-dark: #1e4536;
-    --green-soft: #e8f0ec;
-    --error: #c95a3e;
-    --border: #e8e2d8;
-    --shadow: 0 4px 20px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
-    --shadow-lg: 0 20px 40px -12px rgba(0,0,0,0.1);
+  body{
+    font-family:var(--fb);
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.55;
+    letter-spacing:-.006em;
+    -webkit-font-smoothing:antialiased;
   }
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
+  .container{max-width:1240px;margin:0 auto;padding:0 24px}
 
   /* Header */
-  .header {
-    position: sticky;
-    top: 0;
-    background: rgba(250,248,245,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 0;
-    z-index: 100;
+  .header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(236,224,198,.85);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    padding:15px 0;
   }
-
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: var(--green);
-    text-decoration: none;
-  }
-
-  .logo span {
-    color: var(--accent);
-  }
-
-  .nav {
-    display: flex;
-    gap: 32px;
-    align-items: center;
-  }
-
-  .nav a {
-    text-decoration: none;
-    color: var(--text-light);
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-
-  .nav a:hover {
-    color: var(--green);
-  }
-
-  .btn-demo {
-    background: var(--green);
-    color: white !important;
-    padding: 10px 24px;
-    border-radius: 40px;
-  }
-
-  .btn-demo:hover {
-    background: var(--green-dark);
-  }
+  .header-content{display:flex;justify-content:space-between;align-items:center}
+  .logo{font-family:var(--fd);font-size:1.4rem;font-weight:800;letter-spacing:-.03em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:9px}
+  .logo .mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800}
+  .logo span{color:var(--accent)}
+  .nav{display:flex;gap:30px;align-items:center}
+  .nav a{text-decoration:none;color:var(--text-light);font-size:.88rem;font-weight:600;transition:color .2s}
+  .nav a:hover{color:var(--accent)}
+  .btn-demo{background:var(--accent);color:#fff !important;padding:9px 22px;border-radius:40px}
+  .btn-demo:hover{background:var(--accent-dark)}
 
   /* Buttons */
-  .btn-primary {
-    background: var(--green);
-    color: white;
-    padding: 14px 32px;
-    border-radius: 40px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    cursor: pointer;
+  .btn-primary{
+    background:var(--accent);color:#fff;padding:14px 30px;border-radius:40px;
+    text-decoration:none;font-weight:700;font-size:.95rem;transition:all .2s;
+    display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;
   }
-
-  .btn-primary:hover {
-    background: var(--green-dark);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+  .btn-primary:hover{background:var(--accent-dark);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .btn-outline{
+    border:2px solid var(--accent);background:transparent;color:var(--accent);
+    padding:12px 26px;border-radius:40px;text-decoration:none;font-weight:700;font-size:.95rem;transition:all .2s;
+    display:inline-flex;align-items:center;gap:8px;
   }
-
-  .btn-outline {
-    border: 2px solid var(--green);
-    background: transparent;
-    color: var(--green);
-    padding: 12px 28px;
-    border-radius: 40px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.2s;
-  }
-
-  .btn-outline:hover {
-    background: var(--green);
-    color: white;
-  }
+  .btn-outline:hover{background:var(--accent);color:#fff}
 
   /* Hero */
-  .hero {
-    padding: 80px 0 64px;
+  .hero{padding:76px 0 60px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:60px;align-items:center}
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);
+    padding:6px 16px;border-radius:40px;font-size:.74rem;font-weight:700;color:var(--accent-dark);
+    margin-bottom:22px;text-transform:uppercase;letter-spacing:.05em;
   }
-
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
-    align-items: center;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--accent-soft);
-    padding: 6px 16px;
-    border-radius: 40px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--accent-dark);
-    margin-bottom: 24px;
-  }
-
-  .hero-badge::before {
-    content: "✨";
-    font-size: 0.9rem;
-  }
-
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 3.2rem;
-    font-weight: 500;
-    line-height: 1.2;
-    color: var(--green);
-    margin-bottom: 20px;
-  }
-
-  .hero h1 em {
-    color: var(--accent);
-    font-style: italic;
-  }
-
-  .hero p {
-    font-size: 1.1rem;
-    color: var(--text-light);
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
-
-  .hero-buttons {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
+  .hero h1{font-family:var(--fd);font-size:3.1rem;font-weight:800;line-height:1.08;letter-spacing:-.03em;margin-bottom:20px}
+  .hero h1 em{color:var(--accent);font-style:normal}
+  .hero p{font-size:1.08rem;color:var(--text-light);margin-bottom:30px;line-height:1.65;font-weight:500}
+  .hero-buttons{display:flex;gap:14px;flex-wrap:wrap}
 
   /* Xenia Card */
-  .xenia-card {
-    background: linear-gradient(135deg, var(--green) 0%, #1e4536 100%);
-    border-radius: 32px;
-    padding: 32px;
-    color: white;
-    box-shadow: var(--shadow-lg);
-    position: relative;
-    overflow: hidden;
+  .xenia-card{
+    background:linear-gradient(150deg,var(--espresso) 0%,var(--espresso-2) 100%);
+    border-radius:26px;padding:30px;color:#f3e9d6;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;
   }
-
-  .xenia-card::before {
-    content: "✨";
-    position: absolute;
-    bottom: -20px;
-    right: -20px;
-    font-size: 120px;
-    opacity: 0.1;
-    pointer-events: none;
-  }
-
-  .xenia-avatar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .xenia-avatar img {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: top;
-    border: 2px solid var(--accent);
-  }
-
-  .xenia-name {
-    font-weight: 700;
-    font-size: 1.1rem;
-  }
-
-  .xenia-status {
-    font-size: 0.75rem;
-    opacity: 0.7;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .xenia-status::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #4caf50;
-    display: inline-block;
-  }
-
-  .xenia-message {
-    background: rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 20px;
-    margin: 20px 0;
-    backdrop-filter: blur(4px);
-  }
-
-  .xenia-greeting {
-    font-size: 0.85rem;
-    opacity: 0.8;
-    margin-bottom: 8px;
-  }
-
-  .xenia-tasks {
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-
-  .xenia-tasks strong {
-    color: var(--accent);
-  }
-
-  .xenia-tag {
-    background: rgba(255,255,255,0.15);
-    border-radius: 16px;
-    padding: 3px 12px;
-    font-size: 0.7rem;
-    display: inline-block;
-    margin-top: 12px;
-  }
+  .xenia-avatar{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .xenia-avatar img{width:50px;height:50px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid var(--accent)}
+  .xenia-name{font-family:var(--fd);font-weight:700;font-size:1.08rem}
+  .xenia-status{font-size:.74rem;opacity:.7;display:flex;align-items:center;gap:6px}
+  .xenia-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#7fc98a;display:inline-block}
+  .xenia-message{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;margin:18px 0}
+  .xenia-greeting{font-size:.85rem;opacity:.82;margin-bottom:9px}
+  .xenia-tasks{font-size:.92rem;line-height:1.7}
+  .xenia-tasks strong{color:#ff9d6b}
+  .xenia-tag{background:rgba(255,255,255,.12);border-radius:16px;padding:4px 13px;font-size:.7rem;display:inline-block;margin-top:13px;font-weight:600}
 
   /* Section headers */
-  .section-label {
-    text-align: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
+  .section-label{text-align:center;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin-bottom:12px}
+  .section-title{text-align:center;font-family:var(--fd);font-size:2.1rem;font-weight:800;letter-spacing:-.025em;line-height:1.15;margin-bottom:14px}
+  .section-sub{text-align:center;color:var(--text-light);max-width:600px;margin:0 auto 46px;font-weight:500}
 
-  .section-title {
-    text-align: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 2.2rem;
-    font-weight: 500;
-    color: var(--green);
-    margin-bottom: 16px;
-  }
-
-  .section-sub {
-    text-align: center;
-    color: var(--text-light);
-    max-width: 600px;
-    margin: 0 auto 48px;
-  }
-
-  /* Chat demo - XENIA EN ACCIÓN */
-  .chat-demo {
-    max-width: 560px;
-    margin: 48px auto 0;
-    background: var(--surface);
-    border-radius: 28px;
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-  }
-
-  .chat-header {
-    background: var(--green);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .chat-header img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--accent);
-  }
-
-  .chat-header-info {
-    color: white;
-  }
-
-  .chat-header-name {
-    font-weight: 600;
-  }
-
-  .chat-header-status {
-    font-size: 0.7rem;
-    opacity: 0.8;
-  }
-
-  .chat-messages {
-    padding: 20px;
-    background: #f0eee9;
-  }
-
-  .message-user {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 16px;
-  }
-
-  .message-user-bubble {
-    background: var(--green);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 18px;
-    border-bottom-right-radius: 4px;
-    max-width: 80%;
-    font-size: 0.9rem;
-  }
-
-  .message-bot {
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 16px;
-  }
-
-  .message-bot-bubble {
-    background: white;
-    color: var(--text);
-    padding: 12px 18px;
-    border-radius: 18px;
-    border-bottom-left-radius: 4px;
-    max-width: 85%;
-    font-size: 0.9rem;
-    box-shadow: var(--shadow);
-    line-height: 1.6;
-  }
-
-  .chat-input-mock {
-    padding: 12px 16px;
-    background: white;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-  }
-
-  .chat-input-mock .input {
-    flex: 1;
-    background: var(--bg);
-    border-radius: 20px;
-    padding: 10px 16px;
-    font-size: 0.85rem;
-    color: var(--text-light);
-  }
-
-  .chat-input-mock .send {
-    background: var(--accent);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--green);
-    font-weight: 700;
-  }
+  /* Chat demo */
+  .chat-demo{max-width:560px;margin:44px auto 0;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow-lg);overflow:hidden}
+  .chat-header{background:var(--espresso);padding:16px 20px;display:flex;align-items:center;gap:12px}
+  .chat-header img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)}
+  .chat-header-info{color:#f3e9d6}
+  .chat-header-name{font-family:var(--fd);font-weight:700}
+  .chat-header-status{font-size:.7rem;opacity:.8}
+  .chat-messages{padding:20px;background:var(--surface-2)}
+  .message-user{display:flex;justify-content:flex-end;margin-bottom:14px}
+  .message-user-bubble{background:var(--accent);color:#fff;padding:10px 16px;border-radius:18px;border-bottom-right-radius:5px;max-width:80%;font-size:.9rem;font-weight:500}
+  .message-bot{display:flex;justify-content:flex-start;margin-bottom:14px}
+  .message-bot-bubble{background:#fff;color:var(--text);padding:13px 18px;border-radius:18px;border-bottom-left-radius:5px;max-width:85%;font-size:.9rem;box-shadow:var(--shadow);line-height:1.65}
+  .chat-input-mock{padding:12px 16px;background:var(--surface);border-top:1px solid var(--line);display:flex;gap:8px}
+  .chat-input-mock .input{flex:1;background:var(--surface-2);border-radius:20px;padding:10px 16px;font-size:.85rem;color:var(--text-light)}
+  .chat-input-mock .send{background:var(--accent);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
 
   /* Question pills */
-  .questions-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    max-width: 800px;
-    margin: 32px auto 0;
-  }
-
-  .question-pill {
-    background: var(--accent-soft);
-    border-radius: 40px;
-    padding: 8px 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text);
-  }
+  .questions-grid{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;max-width:800px;margin:30px auto 0}
+  .question-pill{background:var(--surface);border:1px solid var(--line);border-radius:40px;padding:9px 20px;font-size:.85rem;font-weight:600;color:var(--text)}
 
   /* Features */
-  .features {
-    padding: 80px 0;
-    background: white;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
-  }
-
-  .feature {
-    text-align: center;
-    padding: 32px 24px;
-    background: var(--bg);
-    border-radius: 20px;
-    transition: all 0.2s;
-  }
-
-  .feature:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .feature-icon {
-    font-size: 2.2rem;
-    margin-bottom: 16px;
-  }
-
-  .feature h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  .feature p {
-    font-size: 0.85rem;
-    color: var(--text-light);
-  }
+  .features{padding:78px 0;background:var(--surface)}
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .feature{padding:30px 26px;background:var(--bg);border:1px solid var(--line);border-radius:18px;transition:all .2s}
+  .feature:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .feature-icon{width:46px;height:46px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px}
+  .feature h3{font-family:var(--fd);font-size:1.06rem;font-weight:700;margin-bottom:8px}
+  .feature p{font-size:.88rem;color:var(--text-light);line-height:1.6}
 
   /* Testimonials */
-  .testimonials {
-    padding: 60px 0;
-    background: var(--bg);
-  }
-
-  .testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .testimonial {
-    background: white;
-    padding: 28px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-  }
-
-  .testimonial-text {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--text);
-    margin-bottom: 16px;
-    font-style: italic;
-  }
-
-  .testimonial-author {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .testimonial-author img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .testimonial-name {
-    font-weight: 600;
-    font-size: 0.85rem;
-  }
-
-  .testimonial-role {
-    font-size: 0.7rem;
-    color: var(--text-light);
-  }
+  .testimonials{padding:64px 0;background:var(--bg)}
+  .testimonials-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:840px;margin:0 auto}
+  .testimonial{background:var(--surface);padding:28px;border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow)}
+  .testimonial-ico{width:44px;height:44px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:14px}
+  .testimonial-name{font-family:var(--fd);font-weight:700;font-size:1.02rem;margin-bottom:8px}
+  .testimonial-text{font-size:.92rem;line-height:1.65;color:var(--text-light)}
 
   /* Pricing */
-  .pricing {
-    padding: 80px 0;
-    background: white;
-  }
-
-  .pricing-card {
-    max-width: 500px;
-    margin: 0 auto;
-    background: var(--bg);
-    border-radius: 32px;
-    padding: 48px;
-    text-align: center;
-    border: 1px solid var(--border);
-  }
-
-  .pricing-price {
-    font-family: 'Playfair Display', serif;
-    font-size: 3rem;
-    color: var(--green);
-    margin: 16px 0;
-  }
-
-  .pricing-price small {
-    font-size: 0.9rem;
-    color: var(--text-light);
-  }
-
-  .pricing-features {
-    list-style: none;
-    margin: 32px 0;
-    text-align: left;
-  }
-
-  .pricing-features li {
-    padding: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-  }
-
-  .pricing-features li::before {
-    content: "✓";
-    color: var(--accent);
-    font-weight: 700;
-  }
+  .pricing{padding:78px 0;background:var(--surface)}
+  .pricing-card{background:var(--bg);border-radius:26px;padding:40px 36px;text-align:center;border:2px solid var(--accent);position:relative}
+  .pricing-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;padding:5px 18px;border-radius:20px;white-space:nowrap}
+  .pricing-kicker{font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+  .pricing-price{font-family:var(--fd);font-size:2.8rem;font-weight:800;letter-spacing:-.02em;line-height:1;margin:6px 0}
+  .pricing-price small{font-size:.85rem;color:var(--text-light);font-weight:600}
+  .pricing-features{list-style:none;margin:28px 0;text-align:left}
+  .pricing-features li{padding:8px 0;display:flex;align-items:flex-start;gap:10px;font-size:.9rem;font-weight:500}
+  .pricing-features li::before{content:"✓";color:var(--accent);font-weight:800;flex-shrink:0}
 
   /* CTA */
-  .cta {
-    background: var(--green);
-    padding: 80px 0;
-    text-align: center;
-    color: white;
-  }
-
-  .cta h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.2rem;
-    margin-bottom: 16px;
-  }
-
-  .cta p {
-    opacity: 0.8;
-    margin-bottom: 32px;
-  }
-
-  .btn-cta {
-    background: var(--accent);
-    color: var(--green);
-    padding: 16px 40px;
-    border-radius: 40px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-  }
-
-  .btn-cta:hover {
-    background: var(--accent-dark);
-    color: white;
-    transform: translateY(-2px);
-  }
+  .cta{background:var(--espresso);padding:76px 0;text-align:center;color:#f3e9d6}
+  .cta h2{font-family:var(--fd);font-size:2.2rem;font-weight:800;letter-spacing:-.025em;margin-bottom:14px}
+  .cta p{opacity:.78;margin-bottom:30px;font-weight:500}
+  .btn-cta{background:var(--accent);color:#fff;padding:16px 38px;border-radius:40px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:8px;transition:all .2s}
+  .btn-cta:hover{background:var(--accent-dark);transform:translateY(-2px)}
 
   /* Footer */
-  .footer {
-    padding: 48px 0;
-    text-align: center;
-    border-top: 1px solid var(--border);
-    color: var(--text-light);
-    font-size: 0.8rem;
-  }
+  .footer{padding:46px 0;text-align:center;border-top:1px solid var(--line);color:var(--text-light);font-size:.82rem;background:var(--bg)}
+  .footer a{color:var(--accent);text-decoration:none;font-weight:600}
+  .footer a:hover{color:var(--accent-dark)}
 
-  .footer a {
-    color: var(--text-light);
-    text-decoration: none;
-  }
-
-  .footer a:hover {
-    color: var(--green);
-  }
-
-  /* Mobile */
-  @media (max-width: 900px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-      gap: 48px;
-    }
-    .hero h1 {
-      font-size: 2.2rem;
-    }
-    .features-grid {
-      grid-template-columns: 1fr;
-    }
-    .testimonials-grid {
-      grid-template-columns: 1fr;
-    }
-    .pricing-card {
-      padding: 32px 24px;
-    }
-    .pricing-grid-3 {
-      grid-template-columns: 1fr !important;
-    }
-    .nav {
-      display: none;
-    }
-    .section-title {
-      font-size: 1.6rem;
-    }
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:44px}
+    .hero h1{font-size:2.2rem}
+    .features-grid{grid-template-columns:1fr}
+    .testimonials-grid{grid-template-columns:1fr}
+    .pricing-card{padding:32px 24px}
+    .nav{display:none}
+    .section-title{font-size:1.6rem}
   }
 </style>
 </head>
@@ -681,7 +191,7 @@
 <header class="header">
   <div class="container">
     <div class="header-content">
-      <a href="#" class="logo">Check<span>Inn</span></a>
+      <a href="#" class="logo"><span class="mark">C</span>Check<span>Inn</span></a>
       <div class="nav">
         <a href="#como-funciona">Cómo funciona</a>
         <a href="#xenia">Xenia en acción</a>
@@ -701,7 +211,7 @@
         <div>
           <div class="hero-badge">Buenos días, equipo</div>
           <h1>Empezá el día sabiendo <em>exactamente</em> qué hacer</h1>
-          <p>CheckInn es el sistema de gestión para cabañas, apartamentos, B&B y alojamientos turísticos. Xenia, tu asistente, te dice cada mañana qué check-ins tenés, cuánto facturaste y qué tareas pendientes.</p>
+          <p>CheckInn es el sistema de gestión para cabañas, apartamentos, B&amp;B y alojamientos turísticos. Xenia, tu asistente, te dice cada mañana qué check-ins tenés, cuánto facturaste y qué tareas pendientes.</p>
           <div class="hero-buttons">
             <a href="/demo/demo.html" class="btn-primary">Probar demo gratis →</a>
             <a href="https://wa.me/5491140925939" class="btn-outline">Consultar por WhatsApp</a>
@@ -719,27 +229,27 @@
             <div class="xenia-message">
               <div class="xenia-greeting">🌅 Buenos días, equipo!</div>
               <div class="xenia-tasks">
-                <strong>📋 Tareas para hoy:</strong><br>
-                • 🏠 <strong>Cabaña 3</strong> — Check-in de João Silva (Booking)<br>
-                • 🧹 <strong>Depto 1A</strong> — Limpieza post checkout<br>
-                • 📊 Esta semana facturaste <strong>$1.250 USD</strong><br>
-                • ⚠️ <strong>Pendiente:</strong> Seña de reserva de Pérez
+                <strong>Tareas para hoy:</strong><br>
+                • <strong>Cabaña 3</strong> — Check-in de João Silva (Booking)<br>
+                • <strong>Depto 1A</strong> — Limpieza post checkout<br>
+                • Esta semana facturaste <strong>$1.250 USD</strong><br>
+                • <strong>Pendiente:</strong> Seña de reserva de Pérez
               </div>
               <div class="xenia-tag">🤖 Preguntale cualquier cosa</div>
             </div>
-            <div style="font-size: 0.7rem; opacity: 0.6;">⏱️ Última sincronización: hace 5 min</div>
+            <div style="font-size:.7rem;opacity:.6">⏱️ Última sincronización: hace 5 min</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- XENIA EN ACCIÓN - Conversación real -->
-  <section style="padding: 60px 0; background: var(--bg);" id="xenia">
+  <!-- XENIA EN ACCIÓN -->
+  <section style="padding:60px 0;background:var(--bg)" id="xenia">
     <div class="container">
       <div class="section-label">Conversación real</div>
       <div class="section-title">Así responde Xenia<br>a una pregunta cotidiana</div>
-      
+
       <div class="chat-demo">
         <div class="chat-header">
           <img src="https://piccinigabriela.github.io/demo/xenia.jpeg" alt="Xenia">
@@ -748,15 +258,10 @@
             <div class="chat-header-status">Asistente · Activa</div>
           </div>
         </div>
-        
         <div class="chat-messages">
-          <!-- User message -->
           <div class="message-user">
-            <div class="message-user-bubble">
-              hola, ¿qué ocurre mañana?
-            </div>
+            <div class="message-user-bubble">hola, ¿qué ocurre mañana?</div>
           </div>
-          <!-- Xenia response -->
           <div class="message-bot">
             <div class="message-bot-bubble">
               ¡Hola! Mañana (1º de junio) no hay eventos especiales en el calendario.<br><br>
@@ -768,13 +273,12 @@
             </div>
           </div>
         </div>
-        
         <div class="chat-input-mock">
           <div class="input">Preguntale algo a Xenia...</div>
           <div class="send">→</div>
         </div>
       </div>
-      
+
       <div class="questions-grid">
         <div class="question-pill">💬 "¿Quién llega esta semana?"</div>
         <div class="question-pill">💰 "¿Cuánto facturé en mayo?"</div>
@@ -783,10 +287,8 @@
         <div class="question-pill">🧹 "¿Qué hay que limpiar hoy?"</div>
         <div class="question-pill">📊 "¿Cómo cargo una reserva?"</div>
       </div>
-      
-      <p style="text-align: center; margin-top: 32px; font-size: 0.85rem; color: var(--text-light);">
-        Xenia entiende fechas, ocupación, ingresos y tareas pendientes. En lenguaje natural.
-      </p>
+
+      <p style="text-align:center;margin-top:30px;font-size:.85rem;color:var(--text-light);font-weight:500">Xenia entiende fechas, ocupación, ingresos y tareas pendientes. En lenguaje natural.</p>
     </div>
   </section>
 
@@ -795,7 +297,7 @@
     <div class="container">
       <div class="section-label">Así funciona</div>
       <div class="section-title">Todo lo que necesitás,<br>nada de lo que no usás</div>
-      <div class="section-sub">Diseñado para la realidad del alojamiento turístico argentino — cabañas, deptos, B&B, hostels</div>
+      <div class="section-sub">Diseñado para la realidad del alojamiento turístico argentino — cabañas, deptos, B&amp;B, hostels</div>
       <div class="features-grid">
         <div class="feature">
           <div class="feature-icon">🤖</div>
@@ -805,7 +307,7 @@
         <div class="feature">
           <div class="feature-icon">📅</div>
           <h3>Calendario inteligente</h3>
-          <p>Vista mensual de todas tus unidades. Detecta superposiciones, bloqueos de Airbnb/Booking, y días con cambio de huésped.</p>
+          <p>Vista mensual y semanal de todas tus unidades. Detecta superposiciones, bloqueos de Airbnb/Booking, y días con cambio de huésped.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">💰</div>
@@ -820,7 +322,7 @@
         <div class="feature">
           <div class="feature-icon">🔄</div>
           <h3>Calendarios conectados</h3>
-          <p>Conectá tus calendarios de Airbnb y Booking. Los bloqueos se importan automáticamente. Evitás dobles reservas sin pagar channel manager. Comisiones por plataforma configurables para calcular tu líquido real.</p>
+          <p>Conectá tus calendarios de Airbnb y Booking. Los bloqueos se importan automáticamente. Evitás dobles reservas sin pagar channel manager. Comisiones por plataforma configurables.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">👥</div>
@@ -831,20 +333,20 @@
     </div>
   </section>
 
-  <!-- CASOS DE USO -->
+  <!-- CASOS -->
   <section class="testimonials" id="casos">
     <div class="container">
       <div class="section-label">En producción</div>
       <div class="section-title">Casos reales de uso</div>
       <div class="testimonials-grid">
         <div class="testimonial">
-          <div style="font-size: 1.8rem; margin-bottom: 12px;">🏙️</div>
-          <div class="testimonial-name" style="font-size: 1rem; margin-bottom: 8px;">Catalinas Norte · CABA</div>
+          <div class="testimonial-ico">🏙️</div>
+          <div class="testimonial-name">Catalinas Norte · CABA</div>
           <div class="testimonial-text">7 departamentos en Buenos Aires. Xenia informa cada mañana los check-ins del día, el estado de cobros y las tareas pendientes de limpieza. Sincronización iCal activa con Airbnb y Booking.</div>
         </div>
         <div class="testimonial">
-          <div style="font-size: 1.8rem; margin-bottom: 12px;">🌿</div>
-          <div class="testimonial-name" style="font-size: 1rem; margin-bottom: 8px;">Los Bananeros · Puerto Iguazú</div>
+          <div class="testimonial-ico">🌿</div>
+          <div class="testimonial-name">Los Bananeros · Puerto Iguazú</div>
           <div class="testimonial-text">Complejo de cabañas en la selva misionera. Gestión multimoneda (ARS/USD/BRL), comisiones por plataforma configurables y sincronización iCal para evitar dobles reservas sin channel manager.</div>
         </div>
       </div>
@@ -856,18 +358,18 @@
     <div class="container">
       <div class="section-label">Sin sorpresas</div>
       <div class="section-title">Una tarifa simple</div>
-      <div class="section-sub">USD 200 de adaptación inicial · USD 20/mes por todo el complejo<br><small style="font-size: 0.8em; opacity: 0.75;">Pagable en dólares o en pesos al tipo de cambio oficial del día + IVA</small></div>
+      <div class="section-sub">USD 200 de adaptación inicial · USD 20/mes por todo el complejo<br><small style="font-size:.8em;opacity:.75">Pagable en dólares o en pesos al tipo de cambio oficial del día + IVA</small></div>
 
-      <div style="max-width: 420px; margin: 0 auto;">
-        <div class="pricing-card" style="padding: 40px 36px; border: 2px solid var(--green); position: relative;">
-          <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--green); color: white; font-size: 0.7rem; font-weight: 700; padding: 5px 18px; border-radius: 20px; white-space: nowrap;">Todo incluido · Hasta 30 unidades</div>
-          <div style="text-align:center; margin-bottom: 24px;">
-            <div style="font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;">Plan único</div>
-            <div class="pricing-price" style="font-size: 2.8rem; line-height:1">USD 20<small style="font-size: 0.85rem;">/mes</small></div>
-            <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 6px;">por todo el complejo · no por unidad</div>
-            <div style="font-size: 0.78rem; color: var(--text-light); margin-top: 4px; opacity: 0.8;">o en pesos al tipo de cambio oficial del día + IVA</div>
+      <div style="max-width:420px;margin:0 auto">
+        <div class="pricing-card">
+          <div class="pricing-badge">Todo incluido · Hasta 30 unidades</div>
+          <div style="margin-bottom:22px">
+            <div class="pricing-kicker">Plan único</div>
+            <div class="pricing-price">USD 20<small>/mes</small></div>
+            <div style="font-size:.85rem;color:var(--text-light);margin-top:6px;font-weight:500">por todo el complejo · no por unidad</div>
+            <div style="font-size:.78rem;color:var(--text-light);margin-top:4px;opacity:.8">o en pesos al tipo de cambio oficial del día + IVA</div>
           </div>
-          <ul class="pricing-features" style="margin-bottom: 32px;">
+          <ul class="pricing-features">
             <li>Xenia incluida — te dice cada mañana qué hacer</li>
             <li>Calendario mensual y semanal</li>
             <li>Sin dobles reservas — sincronización iCal</li>
@@ -876,53 +378,52 @@
             <li>Funciona desde el celular, sin App Store</li>
             <li>Soporte por WhatsApp incluido</li>
           </ul>
-          <a href="https://wa.me/5491140925939" class="btn-primary" style="display: block; text-align: center; font-size: 0.9rem; padding: 14px 20px;">Consultar →</a>
+          <a href="https://wa.me/5491140925939" class="btn-primary" style="display:flex;justify-content:center;font-size:.92rem;padding:14px 20px">Consultar →</a>
         </div>
       </div>
-      <p style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: var(--text-light);">* Para más de 30 unidades, consultar precio especial.</p>
+      <p style="text-align:center;margin-top:20px;font-size:.8rem;color:var(--text-light)">* Para más de 30 unidades, consultar precio especial.</p>
 
-      <div style="max-width: 420px; margin: 24px auto 0; background: var(--green); border-radius: 16px; padding: 20px 28px; text-align: center; color: white;">
-        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.8; margin-bottom: 6px;">🎁 Promo julio 2026</div>
-        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 4px;">2 meses de mantenimiento bonificados</div>
-        <div style="font-size: 0.85rem; opacity: 0.85;">Para alojamientos que se sumen antes del 31 de julio</div>
+      <div style="max-width:420px;margin:24px auto 0;background:var(--espresso);border-radius:16px;padding:22px 28px;text-align:center;color:#f3e9d6">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#ff9d6b;margin-bottom:6px">🎁 Promo julio 2026</div>
+        <div style="font-family:var(--fd);font-size:1.1rem;font-weight:700;margin-bottom:4px">2 meses de mantenimiento bonificados</div>
+        <div style="font-size:.85rem;opacity:.82">Para alojamientos que se sumen antes del 31 de julio</div>
       </div>
 
-      <div style="max-width: 860px; margin: 32px auto 0; background: var(--accent-soft); border-radius: 20px; padding: 28px 32px; display: flex; align-items: flex-start; gap: 20px; border: 1px solid var(--border);">
-        <div style="font-size: 2rem; line-height: 1;">🌐</div>
+      <div style="max-width:860px;margin:32px auto 0;background:var(--accent-soft);border-radius:18px;padding:26px 30px;display:flex;align-items:flex-start;gap:18px;border:1px solid var(--border)">
+        <div style="font-size:1.9rem;line-height:1">🌐</div>
         <div>
-          <div style="font-weight: 700; font-size: 0.95rem; color: var(--green); margin-bottom: 6px;">Módulo opcional · Dominio propio</div>
-          <div style="font-size: 0.88rem; color: var(--text-light); line-height: 1.6;">El dominio queda registrado a tu nombre en NIC.ar — vos tenés el control. Si ya tenés uno, lo usamos sin costo adicional. Si necesitás registrarlo, te guiamos paso a paso: es un trámite simple. CheckInn se encarga de la configuración DNS.</div>
+          <div style="font-family:var(--fd);font-weight:700;font-size:.95rem;color:var(--accent-dark);margin-bottom:6px">Módulo opcional · Dominio propio</div>
+          <div style="font-size:.88rem;color:var(--text-light);line-height:1.65">El dominio queda registrado a tu nombre en NIC.ar — vos tenés el control. Si ya tenés uno, lo usamos sin costo adicional. Si necesitás registrarlo, te guiamos paso a paso: es un trámite simple. CheckInn se encarga de la configuración DNS.</div>
         </div>
       </div>
-
     </div>
   </section>
 
   <!-- ASESORAMIENTO -->
-  <section style="padding: 60px 0; background: var(--accent-soft);">
+  <section style="padding:60px 0;background:var(--surface)">
     <div class="container">
-      <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+      <div style="max-width:720px;margin:0 auto;text-align:center">
         <div class="section-label">Más que un sistema</div>
         <div class="section-title">Te asesoramos para categorizar tu alojamiento</div>
-        <p style="color: var(--text-light); font-size: 1rem; line-height: 1.7; margin-bottom: 36px;">Decoración con identidad local, fotografía que convierte y experiencia del huésped. Porque un buen sistema de gestión es la mitad del trabajo — la otra mitad es lo que el huésped siente cuando entra.</p>
-        <div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 36px;">
-          <div style="background: white; border-radius: 16px; padding: 20px 28px; flex: 1; min-width: 180px; max-width: 200px; border: 1px solid var(--border);">
-            <div style="font-size: 1.8rem; margin-bottom: 8px;">🛋️</div>
-            <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">Decoración</div>
-            <div style="font-size: 0.8rem; color: var(--text-light);">Identidad local, sin perder sobriedad</div>
+        <p style="color:var(--text-light);font-size:1rem;line-height:1.7;margin-bottom:34px;font-weight:500">Decoración con identidad local, fotografía que convierte y experiencia del huésped. Porque un buen sistema de gestión es la mitad del trabajo — la otra mitad es lo que el huésped siente cuando entra.</p>
+        <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:34px">
+          <div style="background:var(--bg);border-radius:16px;padding:20px 26px;flex:1;min-width:170px;max-width:200px;border:1px solid var(--line)">
+            <div style="font-size:1.7rem;margin-bottom:8px">🛋️</div>
+            <div style="font-family:var(--fd);font-weight:700;font-size:.9rem;margin-bottom:4px">Decoración</div>
+            <div style="font-size:.8rem;color:var(--text-light)">Identidad local, sin perder sobriedad</div>
           </div>
-          <div style="background: white; border-radius: 16px; padding: 20px 28px; flex: 1; min-width: 180px; max-width: 200px; border: 1px solid var(--border);">
-            <div style="font-size: 1.8rem; margin-bottom: 8px;">📸</div>
-            <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">Fotografía</div>
-            <div style="font-size: 0.8rem; color: var(--text-light);">Imágenes que generan reservas</div>
+          <div style="background:var(--bg);border-radius:16px;padding:20px 26px;flex:1;min-width:170px;max-width:200px;border:1px solid var(--line)">
+            <div style="font-size:1.7rem;margin-bottom:8px">📸</div>
+            <div style="font-family:var(--fd);font-weight:700;font-size:.9rem;margin-bottom:4px">Fotografía</div>
+            <div style="font-size:.8rem;color:var(--text-light)">Imágenes que generan reservas</div>
           </div>
-          <div style="background: white; border-radius: 16px; padding: 20px 28px; flex: 1; min-width: 180px; max-width: 200px; border: 1px solid var(--border);">
-            <div style="font-size: 1.8rem; margin-bottom: 8px;">⭐</div>
-            <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">Experiencia</div>
-            <div style="font-size: 0.8rem; color: var(--text-light);">Lo que el huésped siente y reseña</div>
+          <div style="background:var(--bg);border-radius:16px;padding:20px 26px;flex:1;min-width:170px;max-width:200px;border:1px solid var(--line)">
+            <div style="font-size:1.7rem;margin-bottom:8px">⭐</div>
+            <div style="font-family:var(--fd);font-weight:700;font-size:.9rem;margin-bottom:4px">Experiencia</div>
+            <div style="font-size:.8rem;color:var(--text-light)">Lo que el huésped siente y reseña</div>
           </div>
         </div>
-        <div style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 24px;">Remoto sin cargo · Presencial con cotización</div>
+        <div style="font-size:.85rem;color:var(--text-light);margin-bottom:22px;font-weight:500">Remoto sin cargo · Presencial con cotización</div>
         <a href="https://wa.me/5491140925939" class="btn-primary">Consultar por WhatsApp →</a>
       </div>
     </div>
@@ -940,10 +441,8 @@
 
 <footer class="footer">
   <div class="container">
-    <p>CheckInn · Sistema de gestión para cabañas, apartamentos, B&B y alojamientos turísticos</p>
-    <p style="margin-top: 12px;">
-      <a href="https://wa.me/5491140925939">Contacto por WhatsApp</a>
-    </p>
+    <p>CheckInn · Sistema de gestión para cabañas, apartamentos, B&amp;B y alojamientos turísticos</p>
+    <p style="margin-top:12px"><a href="https://wa.me/5491140925939">Contacto por WhatsApp</a></p>
   </div>
 </footer>
 
