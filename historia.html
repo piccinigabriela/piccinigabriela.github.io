@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="El origen de CheckInn: por qué nació, y qué problema real vino a resolver para los alojamientos turísticos chicos.">
+<title>Nuestra historia · CheckInn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+    --bg:#ece0c6;
+    --surface:#fcf4e1;
+    --surface-2:#f6ecd6;
+    --text:#2a1f0e;
+    --text-light:#7d6c49;
+    --accent:#d2502a;
+    --accent-dark:#b53f1d;
+    --accent-soft:#f6e0d2;
+    --espresso:#241c10;
+    --espresso-2:#352a18;
+    --border:#e0cfa8;
+    --line:#dfc491;
+    --shadow:0 4px 18px -10px rgba(120,80,20,.4), 0 1px 2px rgba(120,80,20,.05);
+    --fd:'Sora',sans-serif;
+    --fb:'Hanken Grotesk',sans-serif;
+  }
+
+  body{
+    font-family:var(--fb);
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.55;
+    letter-spacing:-.006em;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .container{max-width:1240px;margin:0 auto;padding:0 24px}
+
+  /* Header */
+  .header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(236,224,198,.85);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    padding:15px 0;
+  }
+  .header-content{display:flex;justify-content:space-between;align-items:center}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-size:1.15rem;font-weight:800;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+  .logo .mark{width:32px;height:32px;border-radius:9px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800}
+  .logo span{color:var(--accent)}
+  .back-link{text-decoration:none;color:var(--text-light);font-size:.86rem;font-weight:600;display:flex;align-items:center;gap:6px;transition:color .2s}
+  .back-link:hover{color:var(--accent)}
+
+  /* Hero */
+  .hero{padding:80px 0 20px;text-align:center}
+  .eyebrow{font-family:var(--fd);font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .hero h1{font-family:var(--fd);font-size:2.6rem;font-weight:800;letter-spacing:-.03em;color:var(--espresso);max-width:680px;margin:0 auto}
+
+  /* Story */
+  .story{padding:70px 0 40px}
+  .story-inner{max-width:600px;margin:0 auto}
+  .story p{
+    font-size:1.18rem;
+    line-height:1.9;
+    color:var(--text);
+    margin-bottom:26px;
+  }
+  .story p.tight{
+    font-family:var(--fd);
+    font-weight:600;
+    font-size:1.3rem;
+    color:var(--espresso);
+    margin-bottom:10px;
+  }
+  .story p.lead{
+    font-size:1.32rem;
+    font-weight:500;
+    color:var(--espresso);
+  }
+  .story hr{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:44px 0;
+    width:60px;
+    margin-left:0;
+  }
+
+  .closing{
+    max-width:600px;
+    margin:60px auto 0;
+    padding:36px 40px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    text-align:center;
+  }
+  .closing p{
+    font-family:var(--fd);
+    font-style:italic;
+    font-size:1.15rem;
+    color:var(--accent-dark);
+    font-weight:600;
+    line-height:1.6;
+  }
+
+  .cta-end{padding:70px 0 90px;text-align:center}
+  .cta-end p{color:var(--text-light);margin-bottom:20px;font-size:1rem}
+  .btn{
+    display:inline-block;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:14px 30px;
+    border-radius:30px;
+    font-weight:700;
+    font-size:.92rem;
+    cursor:pointer;
+    text-decoration:none;
+    transition:background .15s, transform .15s;
+    font-family:var(--fb);
+  }
+  .btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+
+  footer{border-top:1px solid var(--line);padding:26px 0;text-align:center;color:var(--text-light);font-size:.82rem}
+
+  @media(max-width:640px){
+    .hero{padding:56px 0 10px}
+    .hero h1{font-size:2rem}
+    .story{padding:50px 0 20px}
+    .story p{font-size:1.05rem}
+    .story p.lead{font-size:1.15rem}
+    .closing{padding:28px 24px;margin:44px auto 0}
+    .back-link span{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <a href="index.html" class="logo"><span class="mark">C</span>Check<span>Inn</span></a>
+      <a href="index.html" class="back-link">← <span>Volver al inicio</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="eyebrow">Nuestra historia</div>
+    <h1>El origen de CheckInn</h1>
+  </div>
+</section>
+
+<section class="story">
+  <div class="container">
+    <div class="story-inner">
+      <p class="lead">Antes de desarrollar CheckInn trabajé muchos años en turismo.</p>
+
+      <p>Hubo un tiempo en que dejé la operación diaria para dedicarme a asesorar pequeños alojamientos turísticos, incluso desde su construcción.</p>
+
+      <p>Recuerdo complejos prácticamente terminados.</p>
+      <p class="tight">Hermosos.</p>
+      <p class="tight">Con materiales excelentes.</p>
+      <p>Pero con errores funcionales enormes.</p>
+
+      <p>Un depósito ubicado en el lugar equivocado.<br>
+      Un recorrido innecesario para preparar una habitación.<br>
+      Una recepción pensada para impresionar, pero no para trabajar.</p>
+
+      <p>Cada una de esas decisiones parecía pequeña.</p>
+
+      <p>Sin embargo, sabía que iban a repetirse todos los días, durante años.</p>
+
+      <p>Y cuando una tarea innecesaria se repite cientos de veces, termina agotando a quienes sostienen el alojamiento.</p>
+
+      <p class="lead">Ahí entendí algo que nunca olvidé.</p>
+
+      <p class="tight">Un pequeño alojamiento no necesita más complejidad.<br>Necesita mejores sistemas.</p>
+
+      <hr>
+
+      <p>Con el tiempo nació CheckInn.</p>
+
+      <p class="tight">No para agregar funciones.<br>Sino para quitar fricciones.</p>
+
+      <p>Por eso elegimos formatos simples.<br>
+      Informes que ayudan a decidir.<br>
+      Pantallas claras.</p>
+
+      <p>Y herramientas pensadas para que la tecnología haga su parte mientras el anfitrión puede dedicarse a la suya.</p>
+
+      <p class="lead">Porque la energía de quien recibe huéspedes también forma parte del patrimonio del alojamiento.</p>
+
+      <p>Y creemos que merece ser cuidada.</p>
+    </div>
+
+    <div class="closing">
+      <p>"La tecnología resuelve procesos; las personas crean experiencias."</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta-end">
+  <div class="container">
+    <p>¿Querés ver cómo funciona en la práctica?</p>
+    <a href="index.html#demos" class="btn">Ver demos →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    CheckInn · Sistema de gestión para cabañas, apartamentos, B&B y alojamientos turísticos
+  </div>
+</footer>
+
+</body>
+</html>
