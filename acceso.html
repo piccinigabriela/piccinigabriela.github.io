@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Acceso · CheckInn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#ece0c6;
+    --surface:#fcf4e1;
+    --surface-2:#f6ecd6;
+    --text:#2a1f0e;
+    --text-light:#7d6c49;
+    --accent:#d2502a;
+    --accent-dark:#b53f1d;
+    --espresso:#241c10;
+    --border:#e0cfa8;
+    --line:#dfc491;
+    --error:#b53f1d;
+    --shadow-lg:0 22px 48px -20px rgba(90,60,20,.5);
+    --fd:'Sora',sans-serif;
+    --fb:'Hanken Grotesk',sans-serif;
+  }
+  body{
+    font-family:var(--fb);
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:20px;
+    box-shadow:var(--shadow-lg);
+    padding:40px 34px;
+    width:100%;
+    max-width:380px;
+    text-align:center;
+  }
+  .logo{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--fd);font-size:1.3rem;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+  .logo .mark{width:34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-weight:800}
+  .logo span{color:var(--accent)}
+  .subtitle{color:var(--text-light);font-size:.88rem;margin-bottom:30px}
+
+  .field{text-align:left;margin-bottom:16px}
+  .field label{display:block;font-size:.76rem;font-weight:700;color:var(--text-light);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+  .field input{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:1rem;
+    font-family:var(--fb);
+    color:var(--text);
+    letter-spacing:.02em;
+  }
+  .field input:focus{outline:2px solid var(--accent);outline-offset:1px}
+
+  .btn{
+    width:100%;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:13px 20px;
+    border-radius:12px;
+    font-weight:700;
+    font-size:.95rem;
+    cursor:pointer;
+    transition:background .15s;
+    font-family:var(--fb);
+    margin-top:6px;
+  }
+  .btn:hover{background:var(--accent-dark)}
+  .btn:disabled{opacity:.6;cursor:default}
+
+  .error-msg{
+    color:var(--error);
+    font-size:.82rem;
+    font-weight:600;
+    margin-top:14px;
+    min-height:18px;
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .error-msg.show{opacity:1}
+
+  .shake{animation:shake .35s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(4px)}
+  }
+
+  .footer-note{margin-top:24px;color:var(--text-light);font-size:.74rem}
+
+  .welcome-msg{
+    margin-top:18px;
+    font-family:var(--fd);
+    font-weight:700;
+    font-size:1rem;
+    color:var(--accent-dark);
+    min-height:0;
+    opacity:0;
+    transition:opacity .25s;
+  }
+  .welcome-msg.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo"><span class="mark">C</span>Check<span>Inn</span></div>
+  <div class="subtitle">Ingresá tu contraseña para acceder a tu sistema</div>
+
+  <form id="accessForm">
+    <div class="field">
+      <label for="user">Usuario</label>
+      <input type="text" id="user" autocomplete="off" autofocus required>
+    </div>
+    <div class="field">
+      <label for="pw">Contraseña</label>
+      <input type="password" id="pw" autocomplete="off" required>
+    </div>
+    <button type="submit" class="btn" id="btnSubmit">Ingresar</button>
+    <div class="error-msg" id="errorMsg">Usuario o contraseña incorrectos. Probá de nuevo.</div>
+  </form>
+
+  <div class="footer-note" id="footerNote">¿Problemas para ingresar? Escribinos por WhatsApp.</div>
+  <div class="welcome-msg" id="welcomeMsg"></div>
+</div>
+
+<script>
+(function(){
+  // Mapa de clientes. Cada usuario tiene: hash SHA-256 de su contraseña,
+  // la URL a la que redirige, y un nombre para el saludo de bienvenida.
+  // NUNCA se guarda la contraseña en texto plano, solo su hash.
+  // Para agregar un cliente nuevo, generá el hash de su contraseña
+  // (instrucciones al final de este archivo) y agregá una entrada abajo.
+  var CLIENTES = {
+    // "usuario": { hash: "hash_sha256_de_la_contraseña", url: "https://...", nombre: "Nombre para el saludo" }
+    // Ejemplo (usuario: catalinas / contraseña real: catalinas2026):
+    // "catalinas": { hash: "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3...", url: "https://checkinn.com.ar/clientes/catalinas.html", nombre: "Catalinas Norte" }
+  };
+
+  async function sha256(text){
+    var enc = new TextEncoder().encode(text);
+    var buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(function(b){
+      return b.toString(16).padStart(2, '0');
+    }).join('');
+  }
+
+  var form = document.getElementById('accessForm');
+  var userInput = document.getElementById('user');
+  var pwInput = document.getElementById('pw');
+  var errorMsg = document.getElementById('errorMsg');
+  var welcomeMsg = document.getElementById('welcomeMsg');
+  var footerNote = document.getElementById('footerNote');
+  var btnSubmit = document.getElementById('btnSubmit');
+  var card = document.querySelector('.card');
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var user = userInput.value.trim().toLowerCase();
+    var pw = pwInput.value.trim();
+    if(!user || !pw) return;
+
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Verificando...';
+
+    var cliente = CLIENTES[user];
+    var hash = await sha256(pw);
+
+    if(cliente && cliente.hash === hash){
+      form.style.display = 'none';
+      footerNote.style.display = 'none';
+      welcomeMsg.textContent = '¡Hola, ' + cliente.nombre + '! Entrando a tu sistema...';
+      welcomeMsg.classList.add('show');
+      setTimeout(function(){
+        window.location.href = cliente.url;
+      }, 900);
+    } else {
+      errorMsg.classList.add('show');
+      card.classList.remove('shake');
+      void card.offsetWidth; // reinicia la animación
+      card.classList.add('shake');
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Ingresar';
+      pwInput.value = '';
+      pwInput.focus();
+    }
+  });
+
+  userInput.addEventListener('input', function(){
+    errorMsg.classList.remove('show');
+  });
+  pwInput.addEventListener('input', function(){
+    errorMsg.classList.remove('show');
+  });
+})();
+</script>
+
+</body>
+</html>
+
+<!--
+CÓMO AGREGAR UN CLIENTE NUEVO:
+
+1. Elegí un usuario y una contraseña para el cliente
+   (ej: usuario "catalinas", contraseña "catalinas2026").
+
+2. Generá el hash de la contraseña. Formas de hacerlo:
+
+   a) Desde la consola del navegador (F12 → Console), pegá:
+      crypto.subtle.digest('SHA-256', new TextEncoder().encode('catalinas2026'))
+        .then(b => console.log(Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,'0')).join('')))
+
+   b) O desde una terminal con Node:
+      node -e "require('crypto').createHash('sha256').update('catalinas2026').digest('hex')"
+
+3. Copiá el resultado (un texto largo de letras y números) y agregá una
+   entrada al objeto CLIENTES de este archivo, así:
+
+   "catalinas": { hash: "el_hash_que_te_dio", url: "https://checkinn.com.ar/clientes/catalinas.html", nombre: "Catalinas Norte" },
+
+4. Subís este archivo actualizado al repo. Listo — usuario "catalinas" +
+   contraseña "catalinas2026" ahora entra directo a la app de Catalinas,
+   con saludo personalizado incluido.
+
+IMPORTANTE — nivel de seguridad real:
+Esto evita que alguien vea las contraseñas mirando el código fuente,
+pero sigue siendo lógica del lado del cliente (cualquiera con conocimientos
+técnicos podría inspeccionar la app de destino igual, una vez que la conoce).
+Es un buen punto de partida para bajar la fricción y la desconfianza inicial.
+Cuando el volumen de clientes crezca o quieras proteger mejor los datos de
+facturación, migramos esto a autenticación real con Supabase (login con
+usuario/contraseña verificado en el servidor, no en el navegador) — mismo
+patrón que ya usás en tus otras apps.
+-->
