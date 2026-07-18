@@ -140,8 +140,21 @@
     bananos: "bananos/bananos.html"
   };
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const raiz = document.getElementById("raiz");
+
+  if (typeof window.supabase === "undefined") {
+    raiz.innerHTML = `
+      <div class="card">
+        <div class="marca"><span>Check</span><span>Inn</span></div>
+        <div class="mensaje error" style="display:block;">
+          No se pudo cargar una librería necesaria (posiblemente un bloqueador de anuncios o extensión del navegador la está frenando). Probá desactivar el bloqueador para este sitio, o abrilo en modo incógnito, y recargá la página.
+        </div>
+      </div>
+    `;
+    throw new Error("Supabase JS no cargó desde el CDN");
+  }
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   function pantallaLogin(mensaje) {
     raiz.innerHTML = `
@@ -203,31 +216,36 @@
   }
 
   async function verificarSesion() {
-    const { data: { session } } = await supabase.auth.getSession();
+    try {
+      const { data: { session }, error: errorSesion } = await supabase.auth.getSession();
+      if (errorSesion) throw errorSesion;
 
-    if (!session) {
-      pantallaLogin();
-      return;
-    }
+      if (!session) {
+        pantallaLogin();
+        return;
+      }
 
-    const { data: perfil, error } = await supabase
-      .from("perfiles")
-      .select("rol, cuentas ( slug, nombre )")
-      .eq("id", session.user.id)
-      .single();
+      const { data: perfil, error } = await supabase
+        .from("perfiles")
+        .select("rol, cuentas ( slug, nombre )")
+        .eq("id", session.user.id)
+        .single();
 
-    if (error || !perfil) {
-      pantallaSinPerfil();
-      return;
-    }
+      if (error || !perfil) {
+        pantallaSinPerfil();
+        return;
+      }
 
-    const slug = perfil.cuentas?.slug;
-    const destino = DESTINO_POR_CUENTA[slug];
+      const slug = perfil.cuentas?.slug;
+      const destino = DESTINO_POR_CUENTA[slug];
 
-    if (destino) {
-      window.location.href = destino;
-    } else {
-      raiz.innerHTML = `<div class="cargando">Cuenta "${slug}" reconocida pero sin app asignada todavía.</div>`;
+      if (destino) {
+        window.location.href = destino;
+      } else {
+        raiz.innerHTML = `<div class="cargando">Cuenta "${slug}" reconocida pero sin app asignada todavía.</div>`;
+      }
+    } catch (e) {
+      pantallaLogin("Hubo un problema verificando tu sesión (" + e.message + "). Probá pedir el link de nuevo.");
     }
   }
 
