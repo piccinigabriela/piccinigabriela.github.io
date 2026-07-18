@@ -1130,7 +1130,7 @@ async function loginOk(){
   if(cu==='admin'){setTimeout(()=>sincronizarIcal(),2000);}
   checkBackupReminder();
 }
-function logout(){cu=null;pb='';sessionStorage.removeItem('cn_cu');$('app').style.display='none';$('login-screen').style.display='flex';ud();}
+function logout(){cu=null;pb='';sessionStorage.removeItem('cn_cu');sessionStorage.removeItem('cn_cu_supabase');$('app').style.display='none';$('login-screen').style.display='flex';ud();}
 
 // ── NAV ──
 function buildNav(){
@@ -2957,8 +2957,17 @@ function toggleDark(){
 })();
 document.addEventListener('DOMContentLoaded',()=>{
   // Sesión persistente: si hay usuario en sessionStorage, re-login sin PIN
-  const savedCu=sessionStorage.getItem('cn_cu');
-  if(savedCu&&USER_META[savedCu]){cu=savedCu;loginOk();}
+  // Prioridad 1: sesión recién validada por login.html (Supabase Auth)
+  const savedSupa = sessionStorage.getItem('cn_cu_supabase');
+  if (savedSupa && USER_META[savedSupa]) {
+    cu = savedSupa;
+    sessionStorage.setItem('cn_cu', cu);
+    loginOk();
+  } else {
+    // Prioridad 2: sesión de PIN de siempre
+    const savedCu=sessionStorage.getItem('cn_cu');
+    if(savedCu&&USER_META[savedCu]){cu=savedCu;loginOk();}
+  }
   document.querySelector('.pin-pad').addEventListener('click',e=>{
     const b=e.target.closest('.pin-btn');if(!b)return;
     const v=b.dataset.pin;
