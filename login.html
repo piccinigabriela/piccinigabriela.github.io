@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CheckInn — Ingresar</title>
+<style>
+  :root {
+    --verde: #1e4536;
+    --verde-claro: #2a5c48;
+    --dorado: #c6a43b;
+    --crema: #faf8f5;
+    --texto-suave: #6b7a73;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--verde);
+    background-image: radial-gradient(circle at 20% 20%, var(--verde-claro) 0%, var(--verde) 55%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: var(--crema);
+    border-radius: 14px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .marca {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .marca span:first-child {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--verde);
+    letter-spacing: -0.02em;
+  }
+  .marca span:last-child {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--dorado);
+  }
+  .subtitulo {
+    color: var(--texto-suave);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--verde);
+    margin-bottom: 6px;
+  }
+  input[type="email"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #dcd6c9;
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--verde);
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="email"]:focus {
+    border-color: var(--dorado);
+  }
+  button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 13px;
+    background: var(--verde);
+    color: var(--crema);
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover:not(:disabled) { background: var(--verde-claro); }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .mensaje {
+    margin-top: 18px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    padding: 12px 14px;
+    border-radius: 8px;
+    display: none;
+  }
+  .mensaje.ok {
+    display: block;
+    background: #eaf1ec;
+    color: var(--verde);
+    border: 1px solid #cfe0d6;
+  }
+  .mensaje.error {
+    display: block;
+    background: #fbeceb;
+    color: #8c3b34;
+    border: 1px solid #f0c9c6;
+  }
+  .cargando {
+    text-align: center;
+    color: var(--crema);
+    font-size: 14px;
+  }
+  .pie {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 12px;
+    color: var(--texto-suave);
+  }
+</style>
+</head>
+<body>
+
+<div id="raiz">
+  <div class="cargando">Verificando acceso…</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // --- Configuración ---
+  const SUPABASE_URL = "https://vnfgitgadadjjjciftsa.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_IKbP0ieyJfrtdguY39N7wg_RMjN_CxH";
+
+  // A qué app se redirige a cada cuenta una vez logueado
+  const DESTINO_POR_CUENTA = {
+    catalinas: "catalinas_app.html",
+    bananos: "bananos/bananos.html"
+  };
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const raiz = document.getElementById("raiz");
+
+  function pantallaLogin(mensaje) {
+    raiz.innerHTML = `
+      <div class="card">
+        <div class="marca"><span>Check</span><span>Inn</span></div>
+        <div class="subtitulo">Ingresá con tu email para acceder a tu cuenta.</div>
+        <form id="formLogin">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="tu@email.com" required autocomplete="email">
+          <button type="submit" id="btnEnviar">Enviarme el link de acceso</button>
+        </form>
+        <div id="mensaje" class="mensaje"></div>
+        <div class="pie">Te va a llegar un link a tu email. Hacé click ahí para entrar — no necesitás contraseña.</div>
+      </div>
+    `;
+    const form = document.getElementById("formLogin");
+    const mensajeDiv = document.getElementById("mensaje");
+    const boton = document.getElementById("btnEnviar");
+
+    if (mensaje) {
+      mensajeDiv.className = "mensaje error";
+      mensajeDiv.textContent = mensaje;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      boton.disabled = true;
+      boton.textContent = "Enviando…";
+      mensajeDiv.className = "mensaje";
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.href }
+      });
+
+      if (error) {
+        mensajeDiv.className = "mensaje error";
+        mensajeDiv.textContent = "No pudimos enviar el link: " + error.message;
+        boton.disabled = false;
+        boton.textContent = "Enviarme el link de acceso";
+      } else {
+        mensajeDiv.className = "mensaje ok";
+        mensajeDiv.textContent = "Listo — revisá tu email (" + email + ") y hacé click en el link para entrar.";
+        boton.textContent = "Link enviado";
+      }
+    });
+  }
+
+  function pantallaSinPerfil() {
+    raiz.innerHTML = `
+      <div class="card">
+        <div class="marca"><span>Check</span><span>Inn</span></div>
+        <div class="mensaje error" style="display:block;">
+          Tu email todavía no tiene una cuenta asignada. Pedile a quien te dio de alta que lo confirme.
+        </div>
+      </div>
+    `;
+  }
+
+  async function verificarSesion() {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      pantallaLogin();
+      return;
+    }
+
+    const { data: perfil, error } = await supabase
+      .from("perfiles")
+      .select("rol, cuentas ( slug, nombre )")
+      .eq("id", session.user.id)
+      .single();
+
+    if (error || !perfil) {
+      pantallaSinPerfil();
+      return;
+    }
+
+    const slug = perfil.cuentas?.slug;
+    const destino = DESTINO_POR_CUENTA[slug];
+
+    if (destino) {
+      window.location.href = destino;
+    } else {
+      raiz.innerHTML = `<div class="cargando">Cuenta "${slug}" reconocida pero sin app asignada todavía.</div>`;
+    }
+  }
+
+  verificarSesion();
+</script>
+
+</body>
+</html>
