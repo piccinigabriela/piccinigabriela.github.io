@@ -133,6 +133,9 @@ textarea{resize:vertical;min-height:80px;}
 table{width:100%;border-collapse:collapse;font-size:0.85rem;}
 thead tr{background:var(--green-dark);}
 thead th{color:var(--white);font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;padding:12px 14px;text-align:left;white-space:nowrap;}
+th.th-sort{cursor:pointer;user-select:none;}
+th.th-sort:hover{opacity:0.8;}
+.sort-arrow{font-size:0.62rem;opacity:0.85;margin-left:3px;}
 /* Columnas sticky tabla reservas */
 .res-sticky-1,.res-sticky-2,.res-sticky-3{position:sticky;z-index:2;}
 .res-sticky-1{left:0;min-width:36px;background:var(--white);}
@@ -520,7 +523,7 @@ html.dark .xenia-sug{background:#2f2417;border-color:rgba(255,255,255,0.1);color
         </div>
         <div class="card" style="padding:0;overflow:hidden;">
           <div class="table-wrap" id="res-table-wrap"><table>
-            <thead><tr><th class="res-sticky-1">#</th><th class="res-sticky-2">Cabaña</th><th class="res-sticky-3">Huésped</th><th>Check-in</th><th>Check-out</th><th>Noches</th><th>Pax</th><th>$/N</th><th>Subtotal</th><th>Plus</th><th>Com.</th><th>Líquido</th><th>Seña</th><th>Saldo</th><th>Temp.</th><th>Estado</th><th>Plat.</th><th>Destino</th><th></th></tr></thead>
+            <thead><tr><th class="res-sticky-1">#</th><th class="res-sticky-2 th-sort" onclick="sortReservas(1)">Cabaña<span class="sort-arrow" id="sa-1"></span></th><th class="res-sticky-3 th-sort" onclick="sortReservas(2)">Huésped<span class="sort-arrow" id="sa-2"></span></th><th class="th-sort" onclick="sortReservas(3)">Check-in<span class="sort-arrow" id="sa-3"></span></th><th class="th-sort" onclick="sortReservas(4)">Check-out<span class="sort-arrow" id="sa-4"></span></th><th class="th-sort" onclick="sortReservas(5)">Noches<span class="sort-arrow" id="sa-5"></span></th><th class="th-sort" onclick="sortReservas(6)">Pax<span class="sort-arrow" id="sa-6"></span></th><th class="th-sort" onclick="sortReservas(7)">$/N<span class="sort-arrow" id="sa-7"></span></th><th class="th-sort" onclick="sortReservas(8)">Subtotal<span class="sort-arrow" id="sa-8"></span></th><th class="th-sort" onclick="sortReservas(9)">Plus<span class="sort-arrow" id="sa-9"></span></th><th class="th-sort" onclick="sortReservas(10)">Com.<span class="sort-arrow" id="sa-10"></span></th><th class="th-sort" onclick="sortReservas(11)">Líquido<span class="sort-arrow" id="sa-11"></span></th><th class="th-sort" onclick="sortReservas(12)">Seña<span class="sort-arrow" id="sa-12"></span></th><th class="th-sort" onclick="sortReservas(13)">Saldo<span class="sort-arrow" id="sa-13"></span></th><th class="th-sort" onclick="sortReservas(14)">Temp.<span class="sort-arrow" id="sa-14"></span></th><th class="th-sort" onclick="sortReservas(15)">Estado<span class="sort-arrow" id="sa-15"></span></th><th class="th-sort" onclick="sortReservas(16)">Plat.<span class="sort-arrow" id="sa-16"></span></th><th class="th-sort" onclick="sortReservas(17)">Destino<span class="sort-arrow" id="sa-17"></span></th><th></th></tr></thead>
             <tbody id="tabla-reservas"></tbody>
           </table></div>
           <div class="table-scroll-mirror" id="res-scroll-mirror"><div class="table-scroll-mirror-inner" id="res-scroll-inner"></div></div>
@@ -1263,10 +1266,58 @@ function guardarReserva(){
 }
 function clearReservaForm(){['r-depto','r-huesped','r-tel','r-nac','r-checkin','r-checkout','r-precio','r-notas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const px=document.getElementById('r-pax');if(px)px.value=2;const pl=document.getElementById('r-plus');if(pl)pl.value=0;const sn=document.getElementById('r-sena');if(sn)sn.value=0;const sl2=document.getElementById('r-saldo');if(sl2)sl2.value=0;['cp-noches','cp-subtotal','cp-airbnb','cp-neto','cp-plusval','cp-liquido'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});}
 
+let resSortCol=null, resSortDir=1;
+const RES_SORT_DEFS={
+  1:{key:'depto',type:'text'},
+  2:{key:'huesped',type:'text'},
+  3:{key:'checkin',type:'date'},
+  4:{key:'checkout',type:'date'},
+  5:{key:'noches',type:'num',calc:true},
+  6:{key:'pax',type:'num'},
+  7:{key:'precio',type:'num'},
+  8:{key:'subtotal',type:'num',calc:true},
+  9:{key:'plus',type:'num',calc:true},
+  10:{key:'com',type:'num',calc:true},
+  11:{key:'liquido',type:'num',calc:true},
+  12:{key:'sena',type:'num'},
+  13:{key:'saldo',type:'num'},
+  14:{key:'temporada',type:'text',temp:true},
+  15:{key:'estado',type:'text'},
+  16:{key:'plataforma',type:'text'},
+  17:{key:'destino',type:'text'}
+};
+function getResSortValue(r,def){
+  if(def.temp) return getTemporada(r.checkin);
+  if(def.calc){
+    const c=calc(r);
+    return c[{noches:'n',subtotal:'sub',plus:'plusTotal',com:'com',liquido:'liq'}[def.key]];
+  }
+  if(def.type==='num') return parseFloat(r[def.key])||0;
+  if(def.type==='date') return r[def.key]||'';
+  return (r[def.key]||'').toString().toLowerCase();
+}
+function sortReservas(idx){
+  const def=RES_SORT_DEFS[idx];
+  if(!def) return;
+  if(resSortCol===idx) resSortDir*=-1; else {resSortCol=idx;resSortDir=1;}
+  for(let i=1;i<=17;i++){const el=document.getElementById('sa-'+i);if(el)el.textContent=(i===resSortCol)?(resSortDir===1?' ▲':' ▼'):'';}
+  renderReservas();
+}
 function renderReservas(){
   const fd=document.getElementById('fil-depto').value,fe=document.getElementById('fil-estado').value;
   const fn=(document.getElementById('fil-nombre')?.value||'').toLowerCase().trim();
-  const data=reservas.filter(r=>!r.icalUid&&(!fd||r.depto===fd)&&(!fe||r.estado===fe)&&(!fn||r.huesped.toLowerCase().includes(fn))).sort((a,b)=>new Date(b.creado)-new Date(a.creado));
+  let data=reservas.filter(r=>!r.icalUid&&(!fd||r.depto===fd)&&(!fe||r.estado===fe)&&(!fn||r.huesped.toLowerCase().includes(fn)));
+  if(resSortCol&&RES_SORT_DEFS[resSortCol]){
+    const def=RES_SORT_DEFS[resSortCol];
+    data=data.sort((a,b)=>{
+      const va=getResSortValue(a,def),vb=getResSortValue(b,def);
+      if(va<vb)return -1*resSortDir;
+      if(va>vb)return 1*resSortDir;
+      return 0;
+    });
+  }else{
+    data=data.sort((a,b)=>new Date(b.creado)-new Date(a.creado));
+  }
   const tb=document.getElementById('tabla-reservas');
   if(!data.length){tb.innerHTML=`<tr><td colspan="13" style="text-align:center;padding:40px;color:var(--text-soft)">Sin reservas</td></tr>`;return;}
   tb.innerHTML=data.map((r,i)=>{const c=calc(r);const b=r.estado==='Confirmada'||r.estado==='Shown'?'badge-green':r.estado==='Pendiente'||r.estado==='Stand by'?'badge-gold':r.estado==='Cortesía'?'badge-purple':'badge-red';
@@ -1480,6 +1531,15 @@ function tlBuild(startISO,nDays,colW,headFmt){
       const mov=(cu==='admin'||cu==='gabi');
       h+='<div class="tl-bar" data-id="'+res.id+'" '+(mov?'onpointerdown="tlDown(event,\''+res.id+'\')"':'onclick="openCalPopup(\''+res.id+'\')"')+' title="'+esc(res.huesped)+' · '+res.estado+' · '+(res.plataforma||'')+'" style="position:absolute;left:'+left+'px;top:'+top+'px;width:'+w+'px;height:'+TL_BARH+'px;background:'+origenColor(res)+';'+clipL+clipR+'border-radius:8px;cursor:'+(mov?'grab':'pointer')+';z-index:8;display:flex;align-items:center;padding:0 8px;color:#fff;overflow:hidden;'+(dash?'box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6);':'')+'"><span style="font-size:.72rem;font-weight:700;white-space:nowrap;text-overflow:ellipsis;overflow:hidden">'+nm+'</span></div>';
     }
+  });
+  // Marcador de checkout — se ve aunque nadie entre ese mismo día
+  reservas.forEach(res=>{
+    if(res.estado==='Cancelada'||res.estado==='Non show'||res.icalUid)return;
+    const row=rowByCode[res.depto];if(!row)return;
+    const eIdx=tlIdxFrom(startISO,res.checkout);
+    if(eIdx<0||eIdx>=nDays)return;
+    const top=row.top+(row.h-TL_BARH)/2,left=TL_LW+eIdx*colW;
+    h+='<div onclick="openCalPopup(\''+res.id+'\')" title="Check-out: '+esc(res.huesped)+'" style="position:absolute;left:'+left+'px;top:'+top+'px;width:10px;height:'+TL_BARH+'px;background:'+origenColor(res)+';opacity:.55;clip-path:polygon(0 0,100% 50%,0 100%);cursor:pointer;z-index:10"></div>';
   });
   h+='</div></div>';
   document.getElementById('calendario-grid').innerHTML=h;
