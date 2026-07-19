@@ -240,6 +240,14 @@
       const slug = perfil.cuentas?.slug;
       const destino = DESTINO_POR_CUENTA[slug];
 
+      // Traspaso de rol al sistema de PIN existente de catalinas_app.html,
+      // para que no vuelva a pedir PIN habiendo ya una sesión válida de Supabase.
+      if (slug === "catalinas") {
+        const MAPA_ROL_LOCAL = { admin: "admin", propietario: "dueno", mantenimiento: "mant" };
+        const rolLocal = MAPA_ROL_LOCAL[perfil.rol];
+        if (rolLocal) sessionStorage.setItem("cn_cu_supabase", rolLocal);
+      }
+
       if (destino) {
         window.location.href = destino;
       } else {
