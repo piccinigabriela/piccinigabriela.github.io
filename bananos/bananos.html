@@ -1332,7 +1332,7 @@ function renderReservas(){
     <td>${(()=>{const t=getTemporada(r.checkin);return t==='Alta'?'<span style="color:#c00000;font-weight:700;font-size:0.78rem">🔴 Alta</span>':'<span style="color:#1f4e79;font-size:0.78rem">🔵 Baja</span>';})()}</td>
     <td><span class="badge ${b}">${r.estado}</span></td><td style="font-size:0.78rem">${r.plataforma}</td>
     <td style="font-size:0.78rem;color:var(--soft)">${r.destino||'—'}</td>
-    <td><div style="display:flex;gap:6px">${esSinAsignar(r.depto)?`<button class="btn btn-gold btn-sm" onclick="asignarCabana('${r.id}')" title="Asignar cabaña">🏠</button>`:''}<button class="btn btn-outline btn-sm" onclick="editRes('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delRes('${r.id}')">✕</button></div></td></tr>`;
+    <td><div style="display:flex;gap:6px">${esSinAsignar(r.depto)?`<button class="btn btn-gold btn-sm" onclick="asignarCabana('${r.id}')" title="Asignar cabaña">🏠</button>`:''}<button class="btn btn-outline btn-sm" onclick="${r.icalUid?'convertirBloqueoEnReserva':'editRes'}('${r.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delRes('${r.id}')">✕</button></div></td></tr>`;
   }).join('');
   if(window.__resScrollRefresh)setTimeout(window.__resScrollRefresh,0);
 }
