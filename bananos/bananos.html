@@ -1186,6 +1186,17 @@ const fmtD=d=>{if(!d)return'—';const p=d.split('-');return`${p[2]}/${p[1]}/${p
 const nights=(ci,co)=>Math.max(0,Math.round((new Date(co)-new Date(ci))/86400000));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,4);
 function getComisiones(){return lo('bn_com',{airbnb:3,booking:15});}
+// ── Moneda por plataforma + tipo de cambio (para unificar Airbnb en USD con Booking/Directo en ARS) ──
+function getMonedaPlataformas(){return lo('bn_moneda_plat',{Airbnb:'USD',Booking:'ARS',Directo:'ARS'});}
+function saveMonedaPlataformas(m){sl('bn_moneda_plat',m);}
+function getTipoCambio(){return parseFloat(lo('bn_tc',1000))||1000;}
+function saveTipoCambio(v){sl('bn_tc',v);}
+// Convierte un monto a ARS según la moneda configurada para esa plataforma
+function aARS(monto,plataforma){
+  const mp=getMonedaPlataformas();
+  const moneda=mp[plataforma]||'ARS';
+  return moneda==='USD'?(monto||0)*getTipoCambio():(monto||0);
+}
 
 // Temporadas: devuelve 'Alta' o 'Baja' para una fecha (YYYY-MM-DD)
 function getTemporada(fecha){
@@ -1218,9 +1229,11 @@ function getTemporada(fecha){
 }
 function calc(r){
   const n=nights(r.checkin,r.checkout);
+  const precioARS=aARS(r.precio,r.plataforma);
+  const plusARS=aARS(r.plus,r.plataforma);
   const extraPax=Math.max(0,(r.pax||2)-2);
-  const plusTotal=extraPax*(r.plus||0)*n;
-  const sub=n*r.precio;
+  const plusTotal=extraPax*plusARS*n;
+  const sub=n*precioARS;
   const subTotal=sub+plusTotal;
   const com_cfg=getComisiones();
   const com=r.plataforma==='Airbnb'?subTotal*(com_cfg.airbnb/100):0;
@@ -1324,7 +1337,7 @@ function renderReservas(){
     return`<tr><td style="font-weight:600;color:var(--text-soft)">${i+1}</td>
     <td><span style="background:${DC[r.depto]};color:white;padding:3px 8px;border-radius:5px;font-size:0.72rem;font-weight:700">${DN[r.depto]}</span></td>
     <td style="font-weight:500">${r.huesped}</td><td>${fmtD(r.checkin)}</td><td>${fmtD(r.checkout)}</td>
-    <td style="text-align:center;font-weight:600">${c.n}</td><td style="text-align:center">${r.pax||2}</td><td>${fmtP(r.precio)}</td><td>${fmtP(c.sub)}</td>
+    <td style="text-align:center;font-weight:600">${c.n}</td><td style="text-align:center">${r.pax||2}</td><td>${fmtP(aARS(r.precio,r.plataforma))}</td><td>${fmtP(c.sub)}</td>
     <td style="color:#8a6d00">${c.plusTotal>0?fmtP(c.plusTotal):'—'}</td>
     <td style="color:var(--red)">${fmtP(c.com)}</td><td style="font-weight:700;color:var(--green)">${fmtP(c.liq)}</td>
     <td style="color:var(--text-soft)">${r.sena?fmtP(r.sena):'—'}</td>
@@ -1348,7 +1361,7 @@ function abrirFichaRes(id){
     ['Noches', noches],
     ['Plataforma', r.plataforma||'—'],
     ['Estado', r.estado||'—'],
-    ['Precio', formatMoney(r.precio||0)],
+    ['Precio', formatMoney(aARS(r.precio,r.plataforma)||0)],
     ['Seña', r.senia ? formatMoney(r.senia) : '—'],
     ['Saldo', r.saldo ? formatMoney(r.saldo) : '—'],
     ['Nacionalidad', r.nac||'—'],
@@ -1461,7 +1474,7 @@ function importarCSV(input){
 
 function exportReservas(){
   const h=['Cabaña','Huésped','Nac','Check-in','Check-out','Noches','$/Noche','Subtotal','Com.','Líquido','Estado','Plataforma','Seña','Saldo'];
-  const rows=reservas.filter(r=>!r.icalUid).map(r=>{const c=calc(r);return csvRow([DN[r.depto],r.huesped,r.nac||'',r.checkin,r.checkout,c.n,r.precio,c.sub,c.com,c.liq,r.estado,r.plataforma,r.sena||0,r.saldo||0]);});
+  const rows=reservas.filter(r=>!r.icalUid).map(r=>{const c=calc(r);return csvRow([DN[r.depto],r.huesped,r.nac||'',r.checkin,r.checkout,c.n,aARS(r.precio,r.plataforma),c.sub,c.com,c.liq,r.estado,r.plataforma,r.sena||0,r.saldo||0]);});
   csvDown([csvRow(h),...rows],'reservas_bananos.csv');
 }
 function exportReservasPDF(){
@@ -1469,7 +1482,7 @@ function exportReservasPDF(){
   doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text('Reservas — Los Bananos',14,16);
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(new Date().toLocaleDateString('es-AR'),14,22);
   const h=['Cabaña','Huésped','Check-in','Check-out','N','$/N','Subtotal','Líquido','Estado','Plataforma'];
-  const rows=reservas.filter(r=>!r.icalUid).map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,r.checkin,r.checkout,c.n,r.precio,c.sub,c.liq,r.estado,r.plataforma];});
+  const rows=reservas.filter(r=>!r.icalUid).map(r=>{const c=calc(r);return[DN[r.depto],r.huesped,r.checkin,r.checkout,c.n,aARS(r.precio,r.plataforma),c.sub,c.liq,r.estado,r.plataforma];});
   doc.autoTable({head:[h],body:rows,startY:26,styles:{fontSize:8},headStyles:{fillColor:[26,74,58]}});
   doc.save('reservas_bananos.pdf');
 }
@@ -1987,6 +2000,7 @@ function renderConfig(){
   try{renderIcalConfig();}catch(e){console.error('renderIcalConfig error:',e);}
   // Comisiones configurables
   const com=getComisiones();
+  const monPlat=getMonedaPlataformas();
   let comSec=document.getElementById('com-config-section');
   if(!comSec){
     comSec=document.createElement('div');comSec.id='com-config-section';
@@ -2000,8 +2014,34 @@ function renderConfig(){
         <div class="pin-user-card"><h4 style="color:#ff5a5f">Airbnb</h4><p>% sobre subtotal</p><div class="pin-input-row"><input type="number" id="com-airbnb" value="${com.airbnb}" min="0" max="100" step="0.1" style="width:100px;text-align:center;font-size:1rem"> <span style="color:var(--text-soft);font-size:0.9rem">%</span></div></div>
         <div class="pin-user-card"><h4 style="color:#003580">Booking</h4><p>% sobre subtotal (solo estado Shown)</p><div class="pin-input-row"><input type="number" id="com-booking" value="${com.booking}" min="0" max="100" step="0.1" style="width:100px;text-align:center;font-size:1rem"> <span style="color:var(--text-soft);font-size:0.9rem">%</span></div></div>
       </div>
+    </div>
+    <div style="margin-top:28px;border-top:2px solid var(--cream2);padding-top:24px;">
+      <div style="font-family:'Sora',sans-serif;font-size:1rem;color:var(--green-dark);margin-bottom:6px;">💱 Moneda por plataforma y tipo de cambio</div>
+      <div style="font-size:0.8rem;color:var(--text-soft);margin-bottom:16px;">Todos los totales (tabla, ficha, rendimiento, exportaciones) se muestran ya convertidos a pesos.</div>
+      <div class="pin-settings-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="pin-user-card"><h4 style="color:#ff5a5f">Airbnb</h4><select id="mon-Airbnb" style="width:100%;text-align:center;font-size:0.9rem"><option value="USD" ${monPlat.Airbnb==='USD'?'selected':''}>USD</option><option value="ARS" ${monPlat.Airbnb==='ARS'?'selected':''}>ARS</option></select></div>
+        <div class="pin-user-card"><h4 style="color:#003580">Booking</h4><select id="mon-Booking" style="width:100%;text-align:center;font-size:0.9rem"><option value="ARS" ${monPlat.Booking==='ARS'?'selected':''}>ARS</option><option value="USD" ${monPlat.Booking==='USD'?'selected':''}>USD</option></select></div>
+        <div class="pin-user-card"><h4>Directo</h4><select id="mon-Directo" style="width:100%;text-align:center;font-size:0.9rem"><option value="ARS" ${monPlat.Directo==='ARS'?'selected':''}>ARS</option><option value="USD" ${monPlat.Directo==='USD'?'selected':''}>USD</option></select></div>
+      </div>
+      <div class="form-group" style="max-width:240px;margin-top:16px">
+        <label>Tipo de cambio (1 USD = ? ARS)</label>
+        <input type="number" id="tipo-cambio" value="${getTipoCambio()}" min="0" step="1" style="width:100%">
+      </div>
+      <button class="btn btn-gold btn-sm" style="margin-top:16px" onclick="guardarMonedaPlataformas()">Guardar moneda y tipo de cambio</button>
     </div>`;
   renderTemporadasConfig();}
+
+function guardarMonedaPlataformas(){
+  const m={
+    Airbnb:document.getElementById('mon-Airbnb').value,
+    Booking:document.getElementById('mon-Booking').value,
+    Directo:document.getElementById('mon-Directo').value
+  };
+  saveMonedaPlataformas(m);
+  saveTipoCambio(parseFloat(document.getElementById('tipo-cambio').value)||getTipoCambio());
+  toast('Moneda y tipo de cambio guardados ✓');
+  renderReservas();
+}
 
 
 function renderIcalConfig(){
