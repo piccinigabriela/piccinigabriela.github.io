@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bienvenido/a a Wood Cabin Iguazú</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --verde-900:#122019;
+    --verde-700:#1F3A2E;
+    --verde-500:#3B6355;
+    --dorado:#C9A227;
+    --dorado-suave:#E4C97A;
+    --crema:#F8F3E8;
+    --tierra:#6B4F3B;
+    --texto:#20261F;
+    --radio:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--crema);
+    color:var(--texto);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:480px;margin:0 auto;min-height:100vh;background:var(--crema);position:relative;padding-bottom:96px;}
+
+  /* HERO */
+  .hero{
+    background:linear-gradient(180deg,var(--verde-900) 0%,var(--verde-700) 100%);
+    color:var(--crema);
+    padding:36px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero svg.canopy{position:absolute;bottom:-6px;left:0;width:100%;height:auto;opacity:0.5;}
+  .brand{
+    display:flex;align-items:center;gap:8px;
+    font-family:'Fraunces',serif;font-weight:600;font-size:15px;
+    letter-spacing:0.02em;color:var(--dorado-suave);
+    position:relative;z-index:1;
+  }
+  .brand svg{width:20px;height:20px;flex:none;
+    animation:girarllave 900ms ease-out 200ms both;
+    transform-origin:60% 60%;
+  }
+  @media (prefers-reduced-motion:reduce){ .brand svg{animation:none;} }
+  @keyframes girarllave{ from{transform:rotate(-35deg);} to{transform:rotate(0deg);} }
+  .hero h1{
+    font-family:'Fraunces',serif;font-weight:600;
+    font-size:30px;line-height:1.15;margin:18px 0 10px;position:relative;z-index:1;
+  }
+  .hero p{font-size:15px;line-height:1.5;opacity:0.88;margin:0;max-width:34ch;position:relative;z-index:1;}
+
+  main{padding:22px 20px 0;}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin:0 0 4px;color:var(--verde-700);}
+  .lead{font-size:13.5px;opacity:0.7;margin:0 0 14px;}
+
+  /* CHECK IN/OUT */
+  .horarios{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
+  .horario-card{
+    background:#fff;border:1px solid rgba(31,58,46,0.08);border-radius:var(--radio);
+    padding:16px 14px;box-shadow:0 1px 2px rgba(18,32,25,0.04);
+  }
+  .kicker{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--verde-500);font-weight:600;}
+  .big{display:block;font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-top:4px;color:var(--verde-900);}
+
+  /* ARRIVAL TICKETS */
+  section{margin-bottom:30px;}
+  .ticket-list{display:flex;flex-direction:column;gap:10px;}
+  .ticket{
+    background:#fff;border-radius:var(--radio);
+    box-shadow:0 1px 2px rgba(18,32,25,0.05);
+    display:flex;gap:12px;padding:14px 16px;align-items:flex-start;
+    border-left:3px solid var(--dorado);
+  }
+  .ticket-icon{
+    flex:none;width:34px;height:34px;border-radius:50%;background:var(--verde-700);
+    display:flex;align-items:center;justify-content:center;color:var(--dorado-suave);
+  }
+  .ticket-icon svg{width:17px;height:17px;}
+  .ticket h3{margin:0 0 2px;font-size:14.5px;font-family:'Inter',sans-serif;font-weight:600;color:var(--verde-900);}
+  .ticket p{margin:0;font-size:13.5px;line-height:1.45;opacity:0.78;}
+  .ticket .links{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;}
+  .ticket .links a{font-size:13px;font-weight:600;color:var(--verde-500);text-decoration:underline;text-underline-offset:2px;}
+
+  /* MAP */
+  .mapa-card{
+    background:var(--verde-700);color:var(--crema);border-radius:var(--radio);
+    padding:20px;display:flex;flex-direction:column;gap:10px;
+  }
+  .mapa-card p{margin:0;font-size:14px;opacity:0.85;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--dorado);color:var(--verde-900);text-decoration:none;
+    font-weight:600;font-size:14.5px;padding:12px 18px;border-radius:999px;
+    width:fit-content;
+  }
+  .btn-outline{background:transparent;border:1.5px solid var(--dorado-suave);color:var(--crema);}
+
+  /* WIFI (oculto por defecto) */
+  #wifi-section .horarios{margin-bottom:0;}
+
+  /* WHATSAPP FAB */
+  .whatsapp-fab{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:16px;
+    max-width:440px;width:calc(100% - 40px);
+    background:var(--verde-900);color:var(--crema);text-decoration:none;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:14px;border-radius:999px;font-weight:600;font-size:14.5px;
+    box-shadow:0 6px 18px rgba(18,32,25,0.28);
+    z-index:5;
+  }
+  .whatsapp-fab svg{width:18px;height:18px;flex:none;}
+
+  footer{text-align:center;padding:6px 20px 90px;font-size:11px;opacity:0.45;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <svg class="canopy" viewBox="0 0 480 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,90 L0,55 Q40,20 80,50 Q120,15 160,48 Q200,10 240,45 Q280,12 320,50 Q360,18 400,48 Q440,20 480,52 L480,90 Z" fill="#0E1A14"/>
+    </svg>
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="15" r="4"></circle><path d="M11 12 L20 3 M17 6 l3 3 M14 9 l2 2"></path>
+      </svg>
+      LlaveApp
+    </div>
+    <h1>Bienvenido/a a<br>Wood Cabin Iguazú</h1>
+    <p>Todo lo que necesitás para tu estadía entre la selva y las Cataratas. Cualquier duda, estamos a un mensaje de distancia.</p>
+  </header>
+
+  <main>
+
+    <section>
+      <div class="horarios">
+        <div class="horario-card"><span class="kicker">Check-in</span><span class="big">14 a 23 hs</span></div>
+        <div class="horario-card"><span class="kicker">Check-out</span><span class="big">11 hs</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Cómo llegar</h2>
+      <p class="lead">Elegí la opción que más te convenga. Si necesitás ayuda coordinando, escribinos.</p>
+      <div class="ticket-list">
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm14 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM5 17l1.5-6h11L19 17M6.5 11l1-3h9l1 3"/></svg>
+          </div>
+          <div>
+            <h3>Uber / remís</h3>
+            <p>Uber funciona bien en Puerto Iguazú. Pedilo directo desde la app con nuestra dirección. Si no usás la aplicación, escribinos y te mandamos un remís.</p>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 12h18M7 18v2M17 18v2"/></svg>
+          </div>
+          <div>
+            <h3>Transporte público</h3>
+            <p>Colectivos urbanos con parada cerca. Te pasamos el recorrido y la parada más próxima por WhatsApp.</p>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V8a2 2 0 0 1 2-2h11l3 5v5"/><circle cx="7.5" cy="17.5" r="1.7"/><circle cx="16.5" cy="17.5" r="1.7"/></svg>
+          </div>
+          <div>
+            <h3>Combis / transfer turístico</h3>
+            <p>Opción cómoda si venés desde el aeropuerto o las Cataratas. Coordinamos el horario de pickup con vos.</p>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l20-7-7 20-3-8-8-3z"/></svg>
+          </div>
+          <div>
+            <h3>Pickup con número de vuelo</h3>
+            <p>Pasanos tu número de vuelo por WhatsApp y coordinamos que alguien te espere.</p>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19c4-10 12-10 16 0"/><path d="M4 19h16"/></svg>
+          </div>
+          <div>
+            <h3>En auto propio</h3>
+            <p>Ruta 12, km 10. El acceso está señalizado — cualquier duda te guiamos por WhatsApp.</p>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M6 12V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5M4 16h16"/></svg>
+          </div>
+          <div>
+            <h3>Cruce desde Foz do Iguaçu</h3>
+            <p>Si venés de Brasil, cruzás el Puente Tancredo Neves. Llevá documento vigente para el control fronterizo.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <h2>Ubicación</h2>
+      <div class="mapa-card">
+        <p>Ruta 12, km 10 — Puerto Iguazú, Misiones.</p>
+        <a class="btn" href="https://maps.app.goo.gl/1rfiMueHeLxXzroK6" target="_blank" rel="noopener">Abrir en Google Maps</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Atracciones cercanas</h2>
+      <p class="lead">Datos orientativos — antes de ir, confirmá horarios y precios en el sitio oficial de cada lugar.</p>
+      <div class="ticket-list">
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c1.5-3 3-3 4.5 0s3 3 4.5 0 3-3 4.5 0 3 3 4.5 0M2 21h20"/></svg>
+          </div>
+          <div>
+            <h3>Cataratas — lado argentino</h3>
+            <p>Parque Nacional Iguazú. Horario habitual 8 a 18 hs, último ingreso 16 hs. Conviene comprar la entrada online para evitar filas.</p>
+            <div class="links">
+              <a href="https://iguazuargentina.com/planifica-tu-visita/compra-tus-entradas/" target="_blank" rel="noopener">Comprar entrada</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c1.5-3 3-3 4.5 0s3 3 4.5 0 3-3 4.5 0 3 3 4.5 0M2 21h20"/></svg>
+          </div>
+          <div>
+            <h3>Cataratas — lado brasileño</h3>
+            <p>Cruzando a Foz do Iguaçu. Ofrece otra perspectiva de los saltos — muchos visitantes hacen los dos lados en días distintos.</p>
+            <div class="links">
+              <a href="https://cataratasdoiguacu.com.br" target="_blank" rel="noopener">Sitio oficial</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.2-6-9.6C6 7.3 8.7 5 12 5s6 2.3 6 6.4C18 15.8 12 21 12 21z"/><circle cx="12" cy="11" r="2"/></svg>
+          </div>
+          <div>
+            <h3>Parque das Aves</h3>
+            <p>Santuario de aves a metros del parque nacional brasileño — se combina fácil con la visita a Cataratas Brasil el mismo día.</p>
+            <div class="links">
+              <a href="https://www.parquedasaves.com.br/es/" target="_blank" rel="noopener">Sitio oficial</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18"/></svg>
+          </div>
+          <div>
+            <h3>Hito Tres Fronteras</h3>
+            <p>Mirador gratuito en el centro de Puerto Iguazú: se ven Argentina, Brasil y Paraguay al mismo tiempo. Muy lindo al atardecer.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="wifi-section" style="display:none;">
+      <h2>WiFi</h2>
+      <div class="horarios">
+        <div class="horario-card"><span class="kicker">Red</span><span class="big" id="wifi-ssid">-</span></div>
+        <div class="horario-card"><span class="kicker">Contraseña</span><span class="big" id="wifi-pass">-</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <a class="whatsapp-fab" href="https://wa.me/5493757558957" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 1 1-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-2-1.2-.7-.7-1.2-1.5-1.4-1.7-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.1 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.1 1.5.1.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.1-.4-.2z"/></svg>
+    Escribinos por WhatsApp
+  </a>
+
+  <footer>Wood Cabin Iguazú · Guía del huésped · LlaveApp</footer>
+</div>
+
+<script>
+  // Configuración de WiFi: activar cuando Fernando termine de cargar la red de cada cabaña.
+  // Cambiar ACTIVO a true y completar SSID/CLAVE para mostrar la sección.
+  const WIFI_ACTIVO = false;
+  const WIFI_SSID = '';
+  const WIFI_CLAVE = '';
+
+  if (WIFI_ACTIVO) {
+    document.getElementById('wifi-section').style.display = '';
+    document.getElementById('wifi-ssid').textContent = WIFI_SSID || '-';
+    document.getElementById('wifi-pass').textContent = WIFI_CLAVE || '-';
+  }
+</script>
+
+</body>
+</html>
